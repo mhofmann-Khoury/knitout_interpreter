@@ -124,11 +124,3 @@ class Knitout_Context:
         return self.execute_knitout(version, head, instructions)
 
 
-def run_knitout(knitout_file_name: str) -> tuple[list[Knitout_Line], Knitting_Machine, Knit_Graph]:
-    """
-    Executes knitout in given file
-    :param knitout_file_name: name of file that contains knitout
-    :return: Knitting machine state after execution. Knit Graph formed by execution.
-    """
-    context = Knitout_Context()
-    return context.process_knitout_file(knitout_file_name)

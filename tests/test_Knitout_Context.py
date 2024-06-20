@@ -3,7 +3,7 @@ from unittest import TestCase
 
 from knit_graphs.knit_graph_visualizer.Stitch_Visualizer import visualize_stitches
 
-from knitout_interpreter.knitout_language.Knitout_Context import run_knitout
+from knitout_interpreter.run_knitout import run_knitout
 
 
 class Test(TestCase):
