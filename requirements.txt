@@ -1,0 +1,4 @@
+parglare~=0.16.1
+importlib_resources
+knit-graphs~=0.0.1
+virtual-knitting-machine~=0.0.2
