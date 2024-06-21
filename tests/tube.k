@@ -1,9 +1,9 @@
-;!knitout-3
+;!knitout-2
 ;;Machine: SWG091N2
 ;;Gauge: 15
 ;;Yarn-5: 50-50 Rust
 ;;Carriers: 1 2 3 4 5 6 7 8 9 10
-;;Position: Right
+;;Position: Left
 inhook 1;
 tuck - f2 1;
 tuck - f1 1;

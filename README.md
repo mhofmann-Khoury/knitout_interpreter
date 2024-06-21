@@ -36,6 +36,22 @@ from knitout_interpreter.run_knitout import run_knitout
 knitout_lines, knitting_machine_state, knitted_knit_graph = run_knitout("example.k")
 ```
 
+In addition to processing the knitout instructions into a list of instructions that executed on a virtual machine, this package supports interoperation with existing knitout compilers to Shima Seiki DAT files and Kniterate files. 
+
+To interpret and convert the knitout code to a DAT file, execute the following:
+```python
+from knitout_interpreter.run_knitout import interpret_knitout
+success= interpret_knitout("sample.k", "sample.dat")
+```
+
+The resulting DAT files can be viewed using the [Dat Viewer Interface from the CMU Textiles Lab](https://github.com/mhofmann-Khoury/knitout_interpreter/tree/main/src/knitout_interpreter/knitout_compilers/dat-viewer.html).
+
+To generate Kniterate KCODE using the  [CMU Textiles Lab Kniterate compiler](https://github.com/textiles-lab/knitout-backend-kniterate), modify the code as follows.
+```python
+from knitout_interpreter.run_knitout import interpret_knitout
+from knitout_interpreter.knitout_compilers.compile_knitout import Knitout_to_Machine_Compiler
+success= interpret_knitout("sample.k", "sample.dat", Knitout_to_Machine_Compiler.Kniterate_Compiler)
+```
 ### Knitout Executer
 
 The [Knitout Execute Class](https://github.com/mhofmann-Khoury/knitout_interpreter/blob/main/src/knitout_interpreter/knitout_execution.py) provides additional support for analyzing an executed knitout program. 
