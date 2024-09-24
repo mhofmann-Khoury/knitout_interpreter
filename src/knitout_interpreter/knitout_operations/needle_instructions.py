@@ -124,6 +124,22 @@ class Knit_Instruction(Loop_Making_Instruction):
         self.made_loops = machine_state.knit(self.carrier_set, self.needle, self.direction)
         return True  # true even if loops is empty because the prior loops are dropped.
 
+    @staticmethod
+    def execute_knit(machine_state: Knitting_Machine,
+                     needle: Needle, direction: str | Carriage_Pass_Direction, cs: Yarn_Carrier_Set,
+                     comment: str | None = None):
+        """
+            :param needle: The needle to execute on.
+            :param direction: The direction to execute in.
+            :param cs: The yarn carriers set to execute with.
+            :param machine_state: The current machine model to update.
+            :param comment: Additional details to document in the knitout.
+            :return: The instruction.
+            """
+        instruction = Knit_Instruction(needle, direction, cs, comment)
+        instruction.execute(machine_state)
+        return instruction
+
 
 class Tuck_Instruction(Loop_Making_Instruction):
 
@@ -134,6 +150,22 @@ class Tuck_Instruction(Loop_Making_Instruction):
         self._test_operation()
         self.made_loops = machine_state.tuck(self.carrier_set, self.needle, self.direction)
         return len(self.made_loops) > 0
+
+    @staticmethod
+    def execute_tuck(machine_state: Knitting_Machine,
+                     needle: Needle, direction: str | Carriage_Pass_Direction, cs: Yarn_Carrier_Set,
+                     comment: str | None = None):
+        """
+            :param needle: The needle to execute on.
+            :param direction: The direction to execute in.
+            :param cs: The yarn carriers set to execute with.
+            :param machine_state: The current machine model to update.
+            :param comment: Additional details to document in the knitout.
+            :return: The instruction.
+            """
+        instruction = Tuck_Instruction(needle, direction, cs, comment)
+        instruction.execute(machine_state)
+        return instruction
 
 
 class Split_Instruction(Loop_Making_Instruction):
@@ -150,6 +182,23 @@ class Split_Instruction(Loop_Making_Instruction):
         self.made_loops, self.transferred_loops = machine_state.split(self.carrier_set, self.needle, self.direction)
         return len(self.made_loops) > 0 or len(self.transferred_loops) > 0
 
+    @staticmethod
+    def execute_split(machine_state: Knitting_Machine,
+                      needle: Needle, direction: str | Carriage_Pass_Direction, cs: Yarn_Carrier_Set, n2: Needle,
+                      comment: str | None = None):
+        """
+            :param n2: The second needle to execute to.
+            :param needle: The needle to execute on.
+            :param direction: The direction to execute in.
+            :param cs: The yarn carriers set to execute with.
+            :param machine_state: The current machine model to update.
+            :param comment: Additional details to document in the knitout.
+            :return: The instruction.
+            """
+        instruction = Split_Instruction(needle, direction, n2, cs, comment)
+        instruction.execute(machine_state)
+        return instruction
+
 
 class Drop_Instruction(Needle_Instruction):
 
@@ -161,6 +210,19 @@ class Drop_Instruction(Needle_Instruction):
         machine_state.drop(self.needle)
         return True
 
+    @staticmethod
+    def execute_Drop(machine_state: Knitting_Machine,
+                     needle: Needle, comment: str | None = None):
+        """
+            :param needle: The needle to execute on.
+            :param machine_state: The current machine model to update.
+            :param comment: Additional details to document in the knitout.
+            :return: The instruction.
+            """
+        instruction = Drop_Instruction(needle, comment)
+        instruction.execute(machine_state)
+        return instruction
+
 
 class Xfer_Instruction(Needle_Instruction):
 
@@ -170,6 +232,11 @@ class Xfer_Instruction(Needle_Instruction):
         self.loop_crossings_made: dict[Machine_Knit_Loop, list[Machine_Knit_Loop]] = {}
 
     def add_loop_crossing(self, left_loop: Machine_Knit_Loop, right_loop: Machine_Knit_Loop):
+        """
+        Udpate loop crossing to show transfers crossing loops.
+        :param left_loop: The left loop involved in the crossing.
+        :param right_loop: The Right loop involved in the crossing.
+        """
         if left_loop not in self.loop_crossings_made:
             self.loop_crossings_made[left_loop] = []
         self.loop_crossings_made[left_loop].append(right_loop)
@@ -182,6 +249,21 @@ class Xfer_Instruction(Needle_Instruction):
             raise Misaligned_Needle_Exception(self.needle, self.needle_2)
         transferred_loops = self.made_loops = machine_state.xfer(self.needle, to_slider=to_slider)
         return len(transferred_loops) > 0
+
+    @staticmethod
+    def execute_xfer(machine_state: Knitting_Machine,
+                     needle: Needle, n2: Needle,
+                     comment: str | None = None):
+        """
+            :param n2: The second needle to execute to.
+            :param needle: The needle to execute on.
+            :param machine_state: The current machine model to update.
+            :param comment: Additional details to document in the knitout.
+            :return: The instruction.
+            """
+        instruction = Xfer_Instruction(needle, n2, comment)
+        instruction.execute(machine_state)
+        return instruction
 
 
 class Miss_Instruction(Needle_Instruction):
@@ -197,3 +279,19 @@ class Miss_Instruction(Needle_Instruction):
         self._test_operation()
         machine_state.miss(self.carrier_set, self.needle, self.direction)
         return True
+
+    @staticmethod
+    def execute_miss(machine_state: Knitting_Machine,
+                     needle: Needle, direction: str | Carriage_Pass_Direction, cs: Yarn_Carrier_Set,
+                     comment: str | None = None):
+        """
+            :param needle: The needle to execute on.
+            :param direction: The direction to execute in.
+            :param cs: The yarn carriers set to execute with.
+            :param machine_state: The current machine model to update.
+            :param comment: Additional details to document in the knitout.
+            :return: The instruction.
+            """
+        instruction = Miss_Instruction(needle, direction, cs, comment)
+        instruction.execute(machine_state)
+        return instruction

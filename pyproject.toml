@@ -26,8 +26,8 @@ classifiers = [
 ]
 dependencies = [
   "parglare~=0.16.1",
-  "knit-graphs~=0.0.1",
-  "virtual-knitting-machine~=0.0.2",
+  "knit-graphs~=0.0.3",
+  "virtual-knitting-machine~=0.0.5",
   "nodejs-bin",
   "importlib-resources",
 ]
@@ -35,7 +35,7 @@ dependencies = [
 [project.urls]
 Documentation = "https://github.com/mhofmann-Khoury/knitout_interpreter#readme"
 Issues = "https://github.com/mhofmann-Khoury/knitout_interpreter/issues"
-Source = "https://github.com/mhofmann-Khoury/knitout_interpreter/knitout-interpreter"
+Source = "https://github.com/mhofmann-Khoury/knitout_interpreter"
 
 [tool.hatch.version]
 path = "src/knitout_interpreter/__about__.py"

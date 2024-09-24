@@ -57,3 +57,15 @@ class Rack_Instruction(Knitout_Instruction):
             else:
                 rack_value += 0.25
         return Rack_Instruction(rack_value, comment)
+
+    @staticmethod
+    def execute_rack(machine_state: Knitting_Machine, racking: float, comment: str | None = None):
+        """
+            :param machine_state: the current machine model to update
+            :param racking: the new racking to set the machine to
+            :param comment: additional details to document in the knitout
+            :return: the racking instruction
+            """
+        instruction = Rack_Instruction(racking, comment)
+        instruction.execute(machine_state)
+        return instruction
