@@ -58,6 +58,13 @@ class Knitout_Executer:
         """
         return self.knitting_machine.knit_graph
 
+    @property
+    def carriage_passes(self) -> list[Carriage_Pass]:
+        """
+        :return: The carriage passes resulting from this execution in execution order.
+        """
+        return self._carriage_passes
+
     def test_and_organize_instructions(self):
         self.process: list[Knitout_Line | Carriage_Pass] = []
         self.executed_instructions: list[Knitout_Line] = []

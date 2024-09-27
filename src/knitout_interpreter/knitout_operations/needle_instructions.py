@@ -26,8 +26,9 @@ class Needle_Instruction(Knitout_Instruction):
         self.direction: None | Carriage_Pass_Direction = direction
         self.needle = needle
         self.carriage_pass = None
-        self.made_loops = None
-        self.moved_loops = None
+        self.made_loops: list[Loop] = []
+        self.moved_loops: list[Loop] = []
+        self.dropped_loops: list[Loop] = []
 
     def get_yarns(self, knitting_machine: Knitting_Machine) -> dict[int, Machine_Knit_Yarn]:
         """
@@ -111,7 +112,6 @@ class Loop_Making_Instruction(Needle_Instruction):
                  carrier_set: Yarn_Carrier_Set = None,
                  comment: None | str = None):
         super().__init__(instruction_type, needle, direction, needle_2, carrier_set, comment)
-        self.made_loops: list[Loop] = []
 
 
 class Knit_Instruction(Loop_Making_Instruction):
@@ -121,6 +121,7 @@ class Knit_Instruction(Loop_Making_Instruction):
 
     def execute(self, machine_state: Knitting_Machine):
         self._test_operation()
+        self.dropped_loops = self.needle.held_loops # todo: update virtual knitting machine package to receive this from knit operation.
         self.made_loops = machine_state.knit(self.carrier_set, self.needle, self.direction)
         return True  # true even if loops is empty because the prior loops are dropped.
 
@@ -172,15 +173,14 @@ class Split_Instruction(Loop_Making_Instruction):
 
     def __init__(self, needle: Needle, direction: Carriage_Pass_Direction, n2: Needle, cs: Yarn_Carrier_Set, comment: None | str = None):
         super().__init__(Knitout_Instruction_Type.Split, needle, direction=direction, needle_2=n2, carrier_set=cs, comment=comment)
-        self.transferred_loops: list[Loop] = []
 
     def execute(self, machine_state: Knitting_Machine):
         self._test_operation()
         aligned_needle = machine_state.get_aligned_needle(self.needle)
         if aligned_needle != self.needle_2:
             raise Misaligned_Needle_Exception(self.needle, self.needle_2)
-        self.made_loops, self.transferred_loops = machine_state.split(self.carrier_set, self.needle, self.direction)
-        return len(self.made_loops) > 0 or len(self.transferred_loops) > 0
+        self.made_loops, self.moved_loops = machine_state.split(self.carrier_set, self.needle, self.direction)
+        return len(self.made_loops) > 0 or len(self.moved_loops) > 0
 
     @staticmethod
     def execute_split(machine_state: Knitting_Machine,
@@ -207,7 +207,7 @@ class Drop_Instruction(Needle_Instruction):
 
     def execute(self, machine_state: Knitting_Machine):
         self._test_operation()
-        machine_state.drop(self.needle)
+        self.dropped_loops = machine_state.drop(self.needle)
         return True
 
     @staticmethod
@@ -229,7 +229,7 @@ class Xfer_Instruction(Needle_Instruction):
     def __init__(self, needle: Needle, n2: Needle, comment: None | str = None, record_location=True):
         super().__init__(Knitout_Instruction_Type.Xfer, needle, needle_2=n2, comment=comment)
         self.record_location = record_location
-        self.loop_crossings_made: dict[Machine_Knit_Loop, list[Machine_Knit_Loop]] = {}
+        self.loop_crossings_made: dict[Machine_Knit_Loop, list[Machine_Knit_Loop]] = {} #Todo Use loop crossing code.
 
     def add_loop_crossing(self, left_loop: Machine_Knit_Loop, right_loop: Machine_Knit_Loop):
         """
@@ -247,8 +247,8 @@ class Xfer_Instruction(Needle_Instruction):
         aligned_needle = machine_state.get_aligned_needle(self.needle, aligned_slider=to_slider)
         if aligned_needle != self.needle_2:
             raise Misaligned_Needle_Exception(self.needle, self.needle_2)
-        transferred_loops = self.made_loops = machine_state.xfer(self.needle, to_slider=to_slider)
-        return len(transferred_loops) > 0
+        self.moved_loops = machine_state.xfer(self.needle, to_slider=to_slider)
+        return len(self.moved_loops) > 0
 
     @staticmethod
     def execute_xfer(machine_state: Knitting_Machine,
