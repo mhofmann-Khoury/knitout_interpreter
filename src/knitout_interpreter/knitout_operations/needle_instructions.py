@@ -121,8 +121,7 @@ class Knit_Instruction(Loop_Making_Instruction):
 
     def execute(self, machine_state: Knitting_Machine):
         self._test_operation()
-        self.dropped_loops = self.needle.held_loops # todo: update virtual knitting machine package to receive this from knit operation.
-        self.made_loops = machine_state.knit(self.carrier_set, self.needle, self.direction)
+        self.dropped_loops, self.made_loops = machine_state.knit(self.carrier_set, self.needle, self.direction)
         return True  # true even if loops is empty because the prior loops are dropped.
 
     @staticmethod
@@ -229,7 +228,7 @@ class Xfer_Instruction(Needle_Instruction):
     def __init__(self, needle: Needle, n2: Needle, comment: None | str = None, record_location=True):
         super().__init__(Knitout_Instruction_Type.Xfer, needle, needle_2=n2, comment=comment)
         self.record_location = record_location
-        self.loop_crossings_made: dict[Machine_Knit_Loop, list[Machine_Knit_Loop]] = {} #Todo Use loop crossing code.
+        self.loop_crossings_made: dict[Machine_Knit_Loop, list[Machine_Knit_Loop]] = {}  #Todo Use loop crossing code.
 
     def add_loop_crossing(self, left_loop: Machine_Knit_Loop, right_loop: Machine_Knit_Loop):
         """
