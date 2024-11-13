@@ -65,35 +65,45 @@ class Knitout_Executer:
         """
         return self._carriage_passes
 
-    def test_and_organize_instructions(self):
+    def test_and_organize_instructions(self, accepted_error_types: list | None = None):
+        if accepted_error_types is None:
+            accepted_error_types = []
         self.process: list[Knitout_Line | Carriage_Pass] = []
         self.executed_instructions: list[Knitout_Line] = []
         current_pass = None
         for instruction in self.instructions:
-            if isinstance(instruction, Needle_Instruction):
-                if current_pass is None:
-                    current_pass = Carriage_Pass(instruction, self.knitting_machine.rack, self.knitting_machine.all_needle_rack)
+            try:
+                if isinstance(instruction, Needle_Instruction):
+                    if current_pass is None:
+                        current_pass = Carriage_Pass(instruction, self.knitting_machine.rack, self.knitting_machine.all_needle_rack)
+                    else:
+                        was_added = current_pass.add_instruction(instruction, self.knitting_machine.rack, self.knitting_machine.all_needle_rack)
+                        if not was_added:
+                            executed_pass = current_pass.execute(self.knitting_machine)
+                            self.process.append(current_pass)
+                            self.executed_instructions.extend(executed_pass)
+                            current_pass = Carriage_Pass(instruction, self.knitting_machine.rack, self.knitting_machine.all_needle_rack)
                 else:
-                    was_added = current_pass.add_instruction(instruction, self.knitting_machine.rack, self.knitting_machine.all_needle_rack)
-                    if not was_added:
+                    if current_pass is not None:
                         executed_pass = current_pass.execute(self.knitting_machine)
                         self.process.append(current_pass)
                         self.executed_instructions.extend(executed_pass)
-                        current_pass = Carriage_Pass(instruction, self.knitting_machine.rack, self.knitting_machine.all_needle_rack)
-            else:
-                if current_pass is not None:
-                    executed_pass = current_pass.execute(self.knitting_machine)
-                    self.process.append(current_pass)
-                    self.executed_instructions.extend(executed_pass)
-                    current_pass = None
-                updated = instruction.execute(self.knitting_machine)
-                if updated:
-                    self.process.append(instruction)
-                    self.executed_instructions.append(instruction)
-                else:
-                    comment = Knitout_Comment_Line(instruction)
-                    self.process.append(comment)
-                    self.executed_instructions.append(comment)
+                        current_pass = None
+                    updated = instruction.execute(self.knitting_machine)
+                    if updated:
+                        self.process.append(instruction)
+                        self.executed_instructions.append(instruction)
+                    else:
+                        comment = Knitout_Comment_Line(instruction)
+                        self.process.append(comment)
+                        self.executed_instructions.append(comment)
+            except accepted_error_types as e:
+                error_comment = Knitout_Comment_Line(f"Excluded {type(e).__name__}: {e.message}")
+                self.process.append(error_comment)
+                self.executed_instructions.append(error_comment)
+                comment = Knitout_Comment_Line(instruction)
+                self.process.append(comment)
+                self.executed_instructions.append(comment)
         if current_pass is not None:
             executed_pass = current_pass.execute(self.knitting_machine)
             self.process.append(current_pass)
