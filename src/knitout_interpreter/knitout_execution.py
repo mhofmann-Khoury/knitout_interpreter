@@ -97,7 +97,7 @@ class Knitout_Executer:
                         comment = Knitout_Comment_Line(instruction)
                         self.process.append(comment)
                         self.executed_instructions.append(comment)
-            except accepted_error_types as e:
+            except tuple(accepted_error_types) as e:
                 error_comment = Knitout_Comment_Line(f"Excluded {type(e).__name__}: {e.message}")
                 self.process.append(error_comment)
                 self.executed_instructions.append(error_comment)
