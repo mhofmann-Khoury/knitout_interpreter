@@ -38,7 +38,7 @@ def process_knitout_instructions(codes: list[Knitout_Line]) -> (
 
 
 class Knitout_Context:
-
+    """Maintains information about hte state of a knitting process as knitout instructions are executed."""
     def __init__(self):
         self.machine_state: Knitting_Machine = Knitting_Machine()
         self.executed_knitout: list[Knitout_Line] = []
@@ -122,5 +122,3 @@ class Knitout_Context:
         """
         version, head, instructions, comments = process_knitout_instructions(codes)
         return self.execute_knitout(version, head, instructions)
-
-

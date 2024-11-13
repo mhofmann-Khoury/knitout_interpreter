@@ -26,8 +26,8 @@ classifiers = [
 ]
 dependencies = [
   "parglare~=0.16.1",
-  "knit-graphs~=0.0.3",
-  "virtual-knitting-machine~=0.0.6",
+  "knit-graphs~=0.0.4",
+  "virtual-knitting-machine~=0.0.8",
   "nodejs-bin",
   "importlib-resources",
 ]

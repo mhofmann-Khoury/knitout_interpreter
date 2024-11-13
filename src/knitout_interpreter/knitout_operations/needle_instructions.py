@@ -1,5 +1,4 @@
 """Needle operations"""
-from knit_graphs.Loop import Loop
 from virtual_knitting_machine.Knitting_Machine import Knitting_Machine
 from virtual_knitting_machine.knitting_machine_exceptions.Needle_Exception import Misaligned_Needle_Exception
 from virtual_knitting_machine.machine_components.carriage_system.Carriage_Pass_Direction import Carriage_Pass_Direction
@@ -26,9 +25,9 @@ class Needle_Instruction(Knitout_Instruction):
         self.direction: None | Carriage_Pass_Direction = direction
         self.needle = needle
         self.carriage_pass = None
-        self.made_loops: list[Loop] = []
-        self.moved_loops: list[Loop] = []
-        self.dropped_loops: list[Loop] = []
+        self.made_loops: list[Machine_Knit_Loop] = []
+        self.moved_loops: list[Machine_Knit_Loop] = []
+        self.dropped_loops: list[Machine_Knit_Loop] = []
 
     def get_yarns(self, knitting_machine: Knitting_Machine) -> dict[int, Machine_Knit_Yarn]:
         """
@@ -228,11 +227,11 @@ class Xfer_Instruction(Needle_Instruction):
     def __init__(self, needle: Needle, n2: Needle, comment: None | str = None, record_location=True):
         super().__init__(Knitout_Instruction_Type.Xfer, needle, needle_2=n2, comment=comment)
         self.record_location = record_location
-        self.loop_crossings_made: dict[Machine_Knit_Loop, list[Machine_Knit_Loop]] = {}  #Todo Use loop crossing code.
+        self.loop_crossings_made: dict[Machine_Knit_Loop, list[Machine_Knit_Loop]] = {}  # Todo: Use loop crossing code.
 
     def add_loop_crossing(self, left_loop: Machine_Knit_Loop, right_loop: Machine_Knit_Loop):
         """
-        Udpate loop crossing to show transfers crossing loops.
+        Update loop crossing to show transfers crossing loops.
         :param left_loop: The left loop involved in the crossing.
         :param right_loop: The Right loop involved in the crossing.
         """
