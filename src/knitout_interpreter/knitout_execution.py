@@ -3,19 +3,23 @@ from knit_graphs.Knit_Graph import Knit_Graph
 from virtual_knitting_machine.Knitting_Machine import Knitting_Machine
 
 from knitout_interpreter.knitout_execution_structures.Carriage_Pass import Carriage_Pass
-from knitout_interpreter.knitout_operations.Knitout_Line import Knitout_Line, Knitout_Comment_Line
+from knitout_interpreter.knitout_operations.Header_Line import Carriers_Header_Line, Knitout_Header_Line
+from knitout_interpreter.knitout_operations.Knitout_Line import Knitout_Line, Knitout_Comment_Line, Knitout_Version_Line
 from knitout_interpreter.knitout_operations.needle_instructions import Needle_Instruction
 
 
 class Knitout_Executer:
     """A class used to execute a set of knitout instructions on a virtual knitting machine."""
-    def __init__(self, instructions: list[Knitout_Line], knitting_machine: Knitting_Machine):
+
+    def __init__(self, instructions: list[Knitout_Line], knitting_machine: Knitting_Machine, accepted_error_types: list | None = None):
+        if accepted_error_types is None:
+            accepted_error_types = []
         self.knitting_machine = knitting_machine
         self.instructions: list[Knitout_Line] = instructions
         self.process: list[Knitout_Line | Carriage_Pass] = []
         self.executed_header: list[Knitout_Line] = []
         self.executed_instructions: list[Knitout_Line] = []
-        self.test_and_organize_instructions()
+        self.test_and_organize_instructions(accepted_error_types)
         self._carriage_passes: list[Carriage_Pass] = [cp for cp in self.process if isinstance(cp, Carriage_Pass)]
         self._left_most_position: int | None = None
         self._right_most_position: int | None = None
@@ -66,11 +70,17 @@ class Knitout_Executer:
         return self._carriage_passes
 
     def test_and_organize_instructions(self, accepted_error_types: list | None = None):
+        """
+        Tests the given execution and organizes the instructions in the class structure.
+        :param accepted_error_types: A list of exceptions that instructions may through that can be resolved by commenting them out.
+        """
         if accepted_error_types is None:
             accepted_error_types = []
         self.process: list[Knitout_Line | Carriage_Pass] = []
         self.executed_instructions: list[Knitout_Line] = []
         current_pass = None
+        has_version_line = False
+        has_carrier_line = False
         for instruction in self.instructions:
             try:
                 if isinstance(instruction, Needle_Instruction):
@@ -93,8 +103,18 @@ class Knitout_Executer:
                     if updated:
                         self.process.append(instruction)
                         self.executed_instructions.append(instruction)
+                    elif not has_version_line and isinstance(instruction, Knitout_Version_Line):  # A version line must always be included in the final execution, even if it is the default value.
+                        self.process.append(instruction)
+                        self.executed_instructions.append(instruction)
+                        has_version_line = True
+                    elif not has_carrier_line and isinstance(instruction, Carriers_Header_Line):  # A carrier line must always be included in the final execution even if it is the default value.
+                        self.process.append(instruction)
+                        self.executed_instructions.append(instruction)
+                        has_carrier_line = True
+                    elif isinstance(instruction, Knitout_Version_Line) or isinstance(instruction, Knitout_Header_Line):
+                        pass  # do not include these as no op comments.
                     else:
-                        comment = Knitout_Comment_Line(instruction)
+                        comment = Knitout_Comment_Line(instruction)  # create a no-op comment for this line because it did not cause an update.
                         self.process.append(comment)
                         self.executed_instructions.append(comment)
             except tuple(accepted_error_types) as e:

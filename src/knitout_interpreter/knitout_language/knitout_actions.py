@@ -104,7 +104,7 @@ def yarn_op(_, __, cid: int, plies: int, weight: int, color: str) -> Yarn_Header
 
 
 @action
-def carriers_op(_, __, CS: list[int]) -> Carriers_Header_Line:
+def carriers_op(_, __, CS: Yarn_Carrier_Set) -> Carriers_Header_Line:
     """
     :param _: The parser element that created this value.
     :param __:

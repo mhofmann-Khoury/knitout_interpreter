@@ -4,8 +4,10 @@ from enum import Enum
 from knit_graphs.Yarn import Yarn_Properties
 from virtual_knitting_machine.Knitting_Machine import Knitting_Machine
 from virtual_knitting_machine.Knitting_Machine_Specification import Knitting_Machine_Type
+from virtual_knitting_machine.machine_components.yarn_management.Yarn_Carrier import Yarn_Carrier
+from virtual_knitting_machine.machine_components.yarn_management.Yarn_Carrier_Set import Yarn_Carrier_Set
 
-from knitout_interpreter.knitout_operations.Knitout_Line import Knitout_Line
+from knitout_interpreter.knitout_operations.Knitout_Line import Knitout_Line, Knitout_Version_Line
 
 
 class Knitout_Header_Line_Type(Enum):
@@ -96,7 +98,13 @@ class Yarn_Header_Line(Knitout_Header_Line):
 
 class Carriers_Header_Line(Knitout_Header_Line):
 
-    def __init__(self, carrier_ids: list[int], comment: str | None = None):
+    def __init__(self, carrier_ids: list[int] | int | Yarn_Carrier_Set | Yarn_Carrier, comment: str | None = None):
+        if isinstance(carrier_ids, int):
+            carrier_ids = Yarn_Carrier_Set([i + 1 for i in range(carrier_ids)])
+        elif isinstance(carrier_ids, Yarn_Carrier):
+            carrier_ids = Yarn_Carrier_Set([carrier_ids.carrier_id])
+        elif isinstance(carrier_ids, list):
+            carrier_ids = Yarn_Carrier_Set(carrier_ids)
         super().__init__(Knitout_Header_Line_Type.Carriers, carrier_ids, comment)
 
     def execute(self, machine_state: Knitting_Machine) -> bool:
@@ -105,3 +113,13 @@ class Carriers_Header_Line(Knitout_Header_Line):
             machine_state.carrier_system = carrier_count
             return True
         return False
+
+
+def get_machine_header(knitting_machine: Knitting_Machine, version: int = 2) -> list[Knitout_Line]:
+    """
+    :param knitting_machine: The machine state to specify as a header.
+    :param version: The desired knitout version of the header.
+    :return: A list of header and a version line that describes the given machine state.
+    """
+    return [Knitout_Version_Line(version), Machine_Header_Line(str(knitting_machine.machine_specification.machine)), Gauge_Header_Line(knitting_machine.machine_specification.gauge),
+              Position_Header_Line(str(knitting_machine.machine_specification.position)), Carriers_Header_Line(knitting_machine.machine_specification.carrier_count)]

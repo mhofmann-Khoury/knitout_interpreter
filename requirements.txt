@@ -1,5 +1,5 @@
 parglare~=0.16.1
 importlib_resources
-knit-graphs~=0.0.4
+knit-graphs~=0.0.5
 virtual-knitting-machine~=0.0.9
 nodejs-bin

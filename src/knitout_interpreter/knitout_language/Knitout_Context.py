@@ -16,14 +16,14 @@ def process_knitout_instructions(codes: list[Knitout_Line]) -> (
     :param codes: List of knitout instructions to separate into program components
     :return: Version, header, separated instructions, separated comments
     """
-    version: Knitout_Version_Line = Knitout_Version_Line(-1)  # -1 set to undo default if no version line is provided.
+    version_line: Knitout_Version_Line = Knitout_Version_Line(-1)  # -1 set to undo default if no version line is provided.
     head: list[Knitout_Header_Line] = []
     instructions: list[Knitout_Instruction] = []
     comments: list[Knitout_Comment_Line] = []
     for code in codes:
         if isinstance(code, Knitout_Version_Line):
-            assert version == code.version or version.version < 0, f"Cannot have multiple versions of knitout {version} and {code}"
-            version = code
+            assert version_line.version == code.version or version_line.version < 0, f"Cannot have multiple versions of knitout {version_line} and {code}"
+            version_line = code
         elif isinstance(code, Knitout_Header_Line):
             head.append(code)
         elif isinstance(code, Knitout_Instruction):
@@ -32,9 +32,9 @@ def process_knitout_instructions(codes: list[Knitout_Line]) -> (
             comments.append(code)
         else:
             assert False, f"Cannot process code {code}"
-    if version.version < 0:
-        version = Knitout_Version_Line(2, "Version defaulted to 2")
-    return version, head, instructions, comments
+    if version_line.version < 0:
+        version_line = Knitout_Version_Line(2, "Version defaulted to 2")
+    return version_line, head, instructions, comments
 
 
 class Knitout_Context:

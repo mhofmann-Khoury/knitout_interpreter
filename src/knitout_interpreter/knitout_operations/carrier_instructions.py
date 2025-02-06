@@ -2,6 +2,7 @@
 import warnings
 
 from virtual_knitting_machine.Knitting_Machine import Knitting_Machine
+from virtual_knitting_machine.knitting_machine_warnings.Yarn_Carrier_System_Warning import Out_Inactive_Carrier_Warning
 from virtual_knitting_machine.knitting_machine_warnings.carrier_operation_warnings import Mismatched_Releasehook_Warning
 from virtual_knitting_machine.machine_components.carriage_system.Carriage_Pass_Direction import Carriage_Pass_Direction
 from virtual_knitting_machine.machine_components.yarn_management.Yarn_Carrier import Yarn_Carrier
@@ -102,7 +103,10 @@ class Releasehook_Instruction(Hook_Instruction):
         return self._preferred_release_direction
 
     def execute(self, machine_state: Knitting_Machine):
-        if self.carrier_id != machine_state.carrier_system.hooked_carrier.carrier_id:
+        if machine_state.carrier_system.inserting_hook_available:
+            warnings.warn(Mismatched_Releasehook_Warning(self.carrier_id))
+            return False
+        elif self.carrier_id != machine_state.carrier_system.hooked_carrier.carrier_id:
             warnings.warn(Mismatched_Releasehook_Warning(self.carrier_id))
         machine_state.release_hook()
         return True
@@ -148,6 +152,10 @@ class Outhook_Instruction(Hook_Instruction):
         super().__init__(Knitout_Instruction_Type.Outhook, carrier_set, comment)
 
     def execute(self, machine_state: Knitting_Machine):
+        carrier = machine_state.carrier_system[self.carrier_id]
+        if not carrier.is_active:
+            warnings.warn(Out_Inactive_Carrier_Warning(self.carrier_id))
+            return False
         machine_state.out_hook(self.carrier_id)
         return True
 
