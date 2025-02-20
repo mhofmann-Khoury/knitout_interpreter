@@ -10,7 +10,6 @@ homepage = "https://github.com/mhofmann-Khoury/knitout_interpreter"
 repository = "https://github.com/mhofmann-Khoury/knitout_interpreter"
 readme = "README.md"
 requires-python = ">=3.11"
-license = "MIT"
 keywords = ["knit", "machine knit", "textile", "Northeastern", "ACT Lab", "fabrication"]
 authors = [
   { name = "Megan Hofmann", email = "m.hofmann@northeastern.edu" },
@@ -26,11 +25,12 @@ classifiers = [
 ]
 dependencies = [
   "parglare~=0.16.1",
-  "knit-graphs~=0.0.5",
-  "virtual-knitting-machine~=0.0.9",
+  "knit-graphs~=0.0.6",
+  "virtual-knitting-machine~=0.0.13",
   "nodejs-bin",
   "importlib-resources",
 ]
+
 
 [project.urls]
 Documentation = "https://github.com/mhofmann-Khoury/knitout_interpreter#readme"

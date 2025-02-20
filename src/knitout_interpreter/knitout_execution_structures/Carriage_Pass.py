@@ -217,7 +217,7 @@ class Carriage_Pass:
         if check_compatibility and not self.can_merge_pass(next_carriage_pass):
             return False
         for instruction in next_carriage_pass:
-            added = self.add_instruction(instruction, next_carriage_pass.rack_value, next_carriage_pass.all_needle_rack)
+            added = self.add_instruction(instruction, next_carriage_pass.rack, next_carriage_pass.all_needle_rack)
             assert added, f'Attempted to merge {self} and {next_carriage_pass} but failed to add {instruction}.'
         return True
 

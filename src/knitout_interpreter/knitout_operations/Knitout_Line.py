@@ -8,12 +8,20 @@ class Knitout_Line:
     """
     _Lines_Made = 0
 
-    def __init__(self, comment: str | None):
+    def __init__(self, comment: str | None, interrupts_carriage_pass=False):
         Knitout_Line._Lines_Made += 1
         self._creation_time = Knitout_Line._Lines_Made
         self.comment = comment
         self.original_line_number: int | None = None
         self.follow_comments: list[Knitout_Comment_Line] = []
+        self._interrupts_carriage_pass: bool = interrupts_carriage_pass
+
+    @property
+    def interrupts_carriage_pass(self) -> bool:
+        """
+        :return: True if this type of carriage pass interrupts a carriage pass or False if it is only used for comments or setting information.
+        """
+        return self._interrupts_carriage_pass
 
     def add_follow_comment(self, comment_line):
         """
@@ -91,7 +99,7 @@ class Knitout_Line:
 class Knitout_Version_Line(Knitout_Line):
 
     def __init__(self, version: int = 2, comment: None | str = None):
-        super().__init__(comment)
+        super().__init__(comment, interrupts_carriage_pass=False)
         self.version: int = version
 
     def __str__(self):
@@ -105,7 +113,7 @@ class Knitout_Comment_Line(Knitout_Line):
                 comment = Knitout_Comment_Line.comment_str
             else:
                 comment = f"No-Op:\t{comment}"
-        super().__init__(comment)
+        super().__init__(comment, interrupts_carriage_pass=False)
 
     def execute(self, machine_state: Knitting_Machine) -> bool:
         return True

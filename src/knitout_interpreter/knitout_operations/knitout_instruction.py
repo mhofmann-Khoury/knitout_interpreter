@@ -124,8 +124,8 @@ class Knitout_Instruction(Knitout_Line):
         Superclass for knitout operations
     """
 
-    def __init__(self, instruction_type: Knitout_Instruction_Type, comment: str | None):
-        super().__init__(comment)
+    def __init__(self, instruction_type: Knitout_Instruction_Type, comment: str | None, interrupts_carriage_pass=True):
+        super().__init__(comment, interrupts_carriage_pass=interrupts_carriage_pass)
         self.instruction_type: Knitout_Instruction_Type = instruction_type
 
     def __str__(self):

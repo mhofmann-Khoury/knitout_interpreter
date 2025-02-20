@@ -17,7 +17,7 @@ class Needle_Instruction(Knitout_Instruction):
                  needle: Needle, direction: None | str | Carriage_Pass_Direction = None, needle_2: None | Needle = None,
                  carrier_set: None | Yarn_Carrier_Set = None,
                  comment: None | str = None):
-        super().__init__(instruction_type, comment)
+        super().__init__(instruction_type, comment, interrupts_carriage_pass=False)
         self.carrier_set = carrier_set
         self.needle_2 = needle_2
         if direction is not None and isinstance(direction, str):
