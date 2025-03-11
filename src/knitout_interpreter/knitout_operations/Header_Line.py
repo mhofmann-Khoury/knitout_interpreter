@@ -1,11 +1,10 @@
 """Module containing the classes for Header Lines in Knitout"""
 import warnings
 from enum import Enum
-from typing import Any
 
 from knit_graphs.Yarn import Yarn_Properties
 from virtual_knitting_machine.Knitting_Machine import Knitting_Machine
-from virtual_knitting_machine.Knitting_Machine_Specification import Knitting_Machine_Type, Knitting_Machine_Specification
+from virtual_knitting_machine.Knitting_Machine_Specification import Knitting_Machine_Type
 from virtual_knitting_machine.knitting_machine_warnings.Knitting_Machine_Warning import Knitting_Machine_Warning
 from virtual_knitting_machine.machine_components.yarn_management.Yarn_Carrier import Yarn_Carrier
 from virtual_knitting_machine.machine_components.yarn_management.Yarn_Carrier_Set import Yarn_Carrier_Set
@@ -84,7 +83,7 @@ class Position_Header_Line(Knitout_Header_Line):
         super().__init__(Knitout_Header_Line_Type.Position, position, comment)
 
     def updates_machine_state(self, machine_state: Knitting_Machine) -> bool:
-        return self.header_value != machine_state.machine_specification.positio
+        return self.header_value != machine_state.machine_specification.position
 
     def execute(self, machine_state: Knitting_Machine) -> bool:
         if self.updates_machine_state(machine_state):
@@ -141,6 +140,7 @@ class Knitting_Machine_Header:
     """
         A class structure for maintain the relationship between header lines read from a knitout file and the state of a given knitting machine.
     """
+
     def __init__(self, knitting_machine: Knitting_Machine):
         self.machine: Knitting_Machine = knitting_machine
         self._header_lines: dict[Knitout_Header_Line_Type, Knitout_Header_Line] = {}
@@ -154,7 +154,7 @@ class Knitting_Machine_Header:
             In this case, if the header line would require the machine state to update a warning is raised.
         :return: True if this header is updated by the given header line.
         """
-        if header_line.header_type not in header_line:
+        if header_line.header_type not in self._header_lines:
             if update_machine:  # update the machine state and then add this to the header
                 updated = header_line.execute(self.machine)
                 if updated:
@@ -166,7 +166,7 @@ class Knitting_Machine_Header:
                 would_update = header_line.updates_machine_state(self.machine)
                 if would_update:
                     warnings.warn(Knitting_Machine_Warning(f"Ignored Header Updates Active Machine: {header_line}".rstrip()))
-                elif header_line.header_type not in self._header_lines: # no change to machine state, but this line was never explicitly set.
+                elif header_line.header_type not in self._header_lines:  # no change to machine state, but this line was never explicitly set.
                     self._header_lines[header_line.header_type] = header_line
                     return True
                 return False
