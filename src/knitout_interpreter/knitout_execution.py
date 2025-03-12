@@ -3,20 +3,19 @@ from knit_graphs.Knit_Graph import Knit_Graph
 from virtual_knitting_machine.Knitting_Machine import Knitting_Machine
 
 from knitout_interpreter.knitout_execution_structures.Carriage_Pass import Carriage_Pass
-from knitout_interpreter.knitout_operations.Header_Line import Carriers_Header_Line, Knitout_Header_Line, Knitting_Machine_Header
+from knitout_interpreter.knitout_operations.Header_Line import Knitout_Header_Line, Knitting_Machine_Header
 from knitout_interpreter.knitout_operations.Knitout_Line import Knitout_Line, Knitout_Comment_Line, Knitout_Version_Line
-from knitout_interpreter.knitout_operations.Pause_Instruction import Pause_Instruction
 from knitout_interpreter.knitout_operations.needle_instructions import Needle_Instruction
 
 
 class Knitout_Executer:
     """A class used to execute a set of knitout instructions on a virtual knitting machine."""
 
-    def __init__(self, instructions: list[Knitout_Line], knitting_machine: Knitting_Machine, accepted_error_types: list | None = None, knitout_version: bool = 2):
+    def __init__(self, instructions: list[Knitout_Line], knitting_machine: Knitting_Machine, accepted_error_types: list | None = None, knitout_version: int = 2):
         self.knitout_version = knitout_version
         if accepted_error_types is None:
             accepted_error_types = []
-        self.knitting_machine = knitting_machine
+        self.knitting_machine: Knitting_Machine = knitting_machine
         self.instructions: list[Knitout_Line] = instructions
         self.process: list[Knitout_Line | Carriage_Pass] = []
         self.executed_header: Knitting_Machine_Header = Knitting_Machine_Header(self.knitting_machine)
@@ -104,7 +103,7 @@ class Knitout_Executer:
                             self.process.append(current_pass)
                             self.executed_instructions.extend(executed_pass)
                             current_pass = Carriage_Pass(instruction, self.knitting_machine.rack, self.knitting_machine.all_needle_rack)
-                if isinstance(instruction, Knitout_Version_Line):
+                elif isinstance(instruction, Knitout_Version_Line):
                     self.knitout_version = instruction.version
                 elif isinstance(instruction, Knitout_Header_Line):
                     _updated = self.executed_header.update_header(instruction, update_machine=in_header)  # only update the machine_state if in the header section

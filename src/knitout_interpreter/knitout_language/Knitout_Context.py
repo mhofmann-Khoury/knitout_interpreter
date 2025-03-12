@@ -4,7 +4,7 @@ from virtual_knitting_machine.Knitting_Machine import Knitting_Machine
 
 from knitout_interpreter.knitout_execution import Knitout_Executer
 from knitout_interpreter.knitout_language.Knitout_Parser import parse_knitout
-from knitout_interpreter.knitout_operations.Header_Line import Knitout_Header_Line
+from knitout_interpreter.knitout_operations.Header_Line import Knitout_Header_Line, Knitting_Machine_Header
 from knitout_interpreter.knitout_operations.Knitout_Line import Knitout_Line, Knitout_Version_Line, Knitout_Comment_Line
 from knitout_interpreter.knitout_operations.knitout_instruction import Knitout_Instruction
 
@@ -39,11 +39,12 @@ def process_knitout_instructions(codes: list[Knitout_Line]) -> (
 
 class Knitout_Context:
     """Maintains information about hte state of a knitting process as knitout instructions are executed."""
+
     def __init__(self):
         self.machine_state: Knitting_Machine = Knitting_Machine()
         self.executed_knitout: list[Knitout_Line] = []
         self.version_line: Knitout_Version_Line | None = None
-        self.executed_header: list[Knitout_Header_Line] = []
+        self.executed_header: Knitting_Machine_Header = Knitting_Machine_Header(self.machine_state)
         self.executed_instructions: list[Knitout_Instruction] = []
 
     @property
@@ -64,26 +65,24 @@ class Knitout_Context:
         """
         self.version_line = version_line
 
-    def execute_header(self, header_declarations: list[Knitout_Header_Line]):
+    def execute_header(self, header_declarations: list[Knitout_Header_Line], comment_no_op_header: bool = False):
         """
         Updates the machine state by the given header values.
         If header declarations do not change the current context, they are converted to comments.
+        :param comment_no_op_header: If set to True, the no-op header declarations will be added to the instructions as comments.
         :param header_declarations: The header lines to update based on.
         """
         for header_line in header_declarations:
-            updated = header_line.execute(self.machine_state)
-            if not updated:
+            updated = self.executed_header.update_header(header_line, update_machine=True)  # update process will always yield a complete header
+            if not updated and comment_no_op_header:  # comment out the no-op header line and add it to the execution.
                 self.executed_knitout.append(Knitout_Comment_Line(header_line))
-            else:
-                self.executed_knitout.append(header_line)
-                self.executed_header.append(header_line)
 
     def execute_instructions(self, instructions: list[Knitout_Line]):
         """
         Executes the instruction set on the machine state defined by the current header.
         :param instructions: Instructions to execute on knitting machine.
         """
-        execution = Knitout_Executer(instructions, self.machine_state)
+        execution = Knitout_Executer(instructions=instructions, knitting_machine=self.machine_state, knitout_version=self.version)
         self.executed_instructions = execution.executed_instructions
 
     def execute_knitout(self, version_line: Knitout_Version_Line,
@@ -94,16 +93,14 @@ class Knitout_Context:
         :param version_line: The Version of knitout to use
         :param header_declarations: The header to define the knitout file.
         :param instructions: The instructions to execute on the machine.
-        :return: The machine state after execution, the knit graph created by execution.
+        :return: The list of knitout instructions that were executed, The machine state after execution, the knit graph created by execution.
         """
         self.add_version(version_line)
         self.execute_header(header_declarations)
         self.execute_instructions(instructions)
-        execution: list[Knitout_Line] = self.executed_header
-        execution.extend(self.executed_instructions)
-        for i, instruction in enumerate(execution):
+        for i, instruction in enumerate(self.executed_instructions):
             instruction.original_line_number = i
-        return execution, self.machine_state, self.machine_state.knit_graph
+        return self.executed_instructions, self.machine_state, self.machine_state.knit_graph
 
     def process_knitout_file(self, knitout_file_name: str) -> tuple[list[Knitout_Line], Knitting_Machine, Knit_Graph]:
         """
