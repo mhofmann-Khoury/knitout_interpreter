@@ -1,3 +1,4 @@
+# Note: to use this run from terminal:  poetry run pre-commit install
 repos:
   # Basic file quality checks
   - repo: https://github.com/pre-commit/pre-commit-hooks
