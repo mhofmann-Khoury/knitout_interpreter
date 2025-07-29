@@ -5,7 +5,7 @@ This package provides tools for parsing, validating, and executing knitout files
 used to control automatic V-Bed knitting machines. It includes support for the
 complete Knitout specification v2 created by McCann et al.
 
-The library bridges the gap between high-level knitting pattern descriptions and 
+The library bridges the gap between high-level knitting pattern descriptions and
 machine-level execution, providing comprehensive analysis and simulation capabilities.
 
 Core Functionality:
@@ -102,21 +102,3 @@ def get_supported_machines() -> list[str]:
         List of machine type strings that are supported by this library.
     """
     return SUPPORTED_MACHINE_TYPES.copy()
-
-# Note: For specialized functionality, users should import from submodules:
-#
-# Parsing functionality:
-#   from knitout_interpreter.knitout_language import parse_knitout, Knitout_Parser, Knitout_Context
-#
-# Individual instruction types:
-#   from knitout_interpreter.knitout_operations import Knit_Instruction, Tuck_Instruction
-#   from knitout_interpreter.knitout_operations.needle_instructions import Miss_Instruction, Xfer_Instruction
-#   from knitout_interpreter.knitout_operations.carrier_instructions import In_Instruction, Out_Instruction
-#   from knitout_interpreter.knitout_operations.Header_Line import Machine_Header_Line, Gauge_Header_Line
-#
-# Execution structures:
-#   from knitout_interpreter.knitout_execution_structures import Carriage_Pass
-#
-# Base classes and types:
-#   from knitout_interpreter.knitout_operations.knitout_instruction import Knitout_Instruction, Knitout_Instruction_Type
-#   from knitout_interpreter.knitout_operations.Knitout_Line import Knitout_Line, Knitout_Comment_Line
