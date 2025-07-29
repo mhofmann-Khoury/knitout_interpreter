@@ -60,13 +60,9 @@ packages = [
 include = [
     "README.md",                    # Project description
     "LICENSE",                      # License file
-    "CHANGELOG.md",                 # Version history
     "docs/**/*",                    # All documentation files
-    "examples/**/*.knitout",        # Example input files
-    "src/**/knitout_language/*.pg", # Grammar files
-    "src/**/knitout_compilers/*.html", # Compiler HTML files
-    "src/**/knitout_compilers/*.js", # Compiler JavaScript files
-    "src/**/**/resources/**/*",     # Include all resources
+    "examples/**/*.k",        # Example input files
+    "src/knitout_interpreter/**/*.pg" # Grammar Filese
 ]
 
 # Exclude files from the distribution package (keeps package size down)
@@ -177,7 +173,7 @@ disallow_untyped_decorators = true   # Require type annotations on decorators
 no_implicit_optional = true          # Don't automatically make arguments Optional
 warn_redundant_casts = true          # Warn about unnecessary type casts
 warn_unused_ignores = true           # Warn about unused # type: ignore comments
-warn_no_return = false               # Don't warn about functions that don't return
+warn_no_return = true               # Don't warn about functions that don't return
 warn_unreachable = true             # Warn about unreachable code
 strict_equality = true              # Use strict equality checks
 show_error_codes = true             # Show error codes in output (helpful for ignoring specific errors)
