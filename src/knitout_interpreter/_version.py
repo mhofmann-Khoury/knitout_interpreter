@@ -5,20 +5,8 @@ This module provides version information by reading from the installed package
 metadata, ensuring a single source of truth with pyproject.toml.
 """
 
-try:
-    # Python 3.8+ standard library
-    from importlib.metadata import version, PackageNotFoundError
-except ImportError:
-    try:
-        # Fallback for Python < 3.8 (importlib_resources is already a dependency)
-        from importlib_metadata import version, PackageNotFoundError
-    except ImportError:
-        # If neither is available, define a minimal fallback
-        def version(package_name: str) -> str:
-            return "0.0.0+unknown"
+from importlib.metadata import version, PackageNotFoundError
 
-        class PackageNotFoundError(Exception):
-            pass
 
 try:
     # Get version from installed package metadata
