@@ -8,9 +8,7 @@ from knitout_interpreter.knitout_operations.Knitout_Line import Knitout_Line
 
 
 class Knitout_Instruction_Type(Enum):
-    """
-        Knitout Instruction types
-    """
+    """Enumeration of knitout instruction types."""
     In = "in"
     Inhook = "inhook"
     Releasehook = "releasehook"
@@ -35,17 +33,22 @@ class Knitout_Instruction_Type(Enum):
 
     @staticmethod
     def get_instruction(inst_str: str) -> Knitout_Instruction_Type:
-        """
-        Get the instruction from a string
-        :param inst_str: instruction string to pull from
-        :return: Instruction_Type Enum of that type
+        """Get the instruction type from a string.
+
+        Args:
+            inst_str: Instruction string to convert.
+
+        Returns:
+            The corresponding Knitout_Instruction_Type enum value.
         """
         return Knitout_Instruction_Type[inst_str.capitalize()]
 
     @property
     def is_carrier_instruction(self) -> bool:
-        """
-        :return: True if instruction operates on yarn carriers
+        """Check if instruction operates on yarn carriers.
+
+        Returns:
+            True if instruction operates on yarn carriers.
         """
         return self in [Knitout_Instruction_Type.In, Knitout_Instruction_Type.Inhook,
                         Knitout_Instruction_Type.Releasehook,
@@ -53,59 +56,76 @@ class Knitout_Instruction_Type(Enum):
 
     @property
     def is_needle_instruction(self) -> bool:
-        """
-        :return: True if operation operates on needles
+        """Check if instruction operates on needles.
+
+        Returns:
+            True if operation operates on needles.
         """
         return self in [Knitout_Instruction_Type.Knit, Knitout_Instruction_Type.Tuck, Knitout_Instruction_Type.Split,
                         Knitout_Instruction_Type.Drop, Knitout_Instruction_Type.Xfer, Knitout_Instruction_Type.Kick]
 
     @property
     def in_knitting_pass(self) -> bool:
-        """
-        :return: True if instruction can be done in a knit pass
+        """Check if instruction can be done in a knit pass.
+
+        Returns:
+            True if instruction can be done in a knit pass.
         """
         return self in [Knitout_Instruction_Type.Knit, Knitout_Instruction_Type.Tuck, Knitout_Instruction_Type.Kick]
 
     @property
     def all_needle_instruction(self) -> bool:
-        """
-        :return: True if instruction is compatible with all-needle knitting
+        """Check if instruction is compatible with all-needle knitting.
+
+        Returns:
+            True if instruction is compatible with all-needle knitting.
         """
         return self.in_knitting_pass
 
     @property
     def directed_pass(self) -> bool:
-        """
-        :return: True if instruction requires a direction
+        """Check if instruction requires a direction.
+
+        Returns:
+            True if instruction requires a direction.
         """
         return self in [Knitout_Instruction_Type.Knit, Knitout_Instruction_Type.Tuck, Knitout_Instruction_Type.Miss, Knitout_Instruction_Type.Split, Knitout_Instruction_Type.Kick]
 
     @property
     def requires_carrier(self) -> bool:
-        """
-        :return: True if instruction requires a direction
+        """Check if instruction requires a carrier.
+
+        Returns:
+            True if instruction requires a carrier.
         """
         return self.directed_pass
 
     @property
     def requires_second_needle(self) -> bool:
-        """
-        :return: True if instruction requires second needle
+        """Check if instruction requires a second needle.
+
+        Returns:
+            True if instruction requires a second needle.
         """
         return self in [Knitout_Instruction_Type.Xfer, Knitout_Instruction_Type.Split]
 
     @property
     def allow_sliders(self) -> bool:
-        """
-        :return: True if a xfer instruction that can operate on sliders
+        """Check if this is a transfer instruction that can operate on sliders.
+
+        Returns:
+            True if this is a transfer instruction that can operate on sliders.
         """
         return self is Knitout_Instruction_Type.Xfer
 
     def compatible_pass(self, other_instruction: Knitout_Instruction_Type) -> bool:
-        """
-        Determine if instruction can share a machine pass.
-        :param other_instruction: Needle_Instruction to see if they match the pass type.
-        :return: True if both instructions could be executed in a pass.
+        """Determine if instruction can share a machine pass with another instruction.
+
+        Args:
+            other_instruction: The other instruction to check compatibility with.
+
+        Returns:
+            True if both instructions could be executed in the same pass.
         """
         if not self.is_needle_instruction:
             return False
@@ -116,11 +136,9 @@ class Knitout_Instruction_Type(Enum):
 
 
 class Knitout_Instruction(Knitout_Line):
-    """
-        Superclass for knitout operations
-    """
+    """Superclass for knitout operations."""
 
-    def __init__(self, instruction_type: Knitout_Instruction_Type, comment: str | None, interrupts_carriage_pass: bool=True):
+    def __init__(self, instruction_type: Knitout_Instruction_Type, comment: str | None, interrupts_carriage_pass: bool = True):
         super().__init__(comment, interrupts_carriage_pass=interrupts_carriage_pass)
         self.instruction_type: Knitout_Instruction_Type = instruction_type
 
@@ -128,9 +146,12 @@ class Knitout_Instruction(Knitout_Line):
         return f"{self.instruction_type}{self.comment_str}"
 
     def execute(self, machine_state: Knitting_Machine) -> bool:
-        """
-        Executes the instruction on the machine state.
-        :param machine_state: The machine state to update.
-        :return: True if the process completes an update.
+        """Execute the instruction on the machine state.
+
+        Args:
+            machine_state: The machine state to update.
+
+        Returns:
+            True if the process completes an update.
         """
         return False

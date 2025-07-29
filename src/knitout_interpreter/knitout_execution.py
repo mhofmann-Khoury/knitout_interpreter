@@ -13,6 +13,15 @@ class Knitout_Executer:
     """A class used to execute a set of knitout instructions on a virtual knitting machine."""
 
     def __init__(self, instructions: list[Knitout_Line], knitting_machine: Knitting_Machine, accepted_error_types: list | None = None, knitout_version: int = 2):
+        """Initialize the knitout executer.
+
+        Args:
+            instructions: List of knitout instructions to execute.
+            knitting_machine: The virtual knitting machine to execute instructions on.
+            accepted_error_types: List of exception types that can be resolved by
+                commenting them out. Defaults to None.
+            knitout_version: The knitout version to use. Defaults to 2.
+        """
         self.knitout_version = knitout_version
         if accepted_error_types is None:
             accepted_error_types = []
@@ -38,50 +47,69 @@ class Knitout_Executer:
 
     @property
     def version_line(self) -> Knitout_Version_Line:
-        """
-        :return: The version line for the executed knitout.
+        """Get the version line for the executed knitout.
+
+        Returns:
+            The version line for the executed knitout.
         """
         return Knitout_Version_Line(self.knitout_version)
 
     @property
     def execution_time(self) -> int:
-        """
-        :return: Count of carriage passes in process as a measure of knitting time
+        """Get the execution time as measured by carriage passes.
+
+        Returns:
+            Count of carriage passes in process as a measure of knitting time.
         """
         return len(self._carriage_passes)
 
     @property
     def left_most_position(self) -> int | None:
-        """
-        :return: The position of the left most needle used in execution.
+        """Get the leftmost needle position used in execution.
+
+        Returns:
+            The position of the left most needle used in execution, or None if
+            no needles were used.
         """
         return self._left_most_position
 
     @property
     def right_most_position(self) -> int | None:
-        """
-        :return: The position of the right most needle used in the execution.
+        """Get the rightmost needle position used in execution.
+
+        Returns:
+            The position of the right most needle used in the execution, or None
+            if no needles were used.
         """
         return self._right_most_position
 
     @property
     def resulting_knit_graph(self) -> Knit_Graph:
-        """
-        :return: Knit Graph that results from execution of these instructions.
+        """Get the knit graph resulting from instruction execution.
+
+        Returns:
+            Knit Graph that results from execution of these instructions.
         """
         return self.knitting_machine.knit_graph
 
     @property
     def carriage_passes(self) -> list[Carriage_Pass]:
-        """
-        :return: The carriage passes resulting from this execution in execution order.
+        """Get the carriage passes from this execution.
+
+        Returns:
+            The carriage passes resulting from this execution in execution order.
         """
         return self._carriage_passes
 
     def test_and_organize_instructions(self, accepted_error_types: list | None = None) -> None:
-        """
-        Tests the given execution and organizes the instructions in the class structure.
-        :param accepted_error_types: A list of exceptions that instructions may through that can be resolved by commenting them out.
+        """Test the given execution and organize the instructions in the class structure.
+
+        This method processes all instructions, organizing them into carriage passes
+        and handling any errors that occur during execution.
+
+        Args:
+            accepted_error_types: A list of exceptions that instructions may throw
+                that can be resolved by commenting them out. Defaults to None.
         """
         if accepted_error_types is None:
             accepted_error_types = []
@@ -139,9 +167,10 @@ class Knitout_Executer:
         self.executed_instructions.extend(executed_process)
 
     def write_executed_instructions(self, filename: str) -> None:
-        """
-        Write a file with the knitout organized knitout instructions
-        :param filename: the file to write out to.
+        """Write a file with the organized knitout instructions.
+
+        Args:
+            filename: The file path to write the executed instructions to.
         """
         with open(filename, "w") as file:
             file.writelines([str(instruction) for instruction in self.executed_instructions])

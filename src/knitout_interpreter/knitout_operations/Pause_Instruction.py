@@ -6,19 +6,38 @@ from knitout_interpreter.knitout_operations.knitout_instruction import Knitout_I
 
 
 class Pause_Instruction(Knitout_Instruction):
+    """Instruction for pausing the knitting machine."""
+
     def __init__(self, comment: None | str = None):
+        """Initialize a pause instruction.
+
+        Args:
+            comment: Optional comment for the pause instruction.
+        """
         super().__init__(Knitout_Instruction_Type.Pause, comment, interrupts_carriage_pass=True)
 
     def execute(self, machine_state: Knitting_Machine) -> bool:
+        """Execute the pause instruction.
+
+        Args:
+            machine_state: The machine state (not modified by pause).
+
+        Returns:
+            False as no update is caused by pauses.
+        """
         return False  # No Update caused by pauses
 
     @staticmethod
     def execute_pause(machine_state: Knitting_Machine, comment: str | None = None) -> Pause_Instruction:
+        """Execute a pause instruction on the machine.
+
+        Args:
+            machine_state: The current machine model to update.
+            comment: Additional details to document in the knitout.
+
+        Returns:
+            The instruction that was executed.
         """
-            :param machine_state: the current machine model to update
-            :param comment: additional details to document in the knitout
-            :return: the instruction
-            """
         instruction = Pause_Instruction(comment)
         instruction.execute(machine_state)
         return instruction

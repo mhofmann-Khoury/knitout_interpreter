@@ -2,6 +2,7 @@
 from __future__ import annotations
 import time
 import warnings
+from typing import cast, Iterator
 
 from virtual_knitting_machine.Knitting_Machine import Knitting_Machine
 from virtual_knitting_machine.knitting_machine_warnings.carriage_pass_warnings import Reordered_Knitting_Pass_Warning
@@ -55,7 +56,7 @@ class Carriage_Pass:
         Returns:
             List of needles in the carriage pass sorted from left to right.
         """
-        return Carriage_Pass_Direction.Rightward.sort_needles(self._needles_to_instruction.keys(), self.rack)
+        return cast(list[Needle], Carriage_Pass_Direction.Rightward.sort_needles(self._needles_to_instruction.keys(), self.rack))
 
     def leftward_sorted_needles(self) -> list[Needle]:
         """Get needles sorted from right to left.
@@ -63,7 +64,7 @@ class Carriage_Pass:
         Returns:
             List of needles in the carriage pass sorted from right to left.
         """
-        return Carriage_Pass_Direction.Leftward.sort_needles(self._needles_to_instruction.keys(), self.rack)
+        return cast(list[Needle], Carriage_Pass_Direction.Leftward.sort_needles(self._needles_to_instruction.keys(), self.rack))
 
     def sorted_needles(self) -> list[Needle]:
         """Get needles sorted by carriage pass direction.
@@ -75,7 +76,7 @@ class Carriage_Pass:
         if self.direction is None:
             return self.rightward_sorted_needles()
         else:
-            return self.direction.sort_needles(self._needles_to_instruction.keys(), self.rack)
+            return cast(list[Needle], self.direction.sort_needles(self._needles_to_instruction.keys(), self.rack))
 
     def instructions_by_needles(self, needles: list[Needle]) -> list[Needle_Instruction]:
         """Get instructions ordered by the given needle list.
@@ -141,8 +142,8 @@ class Carriage_Pass:
             Needles in order given by instruction set.
         """
         needles = [i.needle for i in self._instructions]
-        if self._direction is not None:
-            return self._direction.sort_needles(needles, self.rack)
+        if self.direction is not None:
+            return cast(list[Needle], self.direction.sort_needles(needles, self.rack))
         else:
             return needles  # needles in order of given instructions
 
@@ -357,7 +358,7 @@ class Carriage_Pass:
         """
         return str(self._instructions)
 
-    def __iter__(self) -> iter[Knitout_Line]:
+    def __iter__(self) -> Iterator[Needle_Instruction]:
         """Iterate over the instructions in the carriage pass.
 
         Returns:

@@ -46,6 +46,7 @@ split_op: "split" D=direction N=needle_id N2=needle_id CS=carrier_set ;
 drop_op: "drop" N=needle_id ;
 xfer_op: "xfer" N=needle_id N2=needle_id ;
 miss_op: "miss" D=direction N=needle_id CS=carrier_set;
+kick_op: "kick" D=direction N=needle_id CS=carrier_set;
 pause_op: "pause";
 
 direction: "+" | "-";

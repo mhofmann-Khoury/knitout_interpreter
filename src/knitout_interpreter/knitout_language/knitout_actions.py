@@ -12,6 +12,7 @@ from knitout_interpreter.knitout_operations.Knitout_Line import Knitout_Line, Kn
 from knitout_interpreter.knitout_operations.Pause_Instruction import Pause_Instruction
 from knitout_interpreter.knitout_operations.Rack_Instruction import Rack_Instruction
 from knitout_interpreter.knitout_operations.carrier_instructions import In_Instruction, Inhook_Instruction, Releasehook_Instruction, Out_Instruction, Outhook_Instruction
+from knitout_interpreter.knitout_operations.kick_instruction import Kick_Instruction
 from knitout_interpreter.knitout_operations.needle_instructions import Knit_Instruction, Tuck_Instruction, Miss_Instruction, Split_Instruction, Drop_Instruction, Xfer_Instruction
 
 action = get_collector()
@@ -19,24 +20,31 @@ action = get_collector()
 
 @action
 def comment(_: Any, __: Any, content: str | None) -> str | None:
-    """
+    """Extracts the content of a comment.
 
-    :param _:
-    :param __:
-    :param content: the content of the comment.
-    :return: the content of the comment.
+    Args:
+        _: The parser element that created this value.
+        __: Unused parameter.
+        content: The content of the comment.
+
+    Returns:
+        The content of the comment.
     """
     return content
 
 
 @action
 def code_line(_: Any, __: Any, c: Knitout_Line | None, com: str | None) -> Knitout_Line | None:
-    """
-    :param _:
-    :param __:
-    :param c: the knitout line to execute, if any
-    :param com: the comment to append to the knitout line
-    :return: the knitout line created or None if no values are given
+    """Creates a knitout line with optional comment.
+
+    Args:
+        _: The parser element that created this value.
+        __: Unused parameter.
+        c: The knitout line to execute, if any.
+        com: The comment to append to the knitout line.
+
+    Returns:
+        The knitout line created or None if no values are given.
     """
     if c is None:
         if com is None:
@@ -49,253 +57,357 @@ def code_line(_: Any, __: Any, c: Knitout_Line | None, com: str | None) -> Knito
 
 @action
 def magic_string(_: Any, __: Any, v: int) -> Knitout_Version_Line:
-    """
-    :param _:  The parser element that created this value
-    :param __:
-    :param v: version number
-    :return: The version line knitout line.
+    """Creates a knitout version line.
+
+    Args:
+        _: The parser element that created this value.
+        __: Unused parameter.
+        v: Version number.
+
+    Returns:
+        The version line knitout line.
     """
     return Knitout_Version_Line(v)
 
 
 @action
 def header_line(_: Any, __: Any, h_op: Knitout_Header_Line) -> Knitout_Header_Line:
-    """
-    :param _: The parser element that created this value
-    :param __:
-    :param h_op: operation on the line
-    :return: the header operation
+    """Returns a header line operation.
+
+    Args:
+        _: The parser element that created this value.
+        __: Unused parameter.
+        h_op: Operation on the line.
+
+    Returns:
+        The header operation.
     """
     return h_op
 
 
 @action
 def machine_op(_: Any, __: Any, m: str) -> Machine_Header_Line:
-    """
-    :param _: The parser element that created this value
-    :param __:
-    :param m: the machine name as a string
-    :return: the machine declaration operation
+    """Creates a machine header line.
+
+    Args:
+        _: The parser element that created this value.
+        __: Unused parameter.
+        m: The machine name as a string.
+
+    Returns:
+        The machine declaration operation.
     """
     return Machine_Header_Line(m)
 
 
 @action
 def gauge_op(_: Any, __: Any, g: int) -> Gauge_Header_Line:
-    """
-    :param _: The parser element that created this value
-    :param __:
-    :param g: gauge value
-    :return: Gauge_Declaration
+    """Creates a gauge header line.
+
+    Args:
+        _: The parser element that created this value.
+        __: Unused parameter.
+        g: Gauge value.
+
+    Returns:
+        Gauge_Declaration.
     """
     return Gauge_Header_Line(g)
 
 
 @action
 def yarn_op(_: Any, __: Any, cid: int, plies: int, weight: int, color: str) -> Yarn_Header_Line:
-    """
-    :param plies: plies in the yarn.
-    :param weight: weight of the yarn.
-    :param _: The parser element that created this value.
-    :param __:
-    :param cid: The carrier to assign the yarn too.
-    :param color: The yarn color.
-    :return: Yarn declaration.
+    """Creates a yarn header line.
+
+    Args:
+        _: The parser element that created this value.
+        __: Unused parameter.
+        cid: The carrier to assign the yarn too.
+        plies: Plies in the yarn.
+        weight: Weight of the yarn.
+        color: The yarn color.
+
+    Returns:
+        Yarn declaration.
     """
     return Yarn_Header_Line(cid, plies, weight, color)
 
 
 @action
 def carriers_op(_: Any, __: Any, CS: Yarn_Carrier_Set) -> Carriers_Header_Line:
-    """
-    :param _: The parser element that created this value.
-    :param __:
-    :param __:
-    :param CS: the carriers that are available.
-    :return: carrier declaration.
+    """Creates a carriers header line.
+
+    Args:
+        _: The parser element that created this value.
+        __: Unused parameter.
+        CS: The carriers that are available.
+
+    Returns:
+        Carrier declaration.
     """
     return Carriers_Header_Line(CS)
 
 
 @action
 def position_op(_: Any, __: Any, p: str) -> Position_Header_Line:
-    """
-    :param _: The parser element that created this value.
-    :param __:
-    :param p: the position of operations.
-    :return: the position declaration.
+    """Creates a position header line.
+
+    Args:
+        _: The parser element that created this value.
+        __: Unused parameter.
+        p: The position of operations.
+
+    Returns:
+        The position declaration.
     """
     return Position_Header_Line(p)
 
 
 @action
 def in_op(_: Any, __: Any, c: int) -> In_Instruction:
-    """
-    :param c: The carrier to bring in.
-    :param _: The parser element that created this value.
-    :param __:
-    :return: In operation on a carrier set.
+    """Creates an in instruction.
+
+    Args:
+        _: The parser element that created this value.
+        __: Unused parameter.
+        c: The carrier to bring in.
+
+    Returns:
+        In operation on a carrier set.
     """
     return In_Instruction(c)
 
 
 @action
 def inhook_op(_: Any, __: Any, c: int) -> Inhook_Instruction:
-    """
-    :param c:
-    :param _: The parser element that created this value
-    :param __:
-    :return: Inhook operation on carrier set
+    """Creates an inhook instruction.
+
+    Args:
+        _: The parser element that created this value.
+        __: Unused parameter.
+        c: The carrier to hook in.
+
+    Returns:
+        Inhook operation on carrier set.
     """
     return Inhook_Instruction(c)
 
 
 @action
 def releasehook_op(_: Any, __: Any, c: int) -> Releasehook_Instruction:
-    """
-    :param _: The parser element that created this value
-    :param __:
-    :param c: carrier set
-    :return: releasehook operation on carrier set
+    """Creates a releasehook instruction.
+
+    Args:
+        _: The parser element that created this value.
+        __: Unused parameter.
+        c: Carrier set.
+
+    Returns:
+        Releasehook operation on carrier set.
     """
     return Releasehook_Instruction(c)
 
 
 @action
 def out_op(_: Any, __: Any, c: int) -> Out_Instruction:
-    """
-    :param _: The parser element that created this value
-    :param __:
-    :param c: carrier set
-    :return: out operation on the carrier set
+    """Creates an out instruction.
+
+    Args:
+        _: The parser element that created this value.
+        __: Unused parameter.
+        c: Carrier set.
+
+    Returns:
+        Out operation on the carrier set.
     """
     return Out_Instruction(c)
 
 
 @action
 def outhook_op(_: Any, __: Any, c: int) -> Outhook_Instruction:
-    """
-    :param _: The parser element that created this value
-    :param __:
-    :param c: carrier set
-    :return: outhook operation on the carrier set
+    """Creates an outhook instruction.
+
+    Args:
+        _: The parser element that created this value.
+        __: Unused parameter.
+        c: Carrier set.
+
+    Returns:
+        Outhook operation on the carrier set.
     """
     return Outhook_Instruction(c)
 
 
 @action
 def rack_op(_: Any, __: Any, R: float) -> Rack_Instruction:
-    """
-    :param _: The parser element that created this value
-    :param __:
-    :param R: rack value
-    :return: rack operation
+    """Creates a rack instruction.
+
+    Args:
+        _: The parser element that created this value.
+        __: Unused parameter.
+        R: Rack value.
+
+    Returns:
+        Rack operation.
     """
     return Rack_Instruction(R)
 
 
 @action
 def knit_op(_: Any, __: Any, D: str, N: Needle, CS: Yarn_Carrier_Set) -> Knit_Instruction:
-    """
-    :param _: The parser element that created this value
-    :param __:
-    :param D: direction operates in
-    :param N: needle to operate on
-    :param CS: a carrier set
-    :return: knit operation
+    """Creates a knit instruction.
+
+    Args:
+        _: The parser element that created this value.
+        __: Unused parameter.
+        D: Direction operates in.
+        N: Needle to operate on.
+        CS: A carrier set.
+
+    Returns:
+        Knit operation.
     """
     return Knit_Instruction(N, Carriage_Pass_Direction.get_direction(D), CS)
 
 
 @action
 def tuck_op(_: Any, __: Any, D: str, N: Needle, CS: Yarn_Carrier_Set) -> Tuck_Instruction:
-    """
-    :param _: The parser element that created this value
-    :param __:
-    :param D: direction operates in
-    :param N: needle to operate on
-    :param CS: a carrier set
-    :return: tuck operation
+    """Creates a tuck instruction.
+
+    Args:
+        _: The parser element that created this value.
+        __: Unused parameter.
+        D: Direction operates in.
+        N: Needle to operate on.
+        CS: A carrier set.
+
+    Returns:
+        Tuck operation.
     """
     return Tuck_Instruction(N, Carriage_Pass_Direction.get_direction(D), CS)
 
 
 @action
 def miss_op(_: Any, __: Any, D: str, N: Needle, CS: Yarn_Carrier_Set) -> Miss_Instruction:
-    """
-    :param _: The parser element that created this value
-    :param __:
-    :param D: direction to operate in
-    :param N: needle to operate on
-    :param CS: a carrier set
-    :return: miss operation
+    """Creates a miss instruction.
+
+    Args:
+        _: The parser element that created this value.
+        __: Unused parameter.
+        D: Direction to operate in.
+        N: Needle to operate on.
+        CS: A carrier set.
+
+    Returns:
+        Miss operation.
     """
     return Miss_Instruction(N, Carriage_Pass_Direction.get_direction(D), CS)
 
 
 @action
-def split_op(_: Any, __: Any, D: str, N: Needle, N2: Needle, CS: Yarn_Carrier_Set) -> Split_Instruction:
+def kick_op(_: Any, __: Any, D: str, N: Needle, CS: Yarn_Carrier_Set) -> Kick_Instruction:
+    """Creates a kick instruction.
+
+    Args:
+        _: The parser element that created this value.
+        __: Unused parameter.
+        D: The direction to operate in.
+        N: The needle to position the kickback.
+        CS: The carrier set to kick.
+
+    Returns:
+        The specified Kick Operation.
     """
-    :param N2: second needle to move to.
-    :param _: The parser element that created this value
-    :param __:
-    :param D: Direction operates in
-    :param N: needle to operate on
-    :param CS: a carrier set
-    :return: knit operation
+    return Kick_Instruction(N.position, Carriage_Pass_Direction.get_direction(D), CS)
+
+
+@action
+def split_op(_: Any, __: Any, D: str, N: Needle, N2: Needle, CS: Yarn_Carrier_Set) -> Split_Instruction:
+    """Creates a split instruction.
+
+    Args:
+        _: The parser element that created this value.
+        __: Unused parameter.
+        D: Direction operates in.
+        N: Needle to operate on.
+        N2: Second needle to move to.
+        CS: A carrier set.
+
+    Returns:
+        Split operation.
     """
     return Split_Instruction(N, Carriage_Pass_Direction.get_direction(D), N2, CS)
 
 
 @action
 def drop_op(_: Any, __: Any, N: Needle) -> Drop_Instruction:
-    """
-    :param _: The parser element that created this value
-    :param __:
-    :param N: needle to drop from
-    :return: drop operation
+    """Creates a drop instruction.
+
+    Args:
+        _: The parser element that created this value.
+        __: Unused parameter.
+        N: Needle to drop from.
+
+    Returns:
+        Drop operation.
     """
     return Drop_Instruction(N)
 
 
 @action
 def xfer_op(_: Any, __: Any, N: Needle, N2: Needle) -> Xfer_Instruction:
-    """
-    :param _: The parser element that created this value
-    :param __:
-    :param N: Needle to transfer from
-    :param N2: needle to transfer to.
-    :return: Xfer operation
+    """Creates a transfer instruction.
+
+    Args:
+        _: The parser element that created this value.
+        __: Unused parameter.
+        N: Needle to transfer from.
+        N2: Needle to transfer to.
+
+    Returns:
+        Xfer operation.
     """
     return Xfer_Instruction(N, N2)
 
 
 @action
 def pause_op(_: Any, __: Any) -> Pause_Instruction:
-    """
-    :param _:
-    :param __:
-    :return: pause operation
+    """Creates a pause instruction.
+
+    Args:
+        _: The parser element that created this value.
+        __: Unused parameter.
+
+    Returns:
+        Pause operation.
     """
     return Pause_Instruction()
 
 
 @action
 def identifier(_: Any, node: str) -> str:
-    """
-    :param _:
-    :param node: identifier string
-    :return: node
+    """Returns an identifier string.
+
+    Args:
+        _: The parser element that created this value.
+        node: Identifier string.
+
+    Returns:
+        The identifier string.
     """
     return node
 
 
 @action
 def float_exp(_: Any, node: str) -> float:
-    """
-    :param _:
-    :param node: float string
-    :return: float conversion
+    """Converts a string to a float.
+
+    Args:
+        _: The parser element that created this value.
+        node: Float string.
+
+    Returns:
+        Float conversion.
     """
     digits = ""
     for c in node:
@@ -306,16 +418,29 @@ def float_exp(_: Any, node: str) -> float:
 
 @action
 def int_exp(_: Any, node: str) -> int:
-    """
-    :param _:
-    :param node: int string
-    :return: int conversion
+    """Converts a string to an integer.
+
+    Args:
+        _: The parser element that created this value.
+        node: Integer string.
+
+    Returns:
+        Integer conversion.
     """
     return int(float_exp(None, node))
 
 
 @action
-def needle_id(_:Any, node: str) -> Needle:
+def needle_id(_: Any, node: str) -> Needle:
+    """Creates a needle from a string representation.
+
+    Args:
+        _: The parser element that created this value.
+        node: String of the given needle.
+
+    Returns:
+        The Needle represented by this string.
+    """
     is_front = "f" in node
     slider = "s" in node
     num_str = node[1:]  # cut bed off
@@ -330,10 +455,14 @@ def needle_id(_:Any, node: str) -> Needle:
 
 @action
 def carrier_set(_: Any, __: Any, carriers: list[int]) -> Yarn_Carrier_Set:
-    """
-    :param _: The parser element that created this value
-    :param __:
-    :param carriers: Carriers in set.
-    :return: Carrier set
+    """Creates a yarn carrier set.
+
+    Args:
+        _: The parser element that created this value.
+        __: Unused parameter.
+        carriers: Carriers in set.
+
+    Returns:
+        Carrier set.
     """
     return Yarn_Carrier_Set(carriers)

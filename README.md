@@ -12,7 +12,6 @@ Support for interpreting knitout files used for controlling automatic V-Bed Knit
 - [Description](#description)
 - [Installation](#installation)
 - [Usage](#usage)
-  - [Run Knitout](#run-knitout)
   - [Knitout Executer](#knitout-executer)
 - [License](#license)
 

@@ -23,16 +23,24 @@ class Yarn_Carrier_Instruction(Knitout_Instruction):
         return f"{self.instruction_type} {self.carrier_id}{self.comment_str}"
 
     def get_yarn(self, machine: Knitting_Machine) -> Machine_Knit_Yarn:
-        """
-        :param machine:
-        :return: The yarn on the specified carrier on the given machine.
+        """Get the yarn on the specified carrier.
+
+        Args:
+            machine: The knitting machine to get yarn from.
+
+        Returns:
+            The yarn on the specified carrier on the given machine.
         """
         return self.get_carrier(machine).yarn
 
     def get_carrier(self, machine: Knitting_Machine) -> Yarn_Carrier:
-        """
-        :param machine:
-        :return: The yarn carrier specified on the given machine.
+        """Get the yarn carrier specified on the given machine.
+
+        Args:
+            machine: The knitting machine to get the carrier from.
+
+        Returns:
+            The yarn carrier specified on the given machine.
         """
         return machine.carrier_system[self.carrier_id]
 
@@ -54,12 +62,16 @@ class In_Instruction(Yarn_Carrier_Instruction):
 
     @staticmethod
     def execute_in(machine_state: Knitting_Machine, carrier: int | Yarn_Carrier, comment: str | None = None) -> In_Instruction:
+        """Execute an 'in' instruction to bring a carrier into the knitting area.
+
+        Args:
+            machine_state: The current machine model to update.
+            carrier: The carrier to execute with.
+            comment: Additional details to document in the knitout.
+
+        Returns:
+            The instruction that was executed.
         """
-            :param carrier: The carrier to execute with.
-            :param machine_state: The current machine model to update.
-            :param comment: Additional details to document in the knitout.
-            :return: The instruction.
-            """
         instruction = In_Instruction(carrier, comment)
         instruction.execute(machine_state)
         return instruction
@@ -76,12 +88,16 @@ class Inhook_Instruction(Hook_Instruction):
 
     @staticmethod
     def execute_inhook(machine_state: Knitting_Machine, carrier: int | Yarn_Carrier, comment: str | None = None) -> Inhook_Instruction:
+        """Execute an 'inhook' instruction to hook a carrier into position.
+
+        Args:
+            machine_state: The current machine model to update.
+            carrier: The carrier to execute with.
+            comment: Additional details to document in the knitout.
+
+        Returns:
+            The instruction that was executed.
         """
-            :param carrier: The carrier to execute with.
-            :param machine_state: The current machine model to update.
-            :param comment: Additional details to document in the knitout.
-            :return: The instruction.
-            """
         instruction = Inhook_Instruction(carrier, comment)
         instruction.execute(machine_state)
         return instruction
@@ -95,9 +111,11 @@ class Releasehook_Instruction(Hook_Instruction):
 
     @property
     def preferred_release_direction(self) -> Carriage_Pass_Direction:
-        """
-        :return: The preferred direction to release this carrier in.
-        Will default to leftward release.
+        """Get the preferred direction to release this carrier.
+
+        Returns:
+            The preferred direction to release this carrier in.
+            Will default to leftward release.
         """
         if self._preferred_release_direction is None:
             return Carriage_Pass_Direction.Leftward
@@ -114,12 +132,16 @@ class Releasehook_Instruction(Hook_Instruction):
 
     @staticmethod
     def execute_releasehook(machine_state: Knitting_Machine, carrier: int | Yarn_Carrier, comment: str | None = None) -> Releasehook_Instruction:
+        """Execute a 'releasehook' instruction to release a hooked carrier.
+
+        Args:
+            machine_state: The current machine model to update.
+            carrier: The carrier to execute with.
+            comment: Additional details to document in the knitout.
+
+        Returns:
+            The instruction that was executed.
         """
-            :param carrier: The carrier to execute with.
-            :param machine_state: The current machine model to update.
-            :param comment: Additional details to document in the knitout.
-            :return: The instruction.
-            """
         instruction = Releasehook_Instruction(carrier, comment)
         instruction.execute(machine_state)
         return instruction
@@ -136,12 +158,16 @@ class Out_Instruction(Yarn_Carrier_Instruction):
 
     @staticmethod
     def execute_out(machine_state: Knitting_Machine, carrier: int | Yarn_Carrier, comment: str | None = None) -> Out_Instruction:
+        """Execute an 'out' instruction to move a carrier out of the knitting area.
+
+        Args:
+            machine_state: The current machine model to update.
+            carrier: The carrier to execute with.
+            comment: Additional details to document in the knitout.
+
+        Returns:
+            The instruction that was executed.
         """
-            :param carrier: The carrier to execute with.
-            :param machine_state: The current machine model to update.
-            :param comment: Additional details to document in the knitout.
-            :return: The instruction.
-            """
         instruction = Out_Instruction(carrier, comment)
         instruction.execute(machine_state)
         return instruction
@@ -162,12 +188,16 @@ class Outhook_Instruction(Hook_Instruction):
 
     @staticmethod
     def execute_outhook(machine_state: Knitting_Machine, carrier: int | Yarn_Carrier, comment: str | None = None) -> Outhook_Instruction:
+        """Execute an 'outhook' instruction to hook a carrier out of position.
+
+        Args:
+            machine_state: The current machine model to update.
+            carrier: The carrier to execute with.
+            comment: Additional details to document in the knitout.
+
+        Returns:
+            The instruction that was executed.
         """
-            :param carrier: The carrier to execute with.
-            :param machine_state: The current machine model to update.
-            :param comment: Additional details to document in the knitout.
-            :return: The instruction.
-            """
         instruction = Outhook_Instruction(carrier, comment)
         instruction.execute(machine_state)
         return instruction

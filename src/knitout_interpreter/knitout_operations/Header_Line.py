@@ -36,9 +36,13 @@ class Knitout_Header_Line(Knitout_Line):
         self.header_type: Knitout_Header_Line_Type = header_type
 
     def updates_machine_state(self, machine_state: Knitting_Machine) -> bool:
-        """
-        :param machine_state:
-        :return: True if this header would update the given machine state. False, otherwise.
+        """Check if this header would update the given machine state.
+
+        Args:
+            machine_state: The machine state to check against.
+
+        Returns:
+            True if this header would update the given machine state, False otherwise.
         """
         return False
 
@@ -96,7 +100,7 @@ class Position_Header_Line(Knitout_Header_Line):
 
 class Yarn_Header_Line(Knitout_Header_Line):
 
-    def __init__(self, carrier_id: int, plies: int, yarn_weight: float, color:str, comment: str | None = None):
+    def __init__(self, carrier_id: int, plies: int, yarn_weight: float, color: str, comment: str | None = None):
         self.yarn_properties: Yarn_Properties = Yarn_Properties(f"carrier+{carrier_id}_yarn", plies, yarn_weight, color)
         self.carrier_id: int = carrier_id
         super().__init__(Knitout_Header_Line_Type.Yarn, self.yarn_properties, comment)
@@ -138,8 +142,10 @@ class Carriers_Header_Line(Knitout_Header_Line):
 
 
 class Knitting_Machine_Header:
-    """
-        A class structure for maintain the relationship between header lines read from a knitout file and the state of a given knitting machine.
+    """A class structure for maintaining the relationship between header lines and knitting machine state.
+
+    This class manages the relationship between header lines read from a knitout file
+    and the state of a given knitting machine.
     """
 
     def __init__(self, knitting_machine: Knitting_Machine):
@@ -148,15 +154,22 @@ class Knitting_Machine_Header:
         self.set_header_by_specification(self.machine.machine_specification)
 
     def update_header(self, header_line: Knitout_Header_Line, update_machine: bool = False) -> bool:
-        """
+        """Update this header with the given header line.
 
-        :param header_line: The header line to update this header by.
-        :param update_machine: If set to True, the header line will update the machine state to the new values in this header_line, if present.
-            Otherwise, if set to False, the header line will only update this header if there is no explicitly set header line for that value.
-            In this case, if the header line would require the machine state to update a warning is raised.
-        :return: True if this header is updated by the given header line.
-        Note that if update_machine is set to False, no updates are allowed and this will always return False.
-        If the update would have caused a change in the active machine, then raise a warning but no changes are given.
+        Args:
+            header_line: The header line to update this header with.
+            update_machine: If True, the header line will update the machine state
+                to the new values in this header_line, if present. If False, the
+                header line will only update this header if there is no explicitly
+                set header line for that value. In this case, if the header line
+                would require the machine state to update, a warning is raised.
+
+        Returns:
+            True if this header is updated by the given header line.
+
+        Note:
+            If update_machine is False, no updates are allowed and this will  always return False.
+            If the update would cause a change in the active machine, then a warning is raised, and it makes no changes to the machine state.
         """
         if update_machine:  # update the machine state and then add this to the header if it caused an update
             updated = header_line.execute(self.machine)
@@ -172,9 +185,10 @@ class Knitting_Machine_Header:
             return False
 
     def set_header_by_specification(self, machine_specification: Knitting_Machine_Specification) -> None:
-        """
-        Sets the header lines of this header to produce the given machine specification.
-        :param machine_specification: The machine specification to set this header to.
+        """Set the header lines to produce the given machine specification.
+
+        Args:
+            machine_specification: The machine specification to set this header to.
         """
         self._header_lines = {Knitout_Header_Line_Type.Machine: Machine_Header_Line(str(machine_specification.machine)),
                               Knitout_Header_Line_Type.Gauge: Gauge_Header_Line(machine_specification.gauge),
@@ -182,21 +196,30 @@ class Knitting_Machine_Header:
                               Knitout_Header_Line_Type.Carriers: Carriers_Header_Line(machine_specification.carrier_count)}
 
     def get_header_lines(self, version: int = 2) -> list[Knitout_Line]:
-        """
-        :param version: The number of the knitout version to process with.
-        :return: List of header lines that form a complete knitout header from the given header. This starts with a given version line.
+        """Get a complete knitout header from the stored header lines.
+
+        Args:
+            version: The knitout version number to process with. Defaults to 2.
+
+        Returns:
+            List of header lines that form a complete knitout header.
+            This starts with a version line.
         """
         values = [Knitout_Version_Line(version)]
         values.extend(self._header_lines.values())
         return values
 
 
-
 def get_machine_header(knitting_machine: Knitting_Machine, version: int = 2) -> list[Knitout_Line]:
-    """
-    :param knitting_machine: The machine state to specify as a header.
-    :param version: The desired knitout version of the header.
-    :return: A list of header and a version line that describes the given machine state.
+    """Get a list of header lines that describe the given machine state.
+
+    Args:
+        knitting_machine: The machine state to specify as a header.
+        version: The desired knitout version of the header. Defaults to 2.
+
+    Returns:
+        A list containing header lines and a version line that describes
+        the given machine state.
     """
     header = Knitting_Machine_Header(knitting_machine)
     return header.get_header_lines(version)
