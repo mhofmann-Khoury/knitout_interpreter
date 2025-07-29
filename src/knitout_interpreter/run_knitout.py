@@ -1,4 +1,6 @@
 """A Module containing the run_knitout function for running a knitout file through the knitout interpreter."""
+from typing import cast
+
 from knit_graphs.Knit_Graph import Knit_Graph
 from virtual_knitting_machine.Knitting_Machine import Knitting_Machine
 
@@ -23,4 +25,8 @@ def run_knitout(knitout_file_name: str) -> tuple[list[Knitout_Line], Knitting_Ma
             - Knit graph formed by execution
     """
     context = Knitout_Context()
-    return context.process_knitout_file(knitout_file_name)
+    lines, machine, graph = context.process_knitout_file(knitout_file_name)
+    cast(list[Knitout_Line], lines)
+    assert isinstance(machine, Knitting_Machine)
+    assert isinstance(graph, Knit_Graph)
+    return lines, machine, graph
