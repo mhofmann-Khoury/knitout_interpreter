@@ -64,7 +64,7 @@ class Knitout_Instruction_Type(Enum):
         """
         :return: True if instruction can be done in a knit pass
         """
-        return self in [Knitout_Instruction_Type.Knit, Knitout_Instruction_Type.Tuck, Knitout_Instruction_Type.Kick]  # Todo: test miss and drop operations
+        return self in [Knitout_Instruction_Type.Knit, Knitout_Instruction_Type.Tuck, Knitout_Instruction_Type.Kick]
 
     @property
     def all_needle_instruction(self) -> bool:
