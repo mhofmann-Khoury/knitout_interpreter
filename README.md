@@ -7,7 +7,7 @@
 [![Pre-commit](https://img.shields.io/badge/pre--commit-enabled-brightgreen?logo=pre-commit&logoColor=white)](https://github.com/pre-commit/pre-commit)
 
 A comprehensive Python library for interpreting and executing knitout files used to control automatic V-Bed knitting machines.
-This library provides full support for the [Knitout specification](https://textiles-lab.github.io/knitout/knitout.html) created by McCann et al., 
+This library provides full support for the [Knitout specification](https://textiles-lab.github.io/knitout/knitout.html) created by McCann et al.,
 enabling programmatic knitting pattern analysis, validation, and execution simulation.
 
 ## 📑 Table of Contents
@@ -47,7 +47,7 @@ The knitout-interpreter bridges the gap between high-level knitting pattern desc
 
 ### Advanced Analysis
 - 📊 **Execution Time Analysis**: Measure knitting time in carriage passes
-- 📏 **Width Calculation**: Determine required needle bed width  
+- 📏 **Width Calculation**: Determine required needle bed width
 - 🔍 **Error Detection**: Identify common knitting errors before execution
 - 📈 **Knit Graph Generation**: Create structured representations of the final fabric
 
@@ -156,7 +156,7 @@ The library supports all knitout operations as Python classes:
 - `Miss_Instruction`: Position carriers without forming loops
 - `Kick_Instruction`: Specialized miss for kickbacks
 
-#### Carrier Operations  
+#### Carrier Operations
 - `In_Instruction` / `Out_Instruction`: Move carriers in/out of knitting area
 - `Inhook_Instruction` / `Outhook_Instruction`: Move carriers in/out of knitting area using yarn-inserting hook.
 - `Releasehook_Instruction`: Release carriers on the yarn-inserting hook.
@@ -268,7 +268,7 @@ for i, cp in enumerate(executer.carriage_passes):
 ### Runtime Dependencies
 - `python` >= 3.11
 - `parglare` ~0.16.1 - Parser generator for knitout grammar
-- `knit-graphs` ~0.0.6 - Knitting graph data structures  
+- `knit-graphs` ~0.0.6 - Knitting graph data structures
 - `virtual-knitting-machine` ~0.0.13 - Virtual machine simulation
 - `importlib_resources` ~6.5.0 - Resource management
 

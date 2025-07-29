@@ -80,7 +80,7 @@ Technical Implementation Details:
     Compatibility Rules:
         Instructions can share a carriage pass if they have:
         - Same execution direction
-        - Same racking requirements  
+        - Same racking requirements
         - Same carrier usage
         - Compatible instruction types
         - Non-overlapping needle positions

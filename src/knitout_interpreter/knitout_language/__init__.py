@@ -65,6 +65,7 @@ __all__ = [
 GRAMMAR_FILE = "knitout.pg"
 SUPPORTED_KNITOUT_VERSIONS = [2]
 
+
 def get_supported_versions() -> list[int]:
     """Get list of supported knitout specification versions.
 
@@ -85,7 +86,7 @@ __doc__ += """
 
 Submodule Organization:
     Knitout_Parser.py: Main parser implementation using Parglare
-    Knitout_Context.py: Execution context and state management  
+    Knitout_Context.py: Execution context and state management
     knitout_actions.py: Parser action functions for grammar reduction
     knitout.pg: Grammar file defining knitout language syntax
     knitout.pgt: Compiled grammar table (generated automatically)
