@@ -4,25 +4,26 @@ from unittest import TestCase
 from knit_graphs.knit_graph_visualizer.Stitch_Visualizer import visualize_stitches
 
 from knitout_interpreter.run_knitout import run_knitout
+from resources.load_test_resources import load_test_resource
 
 
 class Test(TestCase):
     def test_run_knitout(self):
-        execution, machine, knit_graph = run_knitout("single_knit.k")
+        execution, machine, knit_graph = run_knitout(load_test_resource("single_knit.k"))
         print(execution)
         print(machine.front_loops())
         assert knit_graph.has_loop
         assert len(machine.front_loops()) == 1
 
     def test_stst_square(self):
-        execution, machine, knit_graph = run_knitout("stst_square.k")
+        execution, machine, knit_graph = run_knitout(load_test_resource("stst_square.k"))
         print(execution)
         print(machine.front_loops())
         visualize_stitches(knit_graph)
         assert len(machine.front_loops()) == 4
 
     def test_tube(self):
-        execution, machine, knit_graph = run_knitout("tube.k")
+        execution, machine, knit_graph = run_knitout(load_test_resource("tube.k"))
         print(execution)
         print(f"Front Loops: {machine.front_loops()}")
         print(f"Back Loops: {machine.back_loops()}")
@@ -33,7 +34,7 @@ class Test(TestCase):
         assert len(machine.back_loops()) == 2
 
     def test_rib(self):
-        execution, machine, knit_graph = run_knitout("rib.k")
+        execution, machine, knit_graph = run_knitout(load_test_resource("rib.k"))
         print(execution)
         print(machine.front_loops())
         print(machine.back_loops())
@@ -42,7 +43,7 @@ class Test(TestCase):
         assert len(machine.back_loops()) == 1
 
     def test_split(self):
-        execution, machine, knit_graph = run_knitout("split_pocket.k")
+        execution, machine, knit_graph = run_knitout(load_test_resource("split_pocket.k"))
         print(execution)
         print(f"Courses: {knit_graph.get_courses()}")
         print(f"Front Loops: {machine.front_loops()}")
@@ -54,7 +55,7 @@ class Test(TestCase):
         assert len(machine.back_loops()) == 4
 
     def test_lace(self):
-        execution, machine, knit_graph = run_knitout("lace.k")
+        execution, machine, knit_graph = run_knitout(load_test_resource("lace.k"))
         print(execution)
         print(machine.front_loops())
         print(machine.back_loops())
@@ -64,7 +65,7 @@ class Test(TestCase):
         assert len(machine.front_loops()) == 5
 
     def test_jacquard(self):
-        execution, machine, knit_graph = run_knitout("jacquard.k")
+        execution, machine, knit_graph = run_knitout(load_test_resource("jacquard.k"))
         print(execution)
         print(machine.front_loops())
         print(machine.back_loops())
@@ -72,7 +73,7 @@ class Test(TestCase):
         visualize_stitches(knit_graph)
 
     def test_cable(self):
-        execution, machine, knit_graph = run_knitout("cable.k")
+        execution, machine, knit_graph = run_knitout(load_test_resource("cable.k"))
         print(execution)
         print(machine.front_loops())
         print(machine.back_loops())

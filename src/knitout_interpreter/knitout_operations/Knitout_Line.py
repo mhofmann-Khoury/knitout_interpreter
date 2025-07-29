@@ -1,4 +1,6 @@
 """Base class for Knitout Lines of code"""
+from __future__ import annotations
+
 from virtual_knitting_machine.Knitting_Machine import Knitting_Machine
 
 
@@ -8,10 +10,10 @@ class Knitout_Line:
     """
     _Lines_Made = 0
 
-    def __init__(self, comment: str | None, interrupts_carriage_pass=False):
+    def __init__(self, comment: str | None, interrupts_carriage_pass: bool=False):
         Knitout_Line._Lines_Made += 1
-        self._creation_time = Knitout_Line._Lines_Made
-        self.comment = comment
+        self._creation_time:int = Knitout_Line._Lines_Made
+        self.comment: str | None = comment
         self.original_line_number: int | None = None
         self.follow_comments: list[Knitout_Comment_Line] = []
         self._interrupts_carriage_pass: bool = interrupts_carriage_pass
@@ -23,12 +25,12 @@ class Knitout_Line:
         """
         return self._interrupts_carriage_pass
 
-    def add_follow_comment(self, comment_line):
+    def add_follow_comment(self, comment_line: str) -> None:
         """
         Adds comment line to comments that follow this line
         :param comment_line:
         """
-        self.follow_comments.append(comment_line)
+        self.follow_comments.append(Knitout_Comment_Line(comment_line))
 
     @property
     def has_comment(self) -> bool:
@@ -55,7 +57,7 @@ class Knitout_Line:
         """
         return False
 
-    def __str__(self):
+    def __str__(self) -> str:
         return self.comment_str
 
     @property
@@ -74,7 +76,7 @@ class Knitout_Line:
         else:
             return str(self)[-1:]
 
-    def __repr__(self):
+    def __repr__(self) -> str:
         if self.original_line_number is not None:
             return self.id_str()
         else:
@@ -83,16 +85,16 @@ class Knitout_Line:
     # def __eq__(self, other):
     #     return str(self) == str(other)
 
-    def __lt__(self, other):
+    def __lt__(self, other: Knitout_Line) -> bool:
         if self.original_line_number is None:
             if other.original_line_number is None:
                 return False
             else:
                 return True
         else:
-            return self.original_line_number < other.original_line_number
+            return bool(self.original_line_number < other.original_line_number)
 
-    def __hash__(self):
+    def __hash__(self) -> int:
         return hash(self._creation_time)
 
 
@@ -102,7 +104,7 @@ class Knitout_Version_Line(Knitout_Line):
         super().__init__(comment, interrupts_carriage_pass=False)
         self.version: int = version
 
-    def __str__(self):
+    def __str__(self) -> str:
         return f";!knitout-{self.version}{self.comment_str}"
 
 
@@ -110,7 +112,7 @@ class Knitout_Comment_Line(Knitout_Line):
     def __init__(self, comment: None | str | Knitout_Line):
         if isinstance(comment, Knitout_Line):
             if isinstance(comment, Knitout_Comment_Line):
-                comment = Knitout_Comment_Line.comment_str
+                comment = str(Knitout_Comment_Line.comment_str)
             else:
                 comment = f"No-Op:\t{comment}"
         super().__init__(comment, interrupts_carriage_pass=False)

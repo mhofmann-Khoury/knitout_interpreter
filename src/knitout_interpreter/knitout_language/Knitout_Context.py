@@ -1,4 +1,5 @@
 """Module used to manage the context of a knitout interpreter."""
+from __future__ import annotations
 from knit_graphs.Knit_Graph import Knit_Graph
 from virtual_knitting_machine.Knitting_Machine import Knitting_Machine
 
@@ -53,11 +54,12 @@ class Knitout_Context:
         :return: Knitout version of the current context
         """
         if self.version_line is not None:
-            return self.version_line.version
+            return int(self.version_line.version)
         else:
             return 2
 
-    def add_version(self, version_line: Knitout_Version_Line):
+    @version.setter
+    def version(self, version_line: Knitout_Version_Line) -> None:
         """
         Adds the given version line to the current context.
         Overrides the existing version.
@@ -65,7 +67,7 @@ class Knitout_Context:
         """
         self.version_line = version_line
 
-    def execute_header(self, header_declarations: list[Knitout_Header_Line], comment_no_op_header: bool = False):
+    def execute_header(self, header_declarations: list[Knitout_Header_Line], comment_no_op_header: bool = False) -> None:
         """
         Updates the machine state by the given header values.
         If header declarations do not change the current context, they are converted to comments.
@@ -77,7 +79,7 @@ class Knitout_Context:
             if not updated and comment_no_op_header:  # comment out the no-op header line and add it to the execution.
                 self.executed_knitout.append(Knitout_Comment_Line(header_line))
 
-    def execute_instructions(self, instructions: list[Knitout_Line]):
+    def execute_instructions(self, instructions: list[Knitout_Line]) -> None:
         """
         Executes the instruction set on the machine state defined by the current header.
         :param instructions: Instructions to execute on knitting machine.
@@ -95,7 +97,7 @@ class Knitout_Context:
         :param instructions: The instructions to execute on the machine.
         :return: The list of knitout instructions that were executed, The machine state after execution, the knit graph created by execution.
         """
-        self.add_version(version_line)
+        self.version = version_line
         self.execute_header(header_declarations)
         self.execute_instructions(instructions)
         for i, instruction in enumerate(self.executed_instructions):

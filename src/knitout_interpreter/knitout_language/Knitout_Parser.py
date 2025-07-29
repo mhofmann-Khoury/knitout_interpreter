@@ -1,7 +1,11 @@
 """Parser code for accessing Parglare language support"""
 import re
 
-import importlib_resources
+# Use the modern import with fallback
+try:
+    from importlib.resources import files
+except ImportError:
+    from importlib_resources import files
 import parglare.exceptions
 from parglare import Parser, Grammar
 
@@ -16,11 +20,19 @@ class Knitout_Parser:
     """
 
     def __init__(self, debug_grammar: bool = False, debug_parser: bool = False, debug_parser_layout: bool = False):
-        pg_resource_stream = importlib_resources.files(knitout_interpreter.knitout_language).joinpath('knitout.pg')
+        try:
+            pg_resource_stream = files(knitout_interpreter.knitout_language).joinpath('knitout.pg')
+            self._grammar: Grammar = Grammar.from_file(pg_resource_stream, debug=debug_grammar, ignore_case=True)
+        except (FileNotFoundError, AttributeError) as e:
+            raise FileNotFoundError(
+                f"Could not locate 'knitout.pg' in package 'knitout_interpreter.knitout_language'. "
+                f"Please ensure the package is properly installed and the grammar file is included. "
+                f"Original error: {e}"
+            ) from e
         self._grammar: Grammar = Grammar.from_file(pg_resource_stream, debug=debug_grammar, ignore_case=True)
         self._set_parser(debug_parser, debug_parser_layout)
 
-    def _set_parser(self, debug_parser: bool, debug_parser_layout: bool):
+    def _set_parser(self, debug_parser: bool, debug_parser_layout: bool) -> None:
         self._parser: Parser = Parser(self._grammar, debug=debug_parser, debug_layout=debug_parser_layout, actions=action.all)
         self._parser.knitout_parser = self  # make this structure available from actions
 

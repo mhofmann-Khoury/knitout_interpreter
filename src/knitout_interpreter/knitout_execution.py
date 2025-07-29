@@ -5,6 +5,7 @@ from virtual_knitting_machine.Knitting_Machine import Knitting_Machine
 from knitout_interpreter.knitout_execution_structures.Carriage_Pass import Carriage_Pass
 from knitout_interpreter.knitout_operations.Header_Line import Knitout_Header_Line, Knitting_Machine_Header
 from knitout_interpreter.knitout_operations.Knitout_Line import Knitout_Line, Knitout_Comment_Line, Knitout_Version_Line
+from knitout_interpreter.knitout_operations.Pause_Instruction import Pause_Instruction
 from knitout_interpreter.knitout_operations.needle_instructions import Needle_Instruction
 
 
@@ -77,7 +78,7 @@ class Knitout_Executer:
         """
         return self._carriage_passes
 
-    def test_and_organize_instructions(self, accepted_error_types: list | None = None):
+    def test_and_organize_instructions(self, accepted_error_types: list | None = None) -> None:
         """
         Tests the given execution and organizes the instructions in the class structure.
         :param accepted_error_types: A list of exceptions that instructions may through that can be resolved by commenting them out.
@@ -114,7 +115,7 @@ class Knitout_Executer:
                         self.executed_instructions.extend(executed_pass)
                         current_pass = None
                     updated = instruction.execute(self.knitting_machine)
-                    if updated:
+                    if updated or isinstance(instruction, Pause_Instruction):
                         self.process.append(instruction)
                         self.executed_instructions.append(instruction)
                     else:
@@ -137,7 +138,7 @@ class Knitout_Executer:
         self.executed_instructions = self.executed_header.get_header_lines(self.knitout_version)
         self.executed_instructions.extend(executed_process)
 
-    def write_executed_instructions(self, filename: str):
+    def write_executed_instructions(self, filename: str) -> None:
         """
         Write a file with the knitout organized knitout instructions
         :param filename: the file to write out to.

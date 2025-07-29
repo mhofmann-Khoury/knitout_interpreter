@@ -1,4 +1,6 @@
 """Actions for reducing in Knitout Parser"""
+from typing import Any
+
 from parglare import get_collector
 from virtual_knitting_machine.machine_components.carriage_system.Carriage_Pass_Direction import Carriage_Pass_Direction
 from virtual_knitting_machine.machine_components.needles.Needle import Needle
@@ -16,7 +18,7 @@ action = get_collector()
 
 
 @action
-def comment(_, __, content: str | None) -> str | None:
+def comment(_: Any, __: Any, content: str | None) -> str | None:
     """
 
     :param _:
@@ -28,7 +30,7 @@ def comment(_, __, content: str | None) -> str | None:
 
 
 @action
-def code_line(_, __, c: Knitout_Line | None, com: str | None) -> Knitout_Line | None:
+def code_line(_: Any, __: Any, c: Knitout_Line | None, com: str | None) -> Knitout_Line | None:
     """
     :param _:
     :param __:
@@ -46,7 +48,7 @@ def code_line(_, __, c: Knitout_Line | None, com: str | None) -> Knitout_Line | 
 
 
 @action
-def magic_string(_, __, v: int) -> Knitout_Version_Line:
+def magic_string(_: Any, __: Any, v: int) -> Knitout_Version_Line:
     """
     :param _:  The parser element that created this value
     :param __:
@@ -57,7 +59,7 @@ def magic_string(_, __, v: int) -> Knitout_Version_Line:
 
 
 @action
-def header_line(_, __, h_op: Knitout_Header_Line) -> Knitout_Header_Line:
+def header_line(_: Any, __: Any, h_op: Knitout_Header_Line) -> Knitout_Header_Line:
     """
     :param _: The parser element that created this value
     :param __:
@@ -68,7 +70,7 @@ def header_line(_, __, h_op: Knitout_Header_Line) -> Knitout_Header_Line:
 
 
 @action
-def machine_op(_, __, m: str) -> Machine_Header_Line:
+def machine_op(_: Any, __: Any, m: str) -> Machine_Header_Line:
     """
     :param _: The parser element that created this value
     :param __:
@@ -79,7 +81,7 @@ def machine_op(_, __, m: str) -> Machine_Header_Line:
 
 
 @action
-def gauge_op(_, __, g: int) -> Gauge_Header_Line:
+def gauge_op(_: Any, __: Any, g: int) -> Gauge_Header_Line:
     """
     :param _: The parser element that created this value
     :param __:
@@ -90,7 +92,7 @@ def gauge_op(_, __, g: int) -> Gauge_Header_Line:
 
 
 @action
-def yarn_op(_, __, cid: int, plies: int, weight: int, color: str) -> Yarn_Header_Line:
+def yarn_op(_: Any, __: Any, cid: int, plies: int, weight: int, color: str) -> Yarn_Header_Line:
     """
     :param plies: plies in the yarn.
     :param weight: weight of the yarn.
@@ -104,7 +106,7 @@ def yarn_op(_, __, cid: int, plies: int, weight: int, color: str) -> Yarn_Header
 
 
 @action
-def carriers_op(_, __, CS: Yarn_Carrier_Set) -> Carriers_Header_Line:
+def carriers_op(_: Any, __: Any, CS: Yarn_Carrier_Set) -> Carriers_Header_Line:
     """
     :param _: The parser element that created this value.
     :param __:
@@ -116,7 +118,7 @@ def carriers_op(_, __, CS: Yarn_Carrier_Set) -> Carriers_Header_Line:
 
 
 @action
-def position_op(_, __, p: str) -> Position_Header_Line:
+def position_op(_: Any, __: Any, p: str) -> Position_Header_Line:
     """
     :param _: The parser element that created this value.
     :param __:
@@ -127,7 +129,7 @@ def position_op(_, __, p: str) -> Position_Header_Line:
 
 
 @action
-def in_op(_, __, c: int) -> In_Instruction:
+def in_op(_: Any, __: Any, c: int) -> In_Instruction:
     """
     :param c: The carrier to bring in.
     :param _: The parser element that created this value.
@@ -138,7 +140,7 @@ def in_op(_, __, c: int) -> In_Instruction:
 
 
 @action
-def inhook_op(_, __, c: int) -> Inhook_Instruction:
+def inhook_op(_: Any, __: Any, c: int) -> Inhook_Instruction:
     """
     :param c:
     :param _: The parser element that created this value
@@ -149,7 +151,7 @@ def inhook_op(_, __, c: int) -> Inhook_Instruction:
 
 
 @action
-def releasehook_op(_, __, c: int) -> Releasehook_Instruction:
+def releasehook_op(_: Any, __: Any, c: int) -> Releasehook_Instruction:
     """
     :param _: The parser element that created this value
     :param __:
@@ -160,7 +162,7 @@ def releasehook_op(_, __, c: int) -> Releasehook_Instruction:
 
 
 @action
-def out_op(_, __, c: int) -> Out_Instruction:
+def out_op(_: Any, __: Any, c: int) -> Out_Instruction:
     """
     :param _: The parser element that created this value
     :param __:
@@ -171,7 +173,7 @@ def out_op(_, __, c: int) -> Out_Instruction:
 
 
 @action
-def outhook_op(_, __, c: int) -> Outhook_Instruction:
+def outhook_op(_: Any, __: Any, c: int) -> Outhook_Instruction:
     """
     :param _: The parser element that created this value
     :param __:
@@ -182,7 +184,7 @@ def outhook_op(_, __, c: int) -> Outhook_Instruction:
 
 
 @action
-def rack_op(_, __, R: float) -> Rack_Instruction:
+def rack_op(_: Any, __: Any, R: float) -> Rack_Instruction:
     """
     :param _: The parser element that created this value
     :param __:
@@ -193,7 +195,7 @@ def rack_op(_, __, R: float) -> Rack_Instruction:
 
 
 @action
-def knit_op(_, __, D: str, N: Needle, CS: Yarn_Carrier_Set) -> Knit_Instruction:
+def knit_op(_: Any, __: Any, D: str, N: Needle, CS: Yarn_Carrier_Set) -> Knit_Instruction:
     """
     :param _: The parser element that created this value
     :param __:
@@ -206,7 +208,7 @@ def knit_op(_, __, D: str, N: Needle, CS: Yarn_Carrier_Set) -> Knit_Instruction:
 
 
 @action
-def tuck_op(_, __, D: str, N: Needle, CS: Yarn_Carrier_Set) -> Tuck_Instruction:
+def tuck_op(_: Any, __: Any, D: str, N: Needle, CS: Yarn_Carrier_Set) -> Tuck_Instruction:
     """
     :param _: The parser element that created this value
     :param __:
@@ -219,7 +221,7 @@ def tuck_op(_, __, D: str, N: Needle, CS: Yarn_Carrier_Set) -> Tuck_Instruction:
 
 
 @action
-def miss_op(_, __, D: str, N: Needle, CS: Yarn_Carrier_Set) -> Miss_Instruction:
+def miss_op(_: Any, __: Any, D: str, N: Needle, CS: Yarn_Carrier_Set) -> Miss_Instruction:
     """
     :param _: The parser element that created this value
     :param __:
@@ -232,7 +234,7 @@ def miss_op(_, __, D: str, N: Needle, CS: Yarn_Carrier_Set) -> Miss_Instruction:
 
 
 @action
-def split_op(_, __, D: str, N: Needle, N2: Needle, CS: Yarn_Carrier_Set) -> Split_Instruction:
+def split_op(_: Any, __: Any, D: str, N: Needle, N2: Needle, CS: Yarn_Carrier_Set) -> Split_Instruction:
     """
     :param N2: second needle to move to.
     :param _: The parser element that created this value
@@ -246,7 +248,7 @@ def split_op(_, __, D: str, N: Needle, N2: Needle, CS: Yarn_Carrier_Set) -> Spli
 
 
 @action
-def drop_op(_, __, N: Needle) -> Drop_Instruction:
+def drop_op(_: Any, __: Any, N: Needle) -> Drop_Instruction:
     """
     :param _: The parser element that created this value
     :param __:
@@ -257,7 +259,7 @@ def drop_op(_, __, N: Needle) -> Drop_Instruction:
 
 
 @action
-def xfer_op(_, __, N: Needle, N2: Needle) -> Xfer_Instruction:
+def xfer_op(_: Any, __: Any, N: Needle, N2: Needle) -> Xfer_Instruction:
     """
     :param _: The parser element that created this value
     :param __:
@@ -269,7 +271,7 @@ def xfer_op(_, __, N: Needle, N2: Needle) -> Xfer_Instruction:
 
 
 @action
-def pause_op(_, __) -> Pause_Instruction:
+def pause_op(_: Any, __: Any) -> Pause_Instruction:
     """
     :param _:
     :param __:
@@ -279,7 +281,7 @@ def pause_op(_, __) -> Pause_Instruction:
 
 
 @action
-def identifier(_, node: str) -> str:
+def identifier(_: Any, node: str) -> str:
     """
     :param _:
     :param node: identifier string
@@ -289,7 +291,7 @@ def identifier(_, node: str) -> str:
 
 
 @action
-def float_exp(_, node: str) -> float:
+def float_exp(_: Any, node: str) -> float:
     """
     :param _:
     :param node: float string
@@ -303,7 +305,7 @@ def float_exp(_, node: str) -> float:
 
 
 @action
-def int_exp(_, node: str) -> int:
+def int_exp(_: Any, node: str) -> int:
     """
     :param _:
     :param node: int string
@@ -313,7 +315,7 @@ def int_exp(_, node: str) -> int:
 
 
 @action
-def needle_id(_, node: str) -> Needle:
+def needle_id(_:Any, node: str) -> Needle:
     is_front = "f" in node
     slider = "s" in node
     num_str = node[1:]  # cut bed off
@@ -327,7 +329,7 @@ def needle_id(_, node: str) -> Needle:
 
 
 @action
-def carrier_set(_, __, carriers: list[int]):
+def carrier_set(_: Any, __: Any, carriers: list[int]) -> Yarn_Carrier_Set:
     """
     :param _: The parser element that created this value
     :param __:

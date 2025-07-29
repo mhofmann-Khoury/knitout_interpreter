@@ -1,4 +1,6 @@
 """Needle operations"""
+from __future__ import annotations
+
 from virtual_knitting_machine.Knitting_Machine import Knitting_Machine
 from virtual_knitting_machine.knitting_machine_exceptions.Needle_Exception import Misaligned_Needle_Exception
 from virtual_knitting_machine.machine_components.carriage_system.Carriage_Pass_Direction import Carriage_Pass_Direction
@@ -73,13 +75,12 @@ class Needle_Instruction(Knitout_Instruction):
         """
         :return: None if no specific racking is required or the required racking value to complete this operation.
         """
-        if not self.has_second_needle:
-            return None
+        if self.has_second_needle:
+            return int(Knitting_Machine.get_transfer_rack(self.needle, self.needle_2))
         else:
-            if self.needle.is_front:
-                return Knitting_Machine.get_transfer_rack(self.needle, self.needle_2)
+            return None
 
-    def _test_operation(self):
+    def _test_operation(self) -> None:
         if self.instruction_type.directed_pass:
             assert self.has_direction, f"Cannot {self.instruction_type} without a direction"
         if self.instruction_type.requires_second_needle:
@@ -87,7 +88,7 @@ class Needle_Instruction(Knitout_Instruction):
         if self.instruction_type.requires_carrier:
             assert self.has_carrier_set, f"Cannot {self.instruction_type} without a carrier set"
 
-    def __str__(self):
+    def __str__(self) -> str:
         if self.has_direction:
             dir_str = f" {self.direction}"
         else:
@@ -118,7 +119,7 @@ class Knit_Instruction(Loop_Making_Instruction):
     def __init__(self, needle: Needle, direction: str | Carriage_Pass_Direction, cs: Yarn_Carrier_Set, comment: None | str = None):
         super().__init__(Knitout_Instruction_Type.Knit, needle, direction=direction, carrier_set=cs, comment=comment)
 
-    def execute(self, machine_state: Knitting_Machine):
+    def execute(self, machine_state: Knitting_Machine) -> bool:
         self._test_operation()
         self.dropped_loops, self.made_loops = machine_state.knit(self.carrier_set, self.needle, self.direction)
         return True  # true even if loops is empty because the prior loops are dropped.
@@ -126,7 +127,7 @@ class Knit_Instruction(Loop_Making_Instruction):
     @staticmethod
     def execute_knit(machine_state: Knitting_Machine,
                      needle: Needle, direction: str | Carriage_Pass_Direction, cs: Yarn_Carrier_Set,
-                     comment: str | None = None):
+                     comment: str | None = None) -> Knit_Instruction:
         """
             :param needle: The needle to execute on.
             :param direction: The direction to execute in.
@@ -145,7 +146,7 @@ class Tuck_Instruction(Loop_Making_Instruction):
     def __init__(self, needle: Needle, direction: str | Carriage_Pass_Direction, cs: Yarn_Carrier_Set, comment: None | str = None):
         super().__init__(Knitout_Instruction_Type.Tuck, needle, direction=direction, carrier_set=cs, comment=comment)
 
-    def execute(self, machine_state: Knitting_Machine):
+    def execute(self, machine_state: Knitting_Machine) -> bool:
         self._test_operation()
         self.made_loops = machine_state.tuck(self.carrier_set, self.needle, self.direction)
         return len(self.made_loops) > 0
@@ -153,7 +154,7 @@ class Tuck_Instruction(Loop_Making_Instruction):
     @staticmethod
     def execute_tuck(machine_state: Knitting_Machine,
                      needle: Needle, direction: str | Carriage_Pass_Direction, cs: Yarn_Carrier_Set,
-                     comment: str | None = None):
+                     comment: str | None = None) -> Tuck_Instruction:
         """
             :param needle: The needle to execute on.
             :param direction: The direction to execute in.
@@ -172,7 +173,7 @@ class Split_Instruction(Loop_Making_Instruction):
     def __init__(self, needle: Needle, direction: Carriage_Pass_Direction, n2: Needle, cs: Yarn_Carrier_Set, comment: None | str = None):
         super().__init__(Knitout_Instruction_Type.Split, needle, direction=direction, needle_2=n2, carrier_set=cs, comment=comment)
 
-    def execute(self, machine_state: Knitting_Machine):
+    def execute(self, machine_state: Knitting_Machine) -> bool:
         self._test_operation()
         aligned_needle = machine_state.get_aligned_needle(self.needle)
         if aligned_needle != self.needle_2:
@@ -183,7 +184,7 @@ class Split_Instruction(Loop_Making_Instruction):
     @staticmethod
     def execute_split(machine_state: Knitting_Machine,
                       needle: Needle, direction: str | Carriage_Pass_Direction, cs: Yarn_Carrier_Set, n2: Needle,
-                      comment: str | None = None):
+                      comment: str | None = None) -> Split_Instruction:
         """
             :param n2: The second needle to execute to.
             :param needle: The needle to execute on.
@@ -203,14 +204,14 @@ class Drop_Instruction(Needle_Instruction):
     def __init__(self, needle: Needle, comment: None | str = None):
         super().__init__(Knitout_Instruction_Type.Drop, needle, comment=comment)
 
-    def execute(self, machine_state: Knitting_Machine):
+    def execute(self, machine_state: Knitting_Machine) -> bool:
         self._test_operation()
         self.dropped_loops = machine_state.drop(self.needle)
         return True
 
     @staticmethod
     def execute_Drop(machine_state: Knitting_Machine,
-                     needle: Needle, comment: str | None = None):
+                     needle: Needle, comment: str | None = None) -> Drop_Instruction:
         """
             :param needle: The needle to execute on.
             :param machine_state: The current machine model to update.
@@ -224,12 +225,12 @@ class Drop_Instruction(Needle_Instruction):
 
 class Xfer_Instruction(Needle_Instruction):
 
-    def __init__(self, needle: Needle, n2: Needle, comment: None | str = None, record_location=True):
+    def __init__(self, needle: Needle, n2: Needle, comment: None | str = None, record_location: bool = True):
         super().__init__(Knitout_Instruction_Type.Xfer, needle, needle_2=n2, comment=comment)
-        self.record_location = record_location
+        self.record_location: bool = record_location
         self.loop_crossings_made: dict[Machine_Knit_Loop, list[Machine_Knit_Loop]] = {}  # Todo: Use loop crossing code.
 
-    def add_loop_crossing(self, left_loop: Machine_Knit_Loop, right_loop: Machine_Knit_Loop):
+    def add_loop_crossing(self, left_loop: Machine_Knit_Loop, right_loop: Machine_Knit_Loop) -> None:
         """
         Update loop crossing to show transfers crossing loops.
         :param left_loop: The left loop involved in the crossing.
@@ -239,8 +240,9 @@ class Xfer_Instruction(Needle_Instruction):
             self.loop_crossings_made[left_loop] = []
         self.loop_crossings_made[left_loop].append(right_loop)
 
-    def execute(self, machine_state: Knitting_Machine):
+    def execute(self, machine_state: Knitting_Machine) -> bool:
         self._test_operation()
+        assert isinstance(self.needle, Needle)
         to_slider = self.needle_2.is_slider
         aligned_needle = machine_state.get_aligned_needle(self.needle, aligned_slider=to_slider)
         if aligned_needle != self.needle_2:
@@ -251,7 +253,7 @@ class Xfer_Instruction(Needle_Instruction):
     @staticmethod
     def execute_xfer(machine_state: Knitting_Machine,
                      needle: Needle, n2: Needle,
-                     comment: str | None = None):
+                     comment: str | None = None) -> Xfer_Instruction:
         """
             :param n2: The second needle to execute to.
             :param needle: The needle to execute on.
@@ -269,7 +271,7 @@ class Miss_Instruction(Needle_Instruction):
     def __init__(self, needle: Needle, direction: str | Carriage_Pass_Direction, cs: Yarn_Carrier_Set, comment: None | str = None):
         super().__init__(Knitout_Instruction_Type.Miss, needle, direction=direction, carrier_set=cs, comment=comment)
 
-    def execute(self, machine_state):
+    def execute(self, machine_state) -> bool:
         """
         Positions the carrier above the give needle.
         :param machine_state: The machine state to update.
@@ -281,7 +283,7 @@ class Miss_Instruction(Needle_Instruction):
     @staticmethod
     def execute_miss(machine_state: Knitting_Machine,
                      needle: Needle, direction: str | Carriage_Pass_Direction, cs: Yarn_Carrier_Set,
-                     comment: str | None = None):
+                     comment: str | None = None) -> Miss_Instruction:
         """
             :param needle: The needle to execute on.
             :param direction: The direction to execute in.
