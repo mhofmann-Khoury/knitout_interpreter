@@ -288,6 +288,10 @@ jobs:
     # -------------------------------------------------------------------------
     - name: Build documentation
       run: |
+        # Ensure we're in the right directory and create build dir
+        pwd
+        ls -la docs/
+        mkdir -p docs/build/html
         poetry run sphinx-build -b html docs/source docs/build/html -W
       # sphinx-build: Main Sphinx command
       # -b html: Build HTML output
