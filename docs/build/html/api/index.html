@@ -1,0 +1,437 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8" /><meta name="generator" content="Docutils 0.18.1: http://docutils.sourceforge.net/" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>API Reference &mdash; knitout-interpreter v0.0.17</title>
+      <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+      <link rel="stylesheet" href="../_static/css/theme.css" type="text/css" />
+      <link rel="stylesheet" href="../_static/custom.css" type="text/css" />
+  <!--[if lt IE 9]>
+    <script src="../_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+
+        <script src="../_static/jquery.js?v=5d32c60e"></script>
+        <script src="../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+        <script src="../_static/documentation_options.js?v=63b572e7"></script>
+        <script src="../_static/doctools.js?v=9a2dae69"></script>
+        <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="knitout_interpreter" href="modules.html" />
+    <link rel="prev" title="knitout-interpreter Documentation" href="../index.html" />
+</head>
+
+<body class="wy-body-for-nav">
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+
+
+          <a href="../index.html" class="icon icon-home">
+            knitout-interpreter
+          </a>
+              <div class="version">
+                0.0.17
+              </div>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">API Reference</span></p>
+<ul class="current">
+<li class="toctree-l1 current"><a class="current reference internal" href="#">API Reference</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#complete-module-documentation">Complete Module Documentation</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="modules.html">knitout_interpreter</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="knitout_interpreter.html">knitout_interpreter package</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#quick-reference">Quick Reference</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#main-package">Main Package</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#core-classes">Core Classes</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#instruction-types">Instruction Types</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#search-and-index">Search and Index</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="modules.html">knitout_interpreter</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="knitout_interpreter.html">knitout_interpreter package</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="knitout_interpreter.html#knitout_interpreter.run_knitout"><code class="docutils literal notranslate"><span class="pre">run_knitout()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="knitout_interpreter.html#knitout_interpreter.Knitout_Executer"><code class="docutils literal notranslate"><span class="pre">Knitout_Executer</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="knitout_interpreter.html#knitout_interpreter.Knitout_Executer.__init__"><code class="docutils literal notranslate"><span class="pre">Knitout_Executer.__init__()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="knitout_interpreter.html#knitout_interpreter.Knitout_Executer.version_line"><code class="docutils literal notranslate"><span class="pre">Knitout_Executer.version_line</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="knitout_interpreter.html#knitout_interpreter.Knitout_Executer.execution_time"><code class="docutils literal notranslate"><span class="pre">Knitout_Executer.execution_time</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="knitout_interpreter.html#knitout_interpreter.Knitout_Executer.left_most_position"><code class="docutils literal notranslate"><span class="pre">Knitout_Executer.left_most_position</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="knitout_interpreter.html#knitout_interpreter.Knitout_Executer.right_most_position"><code class="docutils literal notranslate"><span class="pre">Knitout_Executer.right_most_position</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="knitout_interpreter.html#knitout_interpreter.Knitout_Executer.resulting_knit_graph"><code class="docutils literal notranslate"><span class="pre">Knitout_Executer.resulting_knit_graph</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="knitout_interpreter.html#knitout_interpreter.Knitout_Executer.carriage_passes"><code class="docutils literal notranslate"><span class="pre">Knitout_Executer.carriage_passes</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="knitout_interpreter.html#knitout_interpreter.Knitout_Executer.test_and_organize_instructions"><code class="docutils literal notranslate"><span class="pre">Knitout_Executer.test_and_organize_instructions()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="knitout_interpreter.html#knitout_interpreter.Knitout_Executer.write_executed_instructions"><code class="docutils literal notranslate"><span class="pre">Knitout_Executer.write_executed_instructions()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="knitout_interpreter.html#subpackages">Subpackages</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="knitout_interpreter.knitout_execution_structures.html">knitout_interpreter.knitout_execution_structures package</a></li>
+<li class="toctree-l4"><a class="reference internal" href="knitout_interpreter.knitout_language.html">knitout_interpreter.knitout_language package</a></li>
+<li class="toctree-l4"><a class="reference internal" href="knitout_interpreter.knitout_operations.html">knitout_interpreter.knitout_operations package</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="knitout_interpreter.html#submodules">Submodules</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="knitout_interpreter.knitout_execution.html">knitout_interpreter.knitout_execution module</a></li>
+<li class="toctree-l4"><a class="reference internal" href="knitout_interpreter.run_knitout.html">knitout_interpreter.run_knitout module</a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../index.html">knitout-interpreter</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../index.html" class="icon icon-home" aria-label="Home"></a></li>
+      <li class="breadcrumb-item active">API Reference</li>
+      <li class="wy-breadcrumbs-aside">
+              <a href="https://github.com/mhofmann-Khoury/knitout_interpreter/blob/main/docs/source/api/index.rst" class="fa fa-github"> Edit on GitHub</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+
+  <section id="api-reference">
+<h1>API Reference<a class="headerlink" href="#api-reference" title="Link to this heading"></a></h1>
+<p>This section contains the complete API documentation for knitout-interpreter,
+automatically generated from the source code docstrings.</p>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>This documentation is automatically generated from the source code.
+For the most up-to-date information, refer to the docstrings in the source code.</p>
+</div>
+<section id="complete-module-documentation">
+<h2>Complete Module Documentation<a class="headerlink" href="#complete-module-documentation" title="Link to this heading"></a></h2>
+<div class="toctree-wrapper compound">
+<p class="caption" role="heading"><span class="caption-text">All Modules</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="modules.html">knitout_interpreter</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="knitout_interpreter.html">knitout_interpreter package</a></li>
+</ul>
+</li>
+</ul>
+</div>
+</section>
+<section id="quick-reference">
+<h2>Quick Reference<a class="headerlink" href="#quick-reference" title="Link to this heading"></a></h2>
+<section id="main-package">
+<h3>Main Package<a class="headerlink" href="#main-package" title="Link to this heading"></a></h3>
+<p>knitout_interpreter: A comprehensive library for interpreting knitout files.</p>
+<p>This package provides tools for parsing, validating, and executing knitout files
+used to control automatic V-Bed knitting machines. It includes support for the
+complete Knitout specification v2 created by McCann et al.</p>
+<p>The library bridges the gap between high-level knitting pattern descriptions and
+machine-level execution, providing comprehensive analysis and simulation capabilities.</p>
+<dl class="simple">
+<dt>Core Functionality:</dt><dd><ul class="simple">
+<li><p>run_knitout(): Simple function to parse and execute knitout files</p></li>
+<li><p>Knitout_Executer: Advanced class for detailed analysis and execution control</p></li>
+</ul>
+</dd>
+<dt>For specialized functionality, import from submodules:</dt><dd><ul class="simple">
+<li><p>knitout_interpreter.knitout_operations: Individual instruction types</p></li>
+<li><p>knitout_interpreter.knitout_language: Parsing and grammar support</p></li>
+<li><p>knitout_interpreter.knitout_execution_structures: Execution data structures</p></li>
+</ul>
+</dd>
+</dl>
+<p class="rubric">Example</p>
+<p>Basic usage - execute a knitout file:</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span><span class="w"> </span><span class="nn">knitout_interpreter.run_knitout</span><span class="w"> </span><span class="kn">import</span> <span class="n">run_knitout</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">instructions</span><span class="p">,</span> <span class="n">machine</span><span class="p">,</span> <span class="n">graph</span> <span class="o">=</span> <span class="n">run_knitout</span><span class="p">(</span><span class="s2">&quot;pattern.k&quot;</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Executed </span><span class="si">{</span><span class="nb">len</span><span class="p">(</span><span class="n">instructions</span><span class="p">)</span><span class="si">}</span><span class="s2"> instructions&quot;</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>Advanced analysis with detailed control:</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span><span class="w"> </span><span class="nn">knitout_interpreter</span><span class="w"> </span><span class="kn">import</span> <span class="n">Knitout_Executer</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span><span class="w"> </span><span class="nn">knitout_interpreter.knitout_language.Knitout_Parser</span><span class="w"> </span><span class="kn">import</span> <span class="n">parse_knitout</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span><span class="w"> </span><span class="nn">virtual_knitting_machine.Knitting_Machine</span><span class="w"> </span><span class="kn">import</span> <span class="n">Knitting_Machine</span>
+<span class="gp">&gt;&gt;&gt;</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">instructions</span> <span class="o">=</span> <span class="n">parse_knitout</span><span class="p">(</span><span class="s2">&quot;pattern.k&quot;</span><span class="p">,</span> <span class="n">pattern_is_file</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">executer</span> <span class="o">=</span> <span class="n">Knitout_Executer</span><span class="p">(</span><span class="n">instructions</span><span class="p">,</span> <span class="n">Knitting_Machine</span><span class="p">())</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Execution time: </span><span class="si">{</span><span class="n">executer</span><span class="o">.</span><span class="n">execution_time</span><span class="si">}</span><span class="s2"> carriage passes&quot;</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Width required: </span><span class="si">{</span><span class="n">executer</span><span class="o">.</span><span class="n">left_most_position</span><span class="si">}</span><span class="s2"> to </span><span class="si">{</span><span class="n">executer</span><span class="o">.</span><span class="n">right_most_position</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+</pre></div>
+</div>
+<dl class="py function">
+<dt class="sig sig-object py">
+<span class="sig-prename descclassname"><span class="pre">knitout_interpreter.</span></span><span class="sig-name descname"><span class="pre">run_knitout</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">knitout_file_name</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/knitout_interpreter/run_knitout.html#run_knitout"><span class="viewcode-link"><span class="pre">[source]</span></span></a></dt>
+<dd><p>Execute knitout instructions from a given file.</p>
+<p>This function provides a convenient interface for processing a knitout file
+through the knitout interpreter, returning the executed instructions and
+resulting machine state and knit graph.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>knitout_file_name</strong> (<span class="sphinx_autodoc_typehints-type"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.13)"><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code></a></span>) – Path to the file that contains knitout instructions.</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p><ul class="simple">
+<li><p>List of executed knitout lines</p></li>
+<li><p>Knitting machine state after execution</p></li>
+<li><p>Knit graph formed by execution</p></li>
+</ul>
+</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>A tuple containing</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">knitout_interpreter.</span></span><span class="sig-name descname"><span class="pre">Knitout_Executer</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">instructions</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">knitting_machine</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">accepted_error_types</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">knitout_version</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">2</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/knitout_interpreter/knitout_execution.html#Knitout_Executer"><span class="viewcode-link"><span class="pre">[source]</span></span></a></dt>
+<dd><p>A class used to execute a set of knitout instructions on a virtual knitting machine.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>instructions</strong> (<span class="sphinx_autodoc_typehints-type"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#list" title="(in Python v3.13)"><code class="xref py py-class docutils literal notranslate"><span class="pre">list</span></code></a>[<a class="reference internal" href="knitout_interpreter.knitout_operations.Knitout_Line.html#knitout_interpreter.knitout_operations.Knitout_Line.Knitout_Line" title="knitout_interpreter.knitout_operations.Knitout_Line.Knitout_Line"><code class="xref py py-class docutils literal notranslate"><span class="pre">Knitout_Line</span></code></a>]</span>)</p></li>
+<li><p><strong>knitting_machine</strong> (<span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">Knitting_Machine</span></code></span>)</p></li>
+<li><p><strong>accepted_error_types</strong> (<span class="sphinx_autodoc_typehints-type"><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Optional" title="(in Python v3.13)"><code class="xref py py-data docutils literal notranslate"><span class="pre">Optional</span></code></a>[<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#list" title="(in Python v3.13)"><code class="xref py py-class docutils literal notranslate"><span class="pre">list</span></code></a>]</span>)</p></li>
+<li><p><strong>knitout_version</strong> (<span class="sphinx_autodoc_typehints-type"><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.13)"><code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code></a></span>)</p></li>
+</ul>
+</dd>
+</dl>
+<dl class="py method">
+<dt class="sig sig-object py">
+<span class="sig-name descname"><span class="pre">__init__</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">instructions</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">knitting_machine</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">accepted_error_types</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">knitout_version</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">2</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/knitout_interpreter/knitout_execution.html#Knitout_Executer.__init__"><span class="viewcode-link"><span class="pre">[source]</span></span></a></dt>
+<dd><p>Initialize the knitout executer.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>instructions</strong> (<span class="sphinx_autodoc_typehints-type"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#list" title="(in Python v3.13)"><code class="xref py py-class docutils literal notranslate"><span class="pre">list</span></code></a>[<a class="reference internal" href="knitout_interpreter.knitout_operations.Knitout_Line.html#knitout_interpreter.knitout_operations.Knitout_Line.Knitout_Line" title="knitout_interpreter.knitout_operations.Knitout_Line.Knitout_Line"><code class="xref py py-class docutils literal notranslate"><span class="pre">Knitout_Line</span></code></a>]</span>) – List of knitout instructions to execute.</p></li>
+<li><p><strong>knitting_machine</strong> (<span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">Knitting_Machine</span></code></span>) – The virtual knitting machine to execute instructions on.</p></li>
+<li><p><strong>accepted_error_types</strong> (<span class="sphinx_autodoc_typehints-type"><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Optional" title="(in Python v3.13)"><code class="xref py py-data docutils literal notranslate"><span class="pre">Optional</span></code></a>[<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#list" title="(in Python v3.13)"><code class="xref py py-class docutils literal notranslate"><span class="pre">list</span></code></a>]</span>) – List of exception types that can be resolved by
+commenting them out. Defaults to None.</p></li>
+<li><p><strong>knitout_version</strong> (<span class="sphinx_autodoc_typehints-type"><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.13)"><code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code></a></span>) – The knitout version to use. Defaults to 2.</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">version_line</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference internal" href="knitout_interpreter.knitout_operations.Knitout_Line.html#knitout_interpreter.knitout_operations.Knitout_Line.Knitout_Version_Line" title="knitout_interpreter.knitout_operations.Knitout_Line.Knitout_Version_Line"><span class="pre">Knitout_Version_Line</span></a></em></dt>
+<dd><p>Get the version line for the executed knitout.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><p>The version line for the executed knitout.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">execution_time</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.13)"><span class="pre">int</span></a></em></dt>
+<dd><p>Get the execution time as measured by carriage passes.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><p>Count of carriage passes in process as a measure of knitting time.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">left_most_position</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.13)"><span class="pre">int</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.13)"><span class="pre">None</span></a></em></dt>
+<dd><p>Get the leftmost needle position used in execution.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><p>The position of the left most needle used in execution, or None if
+no needles were used.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">right_most_position</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.13)"><span class="pre">int</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.13)"><span class="pre">None</span></a></em></dt>
+<dd><p>Get the rightmost needle position used in execution.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><p>The position of the right most needle used in the execution, or None
+if no needles were used.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">resulting_knit_graph</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">Knit_Graph</span></em></dt>
+<dd><p>Get the knit graph resulting from instruction execution.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><p>Knit Graph that results from execution of these instructions.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">carriage_passes</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#list" title="(in Python v3.13)"><span class="pre">list</span></a><span class="p"><span class="pre">[</span></span><a class="reference internal" href="knitout_interpreter.knitout_execution_structures.Carriage_Pass.html#knitout_interpreter.knitout_execution_structures.Carriage_Pass.Carriage_Pass" title="knitout_interpreter.knitout_execution_structures.Carriage_Pass.Carriage_Pass"><span class="pre">Carriage_Pass</span></a><span class="p"><span class="pre">]</span></span></em></dt>
+<dd><p>Get the carriage passes from this execution.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><p>The carriage passes resulting from this execution in execution order.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py">
+<span class="sig-name descname"><span class="pre">test_and_organize_instructions</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">accepted_error_types</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/knitout_interpreter/knitout_execution.html#Knitout_Executer.test_and_organize_instructions"><span class="viewcode-link"><span class="pre">[source]</span></span></a></dt>
+<dd><p>Test the given execution and organize the instructions in the class structure.</p>
+<p>This method processes all instructions, organizing them into carriage passes
+and handling any errors that occur during execution.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>accepted_error_types</strong> (<span class="sphinx_autodoc_typehints-type"><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Optional" title="(in Python v3.13)"><code class="xref py py-data docutils literal notranslate"><span class="pre">Optional</span></code></a>[<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#list" title="(in Python v3.13)"><code class="xref py py-class docutils literal notranslate"><span class="pre">list</span></code></a>]</span>) – A list of exceptions that instructions may throw
+that can be resolved by commenting them out. Defaults to None.</p>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p><span class="sphinx_autodoc_typehints-type"><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.13)"><code class="xref py py-obj docutils literal notranslate"><span class="pre">None</span></code></a></span></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py">
+<span class="sig-name descname"><span class="pre">write_executed_instructions</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">filename</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/knitout_interpreter/knitout_execution.html#Knitout_Executer.write_executed_instructions"><span class="viewcode-link"><span class="pre">[source]</span></span></a></dt>
+<dd><p>Write a file with the organized knitout instructions.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>filename</strong> (<span class="sphinx_autodoc_typehints-type"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.13)"><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code></a></span>) – The file path to write the executed instructions to.</p>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p><span class="sphinx_autodoc_typehints-type"><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.13)"><code class="xref py py-obj docutils literal notranslate"><span class="pre">None</span></code></a></span></p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+</section>
+<section id="core-classes">
+<h3>Core Classes<a class="headerlink" href="#core-classes" title="Link to this heading"></a></h3>
+<table class="autosummary longtable docutils align-default">
+<tbody>
+<tr class="row-odd"><td><p><a class="reference internal" href="knitout_interpreter.html#knitout_interpreter.Knitout_Executer" title="knitout_interpreter.Knitout_Executer"><code class="xref py py-obj docutils literal notranslate"><span class="pre">knitout_interpreter.Knitout_Executer</span></code></a></p></td>
+<td><p>A class used to execute a set of knitout instructions on a virtual knitting machine.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="knitout_interpreter.knitout_language.html#knitout_interpreter.knitout_language.Knitout_Parser" title="knitout_interpreter.knitout_language.Knitout_Parser"><code class="xref py py-obj docutils literal notranslate"><span class="pre">knitout_interpreter.knitout_language.Knitout_Parser</span></code></a></p></td>
+<td><p>Parser for reading knitout using the parglare library.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="knitout_interpreter.knitout_language.html#knitout_interpreter.knitout_language.Knitout_Context" title="knitout_interpreter.knitout_language.Knitout_Context"><code class="xref py py-obj docutils literal notranslate"><span class="pre">knitout_interpreter.knitout_language.Knitout_Context</span></code></a></p></td>
+<td><p>Maintains information about the state of a knitting process as knitout instructions are executed.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="knitout_interpreter.knitout_execution_structures.html#knitout_interpreter.knitout_execution_structures.Carriage_Pass" title="knitout_interpreter.knitout_execution_structures.Carriage_Pass"><code class="xref py py-obj docutils literal notranslate"><span class="pre">knitout_interpreter.knitout_execution_structures.Carriage_Pass</span></code></a></p></td>
+<td><p>Manages knitout operations that are organized in a single carriage pass.</p></td>
+</tr>
+</tbody>
+</table>
+</section>
+<section id="instruction-types">
+<h3>Instruction Types<a class="headerlink" href="#instruction-types" title="Link to this heading"></a></h3>
+<table class="autosummary longtable docutils align-default">
+<tbody>
+<tr class="row-odd"><td><p><a class="reference internal" href="knitout_interpreter.knitout_operations.html#knitout_interpreter.knitout_operations.Knit_Instruction" title="knitout_interpreter.knitout_operations.Knit_Instruction"><code class="xref py py-obj docutils literal notranslate"><span class="pre">knitout_interpreter.knitout_operations.Knit_Instruction</span></code></a></p></td>
+<td><p>Instruction for knitting a loop on a needle.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="knitout_interpreter.knitout_operations.html#knitout_interpreter.knitout_operations.Tuck_Instruction" title="knitout_interpreter.knitout_operations.Tuck_Instruction"><code class="xref py py-obj docutils literal notranslate"><span class="pre">knitout_interpreter.knitout_operations.Tuck_Instruction</span></code></a></p></td>
+<td><p>Instruction for tucking yarn on a needle without dropping existing loops.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="knitout_interpreter.knitout_operations.html#knitout_interpreter.knitout_operations.Xfer_Instruction" title="knitout_interpreter.knitout_operations.Xfer_Instruction"><code class="xref py py-obj docutils literal notranslate"><span class="pre">knitout_interpreter.knitout_operations.Xfer_Instruction</span></code></a></p></td>
+<td><p>Instruction for transferring loops between needles.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="knitout_interpreter.knitout_operations.html#knitout_interpreter.knitout_operations.In_Instruction" title="knitout_interpreter.knitout_operations.In_Instruction"><code class="xref py py-obj docutils literal notranslate"><span class="pre">knitout_interpreter.knitout_operations.In_Instruction</span></code></a></p></td>
+<td><p><dl class="field-list simple">
+<dt class="field-odd">param carrier<span class="colon">:</span></dt>
+<dd class="field-odd"><p></p></dd>
+</dl>
+</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="knitout_interpreter.knitout_operations.html#knitout_interpreter.knitout_operations.Out_Instruction" title="knitout_interpreter.knitout_operations.Out_Instruction"><code class="xref py py-obj docutils literal notranslate"><span class="pre">knitout_interpreter.knitout_operations.Out_Instruction</span></code></a></p></td>
+<td><p><dl class="field-list simple">
+<dt class="field-odd">param carrier<span class="colon">:</span></dt>
+<dd class="field-odd"><p></p></dd>
+</dl>
+</p></td>
+</tr>
+</tbody>
+</table>
+</section>
+</section>
+<section id="search-and-index">
+<h2>Search and Index<a class="headerlink" href="#search-and-index" title="Link to this heading"></a></h2>
+<ul class="simple">
+<li><p><a class="reference internal" href="../genindex.html"><span class="std std-ref">Index</span></a> - Alphabetical index of all names</p></li>
+<li><p><a class="reference internal" href="../py-modindex.html"><span class="std std-ref">Module Index</span></a> - Module index</p></li>
+<li><p><a class="reference internal" href="../search.html"><span class="std std-ref">Search Page</span></a> - Search the documentation</p></li>
+</ul>
+</section>
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="../index.html" class="btn btn-neutral float-left" title="knitout-interpreter Documentation" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="modules.html" class="btn btn-neutral float-right" title="knitout_interpreter" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2024, Northeastern University ACT Lab.
+      <span class="lastupdated">Last updated on Jul 29, 2025.
+      </span></p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script>
+
+</body>
+</html>
