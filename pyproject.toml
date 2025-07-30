@@ -154,8 +154,6 @@ myst-parser = "^2.0.0"              # Support for Markdown files in documentatio
 # Extra links that appear on your PyPI project page
 [tool.poetry.urls]
 "Bug Tracker" = "https://github.com/mhofmann-Khoury/knitout_interpreter/issues"        # Where to report bugs
-"Changelog" = "https://github.com/mhofmann-Khoury/knitout_interpreter/blob/main/CHANGELOG.md"  # Version history
-"Discussions" = "https://github.com/mhofmann-Khoury/knitout_interpreter/discussions"   # Community discussions
 
 # =============================================================================
 # MYPY STATIC TYPE CHECKER CONFIGURATION
