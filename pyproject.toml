@@ -86,7 +86,7 @@ python = "^3.11"                # Minimum Python version (allows 3.11.x, 3.12.x,
 parglare = "~0.16.1"           # Parser generator library
 knit-graphs = "~0.0.6"         # Knitting graph library
 virtual-knitting-machine = "~0.0.13"  # Virtual knitting machine
-importlib_resources ="~6.5.0" # For loading parglar grammer file
+importlib_resources ="6.5.2" # For loading parglar grammer file
 
 # =============================================================================
 # DEVELOPMENT DEPENDENCIES
@@ -154,6 +154,7 @@ myst-parser = "^2.0.0"              # Support for Markdown files in documentatio
 # Extra links that appear on your PyPI project page
 [tool.poetry.urls]
 "Bug Tracker" = "https://github.com/mhofmann-Khoury/knitout_interpreter/issues"        # Where to report bugs
+"Documentation" = "https://mhofmann-khoury.github.io/knitout_interpreter/"
 
 # =============================================================================
 # MYPY STATIC TYPE CHECKER CONFIGURATION
