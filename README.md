@@ -79,6 +79,12 @@ pip install -e ".[dev]"
 pre-commit install
 ```
 
+### From Test-PyPi
+If you wish to install an unstable release from test-PyPi, note that this will have dependencies on PyPi repository.
+Use the following command to gather those dependencies during install.
+```bash
+pip install --index-url https://test.pypi.org/simple/ --extra-index-url https://pypi.org/simple/ knitout-interpreter
+```
 ## 🏃‍♂️ Quick Start
 
 ### Basic Usage
