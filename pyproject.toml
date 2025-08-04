@@ -109,6 +109,7 @@ pre-commit = "^3.4.0"           # Git hook framework for code quality checks
 # -------------------------------------------------------------------------
 # SECURITY AND PACKAGE VALIDATION
 # -------------------------------------------------------------------------
+safety = "^2.3"
 twine = "^4.0.0"                # Validates and uploads packages to PyPI
 
 # -------------------------------------------------------------------------
