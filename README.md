@@ -272,18 +272,17 @@ for i, cp in enumerate(executer.carriage_passes):
 ## 📋 Dependencies
 
 ### Runtime Dependencies
-- `python` >= 3.11
-- `parglare` ~0.16.1 - Parser generator for knitout grammar
-- `knit-graphs` ~0.0.6 - Knitting graph data structures
-- `virtual-knitting-machine` ~0.0.13 - Virtual machine simulation
-- `importlib_resources` ~6.5.0 - Resource management
+- `python` >= >=3.11,<3.13
+- `parglare` ^0.18 - Parser generator for knitout grammar
+- `knit-graphs` ^0.0.6 - Knitting graph data structures
+- `virtual-knitting-machine` ^0.0.13 - Virtual machine simulation
+- `importlib_resources` ^6.5. - Resource management
 
 ### Development Dependencies
 - `mypy` - Static type checking
 - `pre-commit` - Code quality hooks
 - `coverage` - Test coverage measurement
 - `sphinx` - Documentation generation
-- `safety` - Security vulnerability scanning
 
 ## 📄 License
 

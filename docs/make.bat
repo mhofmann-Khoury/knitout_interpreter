@@ -1,35 +1,20 @@
-@ECHO OFF
+@echo off
+echo Building knitout-interpreter documentation...
+echo.
 
-pushd %~dp0
+REM Change to docs directory
+cd /d "%~dp0"
 
-REM Command file for Sphinx documentation
+REM Generate API documentation
+echo Generating API documentation...
+sphinx-apidoc -o source ..\src\knitout_interpreter --force --module-first
 
-if "%SPHINXBUILD%" == "" (
-	set SPHINXBUILD=sphinx-build
-)
-set SOURCEDIR=source
-set BUILDDIR=build
+REM Build HTML documentation
+echo Building HTML...
+sphinx-build -M html source build
 
-%SPHINXBUILD% >NUL 2>NUL
-if errorlevel 9009 (
-	echo.
-	echo.The 'sphinx-build' command was not found. Make sure you have Sphinx
-	echo.installed, then set the SPHINXBUILD environment variable to point
-	echo.to the full path of the 'sphinx-build' executable. Alternatively you
-	echo.may add the Sphinx directory to PATH.
-	echo.
-	echo.If you don't have Sphinx installed, grab it from
-	echo.https://www.sphinx-doc.org/
-	exit /b 1
-)
-
-if "%1" == "" goto help
-
-%SPHINXBUILD% -M %1 %SOURCEDIR% %BUILDDIR% %SPHINXOPTS% %O%
-goto end
-
-:help
-%SPHINXBUILD% -M help %SOURCEDIR% %BUILDDIR% %SPHINXOPTS% %O%
-
-:end
-popd
+echo.
+echo Documentation built successfully!
+echo Open: %~dp0build\html\index.html
+echo.
+pause

@@ -86,7 +86,7 @@ python = ">=3.11,<3.13"                # Minimum Python version (allows 3.11.x, 
 parglare = "^0.18"           # Parser generator library
 knit-graphs = "^0.0.6"         # Knitting graph library
 virtual-knitting-machine = "^0.0.13"  # Virtual knitting machine
-importlib_resources ="6.5.2" # For loading parglar grammer file
+importlib_resources = "^6.5" # For loading parglar grammer file
 
 # =============================================================================
 # DEVELOPMENT DEPENDENCIES
