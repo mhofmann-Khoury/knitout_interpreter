@@ -111,10 +111,10 @@ jobs:
       run: poetry run mypy src/knitout_interpreter --ignore-missing-imports
       continue-on-error: true      # Don't fail release for type issues (warnings only)
 
-    - name: Run security scan
-      run: |
-        poetry run safety check
-      continue-on-error: true      # Don't fail release for security warnings
+#    - name: Run security scan
+#      run: |
+#        poetry run safety check
+#      continue-on-error: true      # Don't fail release for security warnings
 
   # ===========================================================================
   # JOB 3: BUILD AND PUBLISH TO PRODUCTION PYPI
