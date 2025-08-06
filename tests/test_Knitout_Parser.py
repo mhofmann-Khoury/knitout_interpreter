@@ -50,6 +50,11 @@ class TestKnitout_Parser(TestCase):
         assert len(codes) == 1, f"Expected one xfer but got: {codes}"
         print(codes)
 
+    def test_xfer_to_slider(self):
+        codes = parse_knitout("xfer f2 bs2 ")
+        assert len(codes) == 1, f"Expected one xfer but got: {codes}"
+        print(codes)
+
     def test_drop_code(self):
         codes = parse_knitout("drop f2")
         assert len(codes) == 1, f"Expected one drop but got: {codes}"

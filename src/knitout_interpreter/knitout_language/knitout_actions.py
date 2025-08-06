@@ -445,7 +445,7 @@ def needle_id(_: Any, node: str) -> Needle:
     slider = "s" in node
     num_str = node[1:]  # cut bed off
     if slider:
-        num_str = node[1:]  # cut slider off
+        num_str = node[2:]  # cut slider off
     pos = int(num_str)
     if slider:
         return Slider_Needle(is_front, pos)

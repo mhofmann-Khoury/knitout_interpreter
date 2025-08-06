@@ -3,6 +3,8 @@ from unittest import TestCase
 
 from knit_graphs.knit_graph_visualizer.Stitch_Visualizer import visualize_stitches
 
+from knitout_interpreter import Knitout_Executer
+from knitout_interpreter.knitout_operations import Knitout_Instruction_Type
 from knitout_interpreter.run_knitout import run_knitout
 from resources.load_test_resources import load_test_resource
 
@@ -14,6 +16,13 @@ class Test(TestCase):
         print(machine.front_loops())
         assert knit_graph.has_loop
         assert len(machine.front_loops()) == 1
+
+    def test_multi_miss_line(self):
+        execution, machine, knit_graph = run_knitout(load_test_resource("multi_miss.k"))
+        executer = Knitout_Executer(execution)
+        executer.test_and_organize_instructions()
+        assert len(executer.carriage_passes) == 3
+        assert executer.carriage_passes[2].first_instruction.instruction_type == Knitout_Instruction_Type.Miss
 
     def test_stst_square(self):
         execution, machine, knit_graph = run_knitout(load_test_resource("stst_square.k"))

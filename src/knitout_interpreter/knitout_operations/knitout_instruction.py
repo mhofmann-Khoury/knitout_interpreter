@@ -65,6 +65,13 @@ class Knitout_Instruction_Type(Enum):
                         Knitout_Instruction_Type.Drop, Knitout_Instruction_Type.Xfer, Knitout_Instruction_Type.Kick]
 
     @property
+    def is_miss_instruction(self) -> bool:
+        """
+        Returns: True if the operation is a miss and can occur in a miss instruction pass.
+
+        """
+        return self in [Knitout_Instruction_Type.Miss, Knitout_Instruction_Type.Kick]
+    @property
     def in_knitting_pass(self) -> bool:
         """Check if instruction can be done in a knit pass.
 
@@ -127,8 +134,8 @@ class Knitout_Instruction_Type(Enum):
         Returns:
             True if both instructions could be executed in the same pass.
         """
-        if not self.is_needle_instruction:
-            return False
+        if self.is_miss_instruction and other_instruction.is_miss_instruction:
+            return True
         elif self.in_knitting_pass and other_instruction.in_knitting_pass:
             return True
         else:

@@ -12,7 +12,7 @@ from knitout_interpreter.knitout_operations.needle_instructions import Needle_In
 class Knitout_Executer:
     """A class used to execute a set of knitout instructions on a virtual knitting machine."""
 
-    def __init__(self, instructions: list[Knitout_Line], knitting_machine: Knitting_Machine, accepted_error_types: list | None = None, knitout_version: int = 2):
+    def __init__(self, instructions: list[Knitout_Line], knitting_machine: Knitting_Machine | None=None, accepted_error_types: list | None = None, knitout_version: int = 2):
         """Initialize the knitout executer.
 
         Args:
@@ -25,6 +25,8 @@ class Knitout_Executer:
         self.knitout_version = knitout_version
         if accepted_error_types is None:
             accepted_error_types = []
+        if knitting_machine is None:
+            knitting_machine = Knitting_Machine()
         self.knitting_machine: Knitting_Machine = knitting_machine
         self.instructions: list[Knitout_Line] = instructions
         self.process: list[Knitout_Line | Carriage_Pass] = []
