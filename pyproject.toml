@@ -12,7 +12,7 @@ build-backend = "poetry.core.masonry.api"  # Use Poetry's build system
 # All the information about your project that will appear on PyPI
 [tool.poetry]
 name = "knitout-interpreter"  # Package name on PyPI (use hyphens)
-version = "0.0.19"               # Current version (update this for each release)
+version = "0.0.20"               # Current version (update this for each release)
 description = "Support for interpreting knitout files used for controlling automatic V-Bed Knitting machines."
 authors = ["Megan Hofmann <m.hofmann@northeastern.edu>"]       # Primary authors
 maintainers = ["Megan Hofmann <m.hofmann@northeastern.edu>"]   # Current maintainers
