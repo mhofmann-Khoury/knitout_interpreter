@@ -25,10 +25,10 @@ class Rack_Instruction(Knitout_Instruction):
         Returns:
             Integer value of rack alignment.
         """
-        r = int(self.rack_value)
-        if self.rack_value < r < 0.0:  # Decimal modifier and less than 0 rack. (i.e., r=-1 at all needle == -0.75
-            return r - 1
-        return r
+        if self.all_needle_rack and self.rack_value < 0:  # All needle racking adds .25 which changes the integer translation
+            return int(self.rack_value) - 1
+        else:
+            return int(self.rack_value)  # remove any all needle rack modifier
 
     @property
     def all_needle_rack(self) -> bool:
@@ -37,7 +37,7 @@ class Rack_Instruction(Knitout_Instruction):
         Returns:
             True if rack causes all-needle-knitting alignment.
         """
-        return abs(self._rack_value - self.rack) != 0.0
+        return abs(self._rack_value - int(self._rack_value)) != 0.0
 
     @property
     def rack_value(self) -> float:

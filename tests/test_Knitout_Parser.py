@@ -92,6 +92,13 @@ class TestKnitout_Parser(TestCase):
         assert rack_code.rack == -1, f"Expected rack of -1 but got {rack_code.rack} from {rack_code}"
         assert not rack_code.all_needle_rack, f"Unexpected all-needle-rack from {rack_code}"
         print(rack_code)
+        codes = parse_knitout("rack -0.75")
+        assert len(codes) == 1, f"Expected one rack operation but got: {codes}"
+        rack_code = codes[0]
+        print(rack_code)
+        assert isinstance(rack_code, Rack_Instruction), f"Expected rack operation but got {rack_code}"
+        assert rack_code.rack == -1, f"Expected rack of -1 but got {rack_code.rack} from {rack_code}"
+        assert rack_code.all_needle_rack, f"Expected all-needle-rack from {rack_code}"
         codes = parse_knitout("rack -4.75")
         assert len(codes) == 1, f"Expected one rack operation but got: {codes}"
         rack_code = codes[0]
