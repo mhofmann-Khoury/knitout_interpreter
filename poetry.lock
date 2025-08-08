@@ -2123,19 +2123,18 @@ zstd = ["zstandard (>=0.18.0)"]
 
 [[package]]
 name = "virtual-knitting-machine"
-version = "0.0.13"
+version = "0.0.15"
 description = "A data structure representing the state and operations of a virtual V-Bed with sliders whole garment knitting machine based on the whole garment knitting machines made by Shima Seiki."
 optional = false
-python-versions = ">=3.11"
+python-versions = "<3.13,>=3.11"
 groups = ["main"]
 files = [
-    {file = "virtual_knitting_machine-0.0.13-py3-none-any.whl", hash = "sha256:1ab82b6014592003236e97aba1fd11b52da3ceafb8d89958a080fb87d402c80c"},
-    {file = "virtual_knitting_machine-0.0.13.tar.gz", hash = "sha256:f20380db0e2fab7d26f7714afc84ede713240fcaa1f09fe1ceb00943d7653fa7"},
+    {file = "virtual_knitting_machine-0.0.15-py3-none-any.whl", hash = "sha256:269fd53c90ed430d6eb4856837106ad58074e333db7333dc5fe9c2c069e0ba40"},
+    {file = "virtual_knitting_machine-0.0.15.tar.gz", hash = "sha256:e46db915908cb7e1637c12ef1910af5ca5b30367e57b3fa0a336375cde653590"},
 ]
 
 [package.dependencies]
-knit-graphs = ">=0.0.4,<0.1.0"
-networkx = ">=3.2.1,<3.3.0"
+knit-graphs = ">=0.0.6"
 
 [[package]]
 name = "virtualenv"
@@ -2193,4 +2192,4 @@ type = ["pytest-mypy"]
 [metadata]
 lock-version = "2.1"
 python-versions = ">=3.11,<3.13"
-content-hash = "5571e2ad09a695df2fb91490afd905d843c3b366adb47ab94eebb0c0f4547539"
+content-hash = "760d433748e6140df63a3ce0dd28ac389e2b1d54aaa221d66bd942b576e7a07c"

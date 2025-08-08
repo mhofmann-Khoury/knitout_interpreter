@@ -1,19 +1,18 @@
 """Module containing the Carriage Pass class."""
 from __future__ import annotations
+
 import time
-import warnings
 from typing import cast, Iterator
 
 from virtual_knitting_machine.Knitting_Machine import Knitting_Machine
-from virtual_knitting_machine.knitting_machine_warnings.carriage_pass_warnings import Reordered_Knitting_Pass_Warning
 from virtual_knitting_machine.machine_components.carriage_system.Carriage_Pass_Direction import Carriage_Pass_Direction
 from virtual_knitting_machine.machine_components.needles.Needle import Needle
 from virtual_knitting_machine.machine_components.yarn_management.Yarn_Carrier_Set import Yarn_Carrier_Set
 
+from knitout_interpreter.knitout_operations.Knitout_Line import Knitout_Line, Knitout_Comment_Line
 from knitout_interpreter.knitout_operations.Rack_Instruction import Rack_Instruction
 from knitout_interpreter.knitout_operations.knitout_instruction import Knitout_Instruction_Type
 from knitout_interpreter.knitout_operations.needle_instructions import Needle_Instruction, Xfer_Instruction
-from knitout_interpreter.knitout_operations.Knitout_Line import Knitout_Line, Knitout_Comment_Line
 
 
 class Carriage_Pass:
@@ -128,8 +127,6 @@ class Carriage_Pass:
         Args:
             direction: The new direction for the carriage pass.
         """
-        if not self.xfer_pass:
-            warnings.warn(Reordered_Knitting_Pass_Warning(direction, self))
         self._direction = direction
         sorted_needles = self.needles
         self._instructions = [self._needles_to_instruction[n] for n in sorted_needles]
