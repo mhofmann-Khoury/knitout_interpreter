@@ -85,7 +85,7 @@ exclude = [
 python = ">=3.11,<3.13"                # Minimum Python version (allows 3.11.x, 3.12.x, etc.)
 parglare = "^0.18.0"           # Parser generator library
 knit-graphs = ">=0.0.6"         # Knitting graph library
-virtual-knitting-machine = ">=0.0.15"  # Virtual knitting machine
+virtual-knitting-machine = ">=0.0.17"  # Virtual knitting machine
 importlib_resources = "^6.5" # For loading parglar grammer file
 
 # =============================================================================
