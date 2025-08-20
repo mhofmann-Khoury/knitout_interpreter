@@ -47,7 +47,7 @@ on:
 env:
   PYTHON_VERSION: "3.11"           # Python version for building
   POETRY_VERSION: "1.7.1"          # Poetry version to use
-  PACKAGE_NAME: "knitout-interpreter"
+  PACKAGE_NAME: "knitout_interpreter"
 
 # =============================================================================
 # WORKFLOW PERMISSIONS
