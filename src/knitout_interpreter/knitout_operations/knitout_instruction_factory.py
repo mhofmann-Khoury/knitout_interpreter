@@ -10,7 +10,6 @@ from virtual_knitting_machine.machine_components.yarn_management.Yarn_Carrier_Se
     Yarn_Carrier_Set,
 )
 
-from knitout_interpreter.knitout_operations import Kick_Instruction
 from knitout_interpreter.knitout_operations.carrier_instructions import (
     In_Instruction,
     Inhook_Instruction,
@@ -18,6 +17,7 @@ from knitout_interpreter.knitout_operations.carrier_instructions import (
     Outhook_Instruction,
     Releasehook_Instruction,
 )
+from knitout_interpreter.knitout_operations.kick_instruction import Kick_Instruction
 from knitout_interpreter.knitout_operations.knitout_instruction import (
     Knitout_Instruction_Type,
 )

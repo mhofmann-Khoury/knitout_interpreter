@@ -28,11 +28,11 @@ from knitout_interpreter.knitout_operations.Knitout_Line import (
 
 class Knitout_Header_Line_Type(Enum):
     """Enumeration of properties that can be set in the header."""
-    Machine = "Machine" # Denotes the type of machine to build
-    Gauge = "Gauge" # Denotes the needles per inch of the machine
-    Yarn = "Yarn" # Sets a specific yarn on a specified carrier.
-    Position = "Position" # Denotes the position of the knitting pattern on the needle beds.
-    Carriers = "Carriers" # Denotes the carriers on the machine.
+    Machine = "Machine"  # Denotes the type of machine to build
+    Gauge = "Gauge"  # Denotes the needles per inch of the machine
+    Yarn = "Yarn"  # Sets a specific yarn on a specified carrier.
+    Position = "Position"  # Denotes the position of the knitting pattern on the needle beds.
+    Carriers = "Carriers"  # Denotes the carriers on the machine.
 
     def __str__(self) -> str:
         return self.value

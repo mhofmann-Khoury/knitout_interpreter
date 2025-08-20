@@ -20,11 +20,11 @@ from knitout_interpreter.knitout_operations.Knitout_Line import (
 )
 
 
-def process_knitout_instructions(codes: list[Knitout_Line]) -> tuple[Knitout_Version_Line, list[Knitout_Header_Line], list[Knitout_Instruction], list[Knitout_Comment_Line]]:
+def process_knitout_instructions(knitout_lines: list[Knitout_Line]) -> tuple[Knitout_Version_Line, list[Knitout_Header_Line], list[Knitout_Instruction], list[Knitout_Comment_Line]]:
     """Separate list of knitout codes into components of a program for execution.
 
     Args:
-        codes (list[Knitout_Line]): List of knitout instructions to separate into program components.
+        knitout_lines (list[Knitout_Line]): List of knitout instructions to separate into program components.
 
     Returns:
         tuple[Knitout_Version_Line, list[Knitout_Header_Line], list[Knitout_Instruction], list[Knitout_Comment_Line]]:
@@ -37,18 +37,18 @@ def process_knitout_instructions(codes: list[Knitout_Line]) -> tuple[Knitout_Ver
     head: list[Knitout_Header_Line] = []
     instructions: list[Knitout_Instruction] = []
     comments: list[Knitout_Comment_Line] = []
-    for code in codes:
-        if isinstance(code, Knitout_Version_Line):
-            assert version_line.version == code.version or version_line.version < 0, f"Cannot have multiple versions of knitout {version_line} and {code}"
-            version_line = code
-        elif isinstance(code, Knitout_Header_Line):
-            head.append(code)
-        elif isinstance(code, Knitout_Instruction):
-            instructions.append(code)
-        elif isinstance(code, Knitout_Comment_Line):
-            comments.append(code)
+    for knitout_line in knitout_lines:
+        if isinstance(knitout_line, Knitout_Version_Line):
+            assert version_line.version == knitout_line.version or version_line.version < 0, f"Cannot have multiple versions of knitout {version_line} and {knitout_line}"
+            version_line = knitout_line
+        elif isinstance(knitout_line, Knitout_Header_Line):
+            head.append(knitout_line)
+        elif isinstance(knitout_line, Knitout_Instruction):
+            instructions.append(knitout_line)
+        elif isinstance(knitout_line, Knitout_Comment_Line):
+            comments.append(knitout_line)
         else:
-            assert False, f"Cannot process code {code}"
+            assert False, f"Cannot process code {knitout_line}"
     if version_line.version < 0:
         version_line = Knitout_Version_Line(2, "Version defaulted to 2")
     return version_line, head, instructions, comments
