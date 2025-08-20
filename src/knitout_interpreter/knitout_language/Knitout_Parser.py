@@ -1,13 +1,9 @@
 """Parser code for accessing Parglare language support"""
 import re
 
-# Use the modern import with fallback
-try:
-    from importlib.resources import files
-except ImportError:
-    from importlib_resources import files
 import parglare.exceptions
-from parglare import Parser, Grammar
+from importlib_resources import files
+from parglare import Grammar, Parser
 
 import knitout_interpreter
 from knitout_interpreter.knitout_language.knitout_actions import action
@@ -26,8 +22,7 @@ class Knitout_Parser:
             debug_parser_layout: Enable parser layout debugging. Defaults to False.
 
         Raises:
-            FileNotFoundError: If the <knitout.pg> grammar file cannot be located
-                in the package.
+            FileNotFoundError: If the <knitout.pg> grammar file cannot be located in the package.
         """
         try:
             pg_resource_stream = files(knitout_interpreter.knitout_language).joinpath('knitout.pg')

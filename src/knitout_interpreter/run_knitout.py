@@ -19,7 +19,10 @@ def run_knitout(knitout_file_name: str) -> tuple[list[Knitout_Line], Knitting_Ma
         knitout_file_name (str): Path to the file that contains knitout instructions.
 
     Returns:
-        tuple: A 3-element tuple containing the executed instructions, final machine state, and knit graph. The first element is a list of Knitout_Line objects representing all processed instructions. The second element is a Knitting_Machine object containing the final state of the virtual knitting machine after execution. The third element is a Knit_Graph object representing the resulting fabric structure formed by the knitting operations.
+        tuple[list[Knitout_Line], Knitting_Machine, Knit_Graph: A 3-element tuple containing the executed instructions, final machine state, and knit graph.
+            * A list of Knitout_Line objects representing all processed instructions.
+            * A Knitting_Machine object containing the final state of the virtual knitting machine after execution.
+            * A Knit_Graph object representing the resulting fabric structure formed by the knitting operations.
 
     Example:
         Basic usage:

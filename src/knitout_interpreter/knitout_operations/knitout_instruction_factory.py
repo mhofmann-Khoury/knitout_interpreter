@@ -1,15 +1,37 @@
 """Factory function for building knitout instructions based on instruction type."""
+from virtual_knitting_machine.machine_components.carriage_system.Carriage_Pass_Direction import (
+    Carriage_Pass_Direction,
+)
+from virtual_knitting_machine.machine_components.needles.Needle import Needle
+from virtual_knitting_machine.machine_components.yarn_management.Yarn_Carrier import (
+    Yarn_Carrier,
+)
+from virtual_knitting_machine.machine_components.yarn_management.Yarn_Carrier_Set import (
+    Yarn_Carrier_Set,
+)
+
 from knitout_interpreter.knitout_operations import Kick_Instruction
+from knitout_interpreter.knitout_operations.carrier_instructions import (
+    In_Instruction,
+    Inhook_Instruction,
+    Out_Instruction,
+    Outhook_Instruction,
+    Releasehook_Instruction,
+)
+from knitout_interpreter.knitout_operations.knitout_instruction import (
+    Knitout_Instruction_Type,
+)
 from knitout_interpreter.knitout_operations.Knitout_Line import Knitout_Line
+from knitout_interpreter.knitout_operations.needle_instructions import (
+    Drop_Instruction,
+    Knit_Instruction,
+    Miss_Instruction,
+    Split_Instruction,
+    Tuck_Instruction,
+    Xfer_Instruction,
+)
 from knitout_interpreter.knitout_operations.Pause_Instruction import Pause_Instruction
 from knitout_interpreter.knitout_operations.Rack_Instruction import Rack_Instruction
-from knitout_interpreter.knitout_operations.carrier_instructions import In_Instruction, Inhook_Instruction, Releasehook_Instruction, Outhook_Instruction, Out_Instruction
-from knitout_interpreter.knitout_operations.knitout_instruction import Knitout_Instruction_Type
-from knitout_interpreter.knitout_operations.needle_instructions import Miss_Instruction, Knit_Instruction, Tuck_Instruction, Split_Instruction, Drop_Instruction, Xfer_Instruction
-from virtual_knitting_machine.machine_components.carriage_system.Carriage_Pass_Direction import Carriage_Pass_Direction
-from virtual_knitting_machine.machine_components.needles.Needle import Needle
-from virtual_knitting_machine.machine_components.yarn_management.Yarn_Carrier import Yarn_Carrier
-from virtual_knitting_machine.machine_components.yarn_management.Yarn_Carrier_Set import Yarn_Carrier_Set
 
 
 def build_instruction(instruction_type: Knitout_Instruction_Type,

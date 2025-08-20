@@ -5,21 +5,34 @@ from typing import Any
 
 from knit_graphs.Yarn import Yarn_Properties
 from virtual_knitting_machine.Knitting_Machine import Knitting_Machine
-from virtual_knitting_machine.Knitting_Machine_Specification import Knitting_Machine_Type, Knitting_Position, Knitting_Machine_Specification
-from virtual_knitting_machine.knitting_machine_warnings.Knitting_Machine_Warning import Knitting_Machine_Warning
-from virtual_knitting_machine.machine_components.yarn_management.Yarn_Carrier import Yarn_Carrier
-from virtual_knitting_machine.machine_components.yarn_management.Yarn_Carrier_Set import Yarn_Carrier_Set
+from virtual_knitting_machine.Knitting_Machine_Specification import (
+    Knitting_Machine_Specification,
+    Knitting_Machine_Type,
+    Knitting_Position,
+)
+from virtual_knitting_machine.knitting_machine_warnings.Knitting_Machine_Warning import (
+    Knitting_Machine_Warning,
+)
+from virtual_knitting_machine.machine_components.yarn_management.Yarn_Carrier import (
+    Yarn_Carrier,
+)
+from virtual_knitting_machine.machine_components.yarn_management.Yarn_Carrier_Set import (
+    Yarn_Carrier_Set,
+)
 
-from knitout_interpreter.knitout_operations.Knitout_Line import Knitout_Line, Knitout_Version_Line
+from knitout_interpreter.knitout_operations.Knitout_Line import (
+    Knitout_Line,
+    Knitout_Version_Line,
+)
 
 
 class Knitout_Header_Line_Type(Enum):
     """Enumeration of properties that can be set in the header."""
-    Machine = "Machine"
-    Gauge = "Gauge"
-    Yarn = "Yarn"
-    Position = "Position"
-    Carriers = "Carriers"
+    Machine = "Machine" # Denotes the type of machine to build
+    Gauge = "Gauge" # Denotes the needles per inch of the machine
+    Yarn = "Yarn" # Sets a specific yarn on a specified carrier.
+    Position = "Position" # Denotes the position of the knitting pattern on the needle beds.
+    Carriers = "Carriers" # Denotes the carriers on the machine.
 
     def __str__(self) -> str:
         return self.value
@@ -32,8 +45,16 @@ class Knitout_Header_Line(Knitout_Line):
 
     def __init__(self, header_type: Knitout_Header_Line_Type, header_value: Any, comment: str | None):
         super().__init__(comment)
-        self.header_value: Any = header_value
-        self.header_type: Knitout_Header_Line_Type = header_type
+        self._header_value: Any = header_value
+        self._header_type: Knitout_Header_Line_Type = header_type
+
+    @property
+    def header_type(self) -> Knitout_Header_Line_Type:
+        """
+        Returns:
+            Knitout_Header_Line_Type: The type of value to be changed by this header line.
+        """
+        return self._header_type
 
     def updates_machine_state(self, machine_state: Knitting_Machine) -> bool:
         """Check if this header would update the given machine state.
@@ -47,7 +68,7 @@ class Knitout_Header_Line(Knitout_Line):
         return False
 
     def __str__(self) -> str:
-        return f";;{self.header_type}: {self.header_value}{self.comment_str}"
+        return f";;{self.header_type}: {self._header_value}{self.comment_str}"
 
 
 class Machine_Header_Line(Knitout_Header_Line):
@@ -56,11 +77,11 @@ class Machine_Header_Line(Knitout_Header_Line):
         super().__init__(Knitout_Header_Line_Type.Machine, Knitting_Machine_Type[machine_type], comment)
 
     def updates_machine_state(self, machine_state: Knitting_Machine) -> bool:
-        return bool(self.header_value != machine_state.machine_specification.machine)
+        return bool(self._header_value != machine_state.machine_specification.machine)
 
     def execute(self, machine_state: Knitting_Machine) -> bool:
         if self.updates_machine_state(machine_state):
-            machine_state.machine_specification.machine = self.header_value
+            machine_state.machine_specification.machine = self._header_value
             return True
         else:
             return False
@@ -72,11 +93,11 @@ class Gauge_Header_Line(Knitout_Header_Line):
         super().__init__(Knitout_Header_Line_Type.Gauge, gauge, comment)
 
     def updates_machine_state(self, machine_state: Knitting_Machine) -> bool:
-        return bool(self.header_value != machine_state.machine_specification.gauge)
+        return bool(self._header_value != machine_state.machine_specification.gauge)
 
     def execute(self, machine_state: Knitting_Machine) -> bool:
         if self.updates_machine_state(machine_state):
-            machine_state.machine_specification.gauge = self.header_value
+            machine_state.machine_specification.gauge = self._header_value
             return True
         else:
             return False
@@ -88,11 +109,11 @@ class Position_Header_Line(Knitout_Header_Line):
         super().__init__(Knitout_Header_Line_Type.Position, Knitting_Position[position], comment)
 
     def updates_machine_state(self, machine_state: Knitting_Machine) -> bool:
-        return bool(self.header_value != machine_state.machine_specification.position)
+        return bool(self._header_value != machine_state.machine_specification.position)
 
     def execute(self, machine_state: Knitting_Machine) -> bool:
         if self.updates_machine_state(machine_state):
-            machine_state.machine_specification.position = self.header_value
+            machine_state.machine_specification.position = self._header_value
             return True
         else:
             return False
@@ -101,19 +122,19 @@ class Position_Header_Line(Knitout_Header_Line):
 class Yarn_Header_Line(Knitout_Header_Line):
 
     def __init__(self, carrier_id: int, plies: int, yarn_weight: float, color: str, comment: str | None = None):
-        self.yarn_properties: Yarn_Properties = Yarn_Properties(f"carrier+{carrier_id}_yarn", plies, yarn_weight, color)
-        self.carrier_id: int = carrier_id
-        super().__init__(Knitout_Header_Line_Type.Yarn, self.yarn_properties, comment)
+        self._yarn_properties: Yarn_Properties = Yarn_Properties(f"carrier+{carrier_id}_yarn", plies, yarn_weight, color)
+        self._carrier_id: int = carrier_id
+        super().__init__(Knitout_Header_Line_Type.Yarn, self._yarn_properties, comment)
 
     def __str__(self) -> str:
-        return f";;{self.header_type}-{self.carrier_id}: {self.yarn_properties.plies}-{self.yarn_properties.weight} {self.yarn_properties.color}{self.comment_str}"
+        return f";;{self.header_type}-{self._carrier_id}: {self._yarn_properties.plies}-{self._yarn_properties.weight} {self._yarn_properties.color}{self.comment_str}"
 
     def updates_machine_state(self, machine_state: Knitting_Machine) -> bool:
-        return bool(self.yarn_properties != machine_state.carrier_system[self.carrier_id].yarn.properties)
+        return bool(self._yarn_properties != machine_state.carrier_system[self._carrier_id].yarn.properties)
 
     def execute(self, machine_state: Knitting_Machine) -> bool:
         if self.updates_machine_state(machine_state):
-            machine_state.carrier_system[self.carrier_id].yarn = self.yarn_properties
+            machine_state.carrier_system[self._carrier_id].yarn.properties = self._yarn_properties
             return True
         else:
             return False
@@ -131,12 +152,12 @@ class Carriers_Header_Line(Knitout_Header_Line):
         super().__init__(Knitout_Header_Line_Type.Carriers, carrier_ids, comment)
 
     def updates_machine_state(self, machine_state: Knitting_Machine) -> bool:
-        return len(machine_state.carrier_system.carriers) != len(self.header_value)
+        return len(machine_state.carrier_system.carriers) != len(self._header_value)
 
     def execute(self, machine_state: Knitting_Machine) -> bool:
-        carrier_count = len(self.header_value)
+        carrier_count = len(self._header_value)
         if self.updates_machine_state(machine_state):
-            machine_state.carrier_system = carrier_count
+            machine_state.machine_specification.carrier_count = carrier_count
             return True
         return False
 
@@ -146,12 +167,17 @@ class Knitting_Machine_Header:
 
     This class manages the relationship between header lines read from a knitout file
     and the state of a given knitting machine.
+
+    Attributes:
+        specification (Knitting_Machine_Specification): The specification of the knitting machine created by this header.
+        machine (Knitting_Machine): The knitting machine currently created by this header.
     """
 
-    def __init__(self, knitting_machine: Knitting_Machine):
-        self.machine: Knitting_Machine = knitting_machine
+    def __init__(self, initial_specification: Knitting_Machine_Specification = Knitting_Machine_Specification()):
+        self.specification: Knitting_Machine_Specification = initial_specification
+        self.machine: Knitting_Machine = Knitting_Machine(self.specification)
         self._header_lines: dict[Knitout_Header_Line_Type, Knitout_Header_Line] = {}
-        self.set_header_by_specification(self.machine.machine_specification)
+        self.set_header_by_specification(self.specification)
 
     def update_header(self, header_line: Knitout_Header_Line, update_machine: bool = False) -> bool:
         """Update this header with the given header line.
@@ -169,12 +195,13 @@ class Knitting_Machine_Header:
 
         Note:
             If update_machine is False, no updates are allowed and this will  always return False.
-            If the update would cause a change in the active machine, then a warning is raised, and it makes no changes to the machine state.
+            If the update changes an active machine, then a warning is raised, and it makes no changes to the machine state.
         """
         if update_machine:  # update the machine state and then add this to the header if it caused an update
             updated = header_line.execute(self.machine)
             if updated:
                 self._header_lines[header_line.header_type] = header_line
+                self.specification = self.machine.machine_specification
                 return True
             else:
                 return False
@@ -221,5 +248,5 @@ def get_machine_header(knitting_machine: Knitting_Machine, version: int = 2) -> 
         A list containing header lines and a version line that describes
         the given machine state.
     """
-    header = Knitting_Machine_Header(knitting_machine)
+    header = Knitting_Machine_Header(knitting_machine.machine_specification)
     return header.get_header_lines(version)

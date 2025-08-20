@@ -1,23 +1,51 @@
 """Knitout Operations that involve the yarn inserting system"""
 from __future__ import annotations
+
 import warnings
 
 from virtual_knitting_machine.Knitting_Machine import Knitting_Machine
-from virtual_knitting_machine.knitting_machine_warnings.Yarn_Carrier_System_Warning import Out_Inactive_Carrier_Warning
-from virtual_knitting_machine.knitting_machine_warnings.carrier_operation_warnings import Mismatched_Releasehook_Warning
-from virtual_knitting_machine.machine_components.carriage_system.Carriage_Pass_Direction import Carriage_Pass_Direction
-from virtual_knitting_machine.machine_components.yarn_management.Yarn_Carrier import Yarn_Carrier
-from virtual_knitting_machine.machine_constructed_knit_graph.Machine_Knit_Yarn import Machine_Knit_Yarn
+from virtual_knitting_machine.knitting_machine_warnings.carrier_operation_warnings import (
+    Mismatched_Releasehook_Warning,
+)
+from virtual_knitting_machine.knitting_machine_warnings.Yarn_Carrier_System_Warning import (
+    Out_Inactive_Carrier_Warning,
+)
+from virtual_knitting_machine.machine_components.carriage_system.Carriage_Pass_Direction import (
+    Carriage_Pass_Direction,
+)
+from virtual_knitting_machine.machine_components.yarn_management.Yarn_Carrier import (
+    Yarn_Carrier,
+)
+from virtual_knitting_machine.machine_constructed_knit_graph.Machine_Knit_Yarn import (
+    Machine_Knit_Yarn,
+)
 
-from knitout_interpreter.knitout_operations.knitout_instruction import Knitout_Instruction, Knitout_Instruction_Type
+from knitout_interpreter.knitout_operations.knitout_instruction import (
+    Knitout_Instruction,
+    Knitout_Instruction_Type,
+)
 
 
 class Yarn_Carrier_Instruction(Knitout_Instruction):
-
     def __init__(self, instruction_type: Knitout_Instruction_Type, carrier: int | Yarn_Carrier, comment: None | str):
         super().__init__(instruction_type, comment)
-        self.carrier: int | Yarn_Carrier = carrier
-        self.carrier_id: int = int(self.carrier)
+        self._carrier: int | Yarn_Carrier = carrier
+
+    @property
+    def carrier(self) -> int | Yarn_Carrier:
+        """
+        Returns:
+            int | Yarn_Carrier: The carrier of the instruction.
+        """
+        return self._carrier
+
+    @property
+    def carrier_id(self) -> int:
+        """
+        Returns:
+            int: The id of the carrier of the instruction.
+        """
+        return int(self._carrier)
 
     def __str__(self) -> str:
         return f"{self.instruction_type} {self.carrier_id}{self.comment_str}"

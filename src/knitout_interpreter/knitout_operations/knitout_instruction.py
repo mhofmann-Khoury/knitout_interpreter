@@ -1,5 +1,6 @@
 """Structure for Instructions"""
 from __future__ import annotations
+
 from enum import Enum
 
 from virtual_knitting_machine.Knitting_Machine import Knitting_Machine
@@ -71,6 +72,7 @@ class Knitout_Instruction_Type(Enum):
 
         """
         return self in [Knitout_Instruction_Type.Miss, Knitout_Instruction_Type.Kick]
+
     @property
     def in_knitting_pass(self) -> bool:
         """Check if instruction can be done in a knit pass.
@@ -147,7 +149,15 @@ class Knitout_Instruction(Knitout_Line):
 
     def __init__(self, instruction_type: Knitout_Instruction_Type, comment: str | None, interrupts_carriage_pass: bool = True):
         super().__init__(comment, interrupts_carriage_pass=interrupts_carriage_pass)
-        self.instruction_type: Knitout_Instruction_Type = instruction_type
+        self._instruction_type: Knitout_Instruction_Type = instruction_type
+
+    @property
+    def instruction_type(self) -> Knitout_Instruction_Type:
+        """
+        Returns:
+            Knitout_Instruction_Type: The instruction type of this instruction.
+        """
+        return self._instruction_type
 
     def __str__(self) -> str:
         return f"{self.instruction_type}{self.comment_str}"

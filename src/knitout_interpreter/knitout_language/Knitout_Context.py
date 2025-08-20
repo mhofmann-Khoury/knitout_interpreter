@@ -1,28 +1,37 @@
 """Module used to manage the context of a knitout interpreter."""
 from __future__ import annotations
+
 from knit_graphs.Knit_Graph import Knit_Graph
 from virtual_knitting_machine.Knitting_Machine import Knitting_Machine
 
 from knitout_interpreter.knitout_execution import Knitout_Executer
 from knitout_interpreter.knitout_language.Knitout_Parser import parse_knitout
-from knitout_interpreter.knitout_operations.Header_Line import Knitout_Header_Line, Knitting_Machine_Header
-from knitout_interpreter.knitout_operations.Knitout_Line import Knitout_Line, Knitout_Version_Line, Knitout_Comment_Line
-from knitout_interpreter.knitout_operations.knitout_instruction import Knitout_Instruction
+from knitout_interpreter.knitout_operations.Header_Line import (
+    Knitout_Header_Line,
+    Knitting_Machine_Header,
+)
+from knitout_interpreter.knitout_operations.knitout_instruction import (
+    Knitout_Instruction,
+)
+from knitout_interpreter.knitout_operations.Knitout_Line import (
+    Knitout_Comment_Line,
+    Knitout_Line,
+    Knitout_Version_Line,
+)
 
 
-def process_knitout_instructions(codes: list[Knitout_Line]) -> (
-        tuple)[Knitout_Version_Line, list[Knitout_Header_Line], list[Knitout_Instruction], list[Knitout_Comment_Line]]:
+def process_knitout_instructions(codes: list[Knitout_Line]) -> tuple[Knitout_Version_Line, list[Knitout_Header_Line], list[Knitout_Instruction], list[Knitout_Comment_Line]]:
     """Separate list of knitout codes into components of a program for execution.
 
     Args:
-        codes: List of knitout instructions to separate into program components.
+        codes (list[Knitout_Line]): List of knitout instructions to separate into program components.
 
     Returns:
-        A tuple containing:
-            - Version line for the knitout program
-            - List of header lines
-            - List of instruction lines
-            - List of comment lines
+        tuple[Knitout_Version_Line, list[Knitout_Header_Line], list[Knitout_Instruction], list[Knitout_Comment_Line]]:
+            * Version line for the knitout program
+            * List of header lines
+            * List of instruction lines
+            * List of comment lines
     """
     version_line: Knitout_Version_Line = Knitout_Version_Line(-1)  # -1 set to undo default if no version line is provided.
     head: list[Knitout_Header_Line] = []
@@ -46,13 +55,18 @@ def process_knitout_instructions(codes: list[Knitout_Line]) -> (
 
 
 class Knitout_Context:
-    """Maintains information about the state of a knitting process as knitout instructions are executed."""
+    """Maintains information about the state of a knitting process as knitout instructions are executed.
+
+    Attributes:
+        machine_state (Knitting_Machine): State of the knitting machine that the context is executing on.
+        executed_header (list[Knitout_Header_Line]): The ordered list of header lines that have been executed in this context.
+        executed_instructions (list[Knitout_Instruction]): The ordered list of instructions executed in this context.
+    """
 
     def __init__(self) -> None:
         self.machine_state: Knitting_Machine = Knitting_Machine()
-        self.executed_knitout: list[Knitout_Line] = []
-        self.version_line: Knitout_Version_Line | None = None
-        self.executed_header: Knitting_Machine_Header = Knitting_Machine_Header(self.machine_state)
+        self._version_line: Knitout_Version_Line | None = None
+        self.executed_header: Knitting_Machine_Header = Knitting_Machine_Header(self.machine_state.machine_specification)
         self.executed_instructions: list[Knitout_Instruction] = []
 
     @property
@@ -62,8 +76,8 @@ class Knitout_Context:
         Returns:
             The knitout version number, defaults to 2 if no version is set.
         """
-        if self.version_line is not None:
-            return int(self.version_line.version)
+        if self._version_line is not None:
+            return int(self._version_line.version)
         else:
             return 2
 
@@ -76,9 +90,9 @@ class Knitout_Context:
         Args:
             version_line: The version line to set for this context.
         """
-        self.version_line = version_line
+        self._version_line = version_line
 
-    def execute_header(self, header_declarations: list[Knitout_Header_Line], comment_no_op_header: bool = False) -> None:
+    def execute_header(self, header_declarations: list[Knitout_Header_Line]) -> None:
         """Update the machine state based on the given header values.
 
         Header declarations that do not change the current context can optionally
@@ -86,13 +100,11 @@ class Knitout_Context:
 
         Args:
             header_declarations: The header lines to update based on.
-            comment_no_op_header: If True, no-op header declarations will be
-                added to the instructions as comments. Defaults to False.
         """
         for header_line in header_declarations:
             updated = self.executed_header.update_header(header_line, update_machine=True)  # update process will always yield a complete header
-            if not updated and comment_no_op_header:  # comment out the no-op header line and add it to the execution.
-                self.executed_knitout.append(Knitout_Comment_Line(header_line))
+            if updated:
+                self.machine_state = Knitting_Machine(machine_specification=self.machine_state.machine_specification)
 
     def execute_instructions(self, instructions: list[Knitout_Line]) -> None:
         """Execute the instruction set on the machine state defined by the current header.

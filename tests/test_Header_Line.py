@@ -1,10 +1,10 @@
 from unittest import TestCase
 
+from resources.load_test_resources import load_test_resource
 from virtual_knitting_machine.Knitting_Machine import Knitting_Machine
 
 from knitout_interpreter.knitout_execution import Knitout_Executer
 from knitout_interpreter.knitout_language.Knitout_Context import Knitout_Context
-from resources.load_test_resources import load_test_resource
 
 
 class TestKnitting_Machine_Header(TestCase):

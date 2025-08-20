@@ -1,13 +1,18 @@
 from unittest import TestCase
+
+from resources.load_test_resources import load_test_resource
+from virtual_knitting_machine.machine_components.carriage_system.Carriage_Pass_Direction import (
+    Carriage_Pass_Direction,
+)
 from virtual_knitting_machine.machine_components.needles.Needle import Needle
-from virtual_knitting_machine.machine_components.yarn_management.Yarn_Carrier_Set import Yarn_Carrier_Set
-from virtual_knitting_machine.machine_components.carriage_system.Carriage_Pass_Direction import Carriage_Pass_Direction
+from virtual_knitting_machine.machine_components.yarn_management.Yarn_Carrier_Set import (
+    Yarn_Carrier_Set,
+)
 
 from knitout_interpreter import Knitout_Executer
 from knitout_interpreter.knitout_execution_structures import Carriage_Pass
 from knitout_interpreter.knitout_language import parse_knitout
 from knitout_interpreter.knitout_operations import Knit_Instruction
-from resources.load_test_resources import load_test_resource
 
 
 class TestCarriage_Pass(TestCase):
@@ -20,7 +25,7 @@ class TestCarriage_Pass(TestCase):
         self.assertTrue(len(cp) == 2)
 
     def test_all_needle_racked(self):
-        codes = parse_knitout(load_test_resource('all_needle_racked.k'),pattern_is_file=True)
+        codes = parse_knitout(load_test_resource('all_needle_racked.k'), pattern_is_file=True)
         executer = Knitout_Executer(codes)
         for carriage_pass in executer.carriage_passes:
             assert len(carriage_pass) > 2, f'Found a shortened carriage pass {carriage_pass}'

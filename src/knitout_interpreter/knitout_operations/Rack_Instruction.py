@@ -1,8 +1,12 @@
 """Module for the Rack_Instruction class."""
 from __future__ import annotations
+
 from virtual_knitting_machine.Knitting_Machine import Knitting_Machine
 
-from knitout_interpreter.knitout_operations.knitout_instruction import Knitout_Instruction, Knitout_Instruction_Type
+from knitout_interpreter.knitout_operations.knitout_instruction import (
+    Knitout_Instruction,
+    Knitout_Instruction_Type,
+)
 
 
 class Rack_Instruction(Knitout_Instruction):

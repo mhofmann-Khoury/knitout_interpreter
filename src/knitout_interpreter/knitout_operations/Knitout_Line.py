@@ -5,7 +5,15 @@ from virtual_knitting_machine.Knitting_Machine import Knitting_Machine
 
 
 class Knitout_Line:
-    """General class for lines of knitout."""
+    """General class for lines of knitout.
+
+    Attributes:
+        comment (str | None): The comment that follows the knitout instruction. None if there is no comment.
+        original_line_number (int | None): The line number of this instruction in its original file or None if that is unknown.
+        follow_comments(list[Knitout_Comment_Line]): A list of Knitout_Comment_Line objects that follow this line.
+
+
+    """
     _Lines_Made = 0
 
     def __init__(self, comment: str | None, interrupts_carriage_pass: bool = False) -> None:

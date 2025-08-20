@@ -2,18 +2,48 @@
 from typing import Any
 
 from parglare import get_collector
-from virtual_knitting_machine.machine_components.carriage_system.Carriage_Pass_Direction import Carriage_Pass_Direction
+from virtual_knitting_machine.machine_components.carriage_system.Carriage_Pass_Direction import (
+    Carriage_Pass_Direction,
+)
 from virtual_knitting_machine.machine_components.needles.Needle import Needle
-from virtual_knitting_machine.machine_components.needles.Slider_Needle import Slider_Needle
-from virtual_knitting_machine.machine_components.yarn_management.Yarn_Carrier_Set import Yarn_Carrier_Set
+from virtual_knitting_machine.machine_components.needles.Slider_Needle import (
+    Slider_Needle,
+)
+from virtual_knitting_machine.machine_components.yarn_management.Yarn_Carrier_Set import (
+    Yarn_Carrier_Set,
+)
 
-from knitout_interpreter.knitout_operations.Header_Line import Knitout_Header_Line, Machine_Header_Line, Gauge_Header_Line, Yarn_Header_Line, Carriers_Header_Line, Position_Header_Line
-from knitout_interpreter.knitout_operations.Knitout_Line import Knitout_Line, Knitout_Comment_Line, Knitout_Version_Line
+from knitout_interpreter.knitout_operations.carrier_instructions import (
+    In_Instruction,
+    Inhook_Instruction,
+    Out_Instruction,
+    Outhook_Instruction,
+    Releasehook_Instruction,
+)
+from knitout_interpreter.knitout_operations.Header_Line import (
+    Carriers_Header_Line,
+    Gauge_Header_Line,
+    Knitout_Header_Line,
+    Machine_Header_Line,
+    Position_Header_Line,
+    Yarn_Header_Line,
+)
+from knitout_interpreter.knitout_operations.kick_instruction import Kick_Instruction
+from knitout_interpreter.knitout_operations.Knitout_Line import (
+    Knitout_Comment_Line,
+    Knitout_Line,
+    Knitout_Version_Line,
+)
+from knitout_interpreter.knitout_operations.needle_instructions import (
+    Drop_Instruction,
+    Knit_Instruction,
+    Miss_Instruction,
+    Split_Instruction,
+    Tuck_Instruction,
+    Xfer_Instruction,
+)
 from knitout_interpreter.knitout_operations.Pause_Instruction import Pause_Instruction
 from knitout_interpreter.knitout_operations.Rack_Instruction import Rack_Instruction
-from knitout_interpreter.knitout_operations.carrier_instructions import In_Instruction, Inhook_Instruction, Releasehook_Instruction, Out_Instruction, Outhook_Instruction
-from knitout_interpreter.knitout_operations.kick_instruction import Kick_Instruction
-from knitout_interpreter.knitout_operations.needle_instructions import Knit_Instruction, Tuck_Instruction, Miss_Instruction, Split_Instruction, Drop_Instruction, Xfer_Instruction
 
 action = get_collector()
 

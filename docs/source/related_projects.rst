@@ -31,79 +31,63 @@ providing the foundation for machine-readable knitting instructions.
 This project provides complementary browser-based tools for working with knitout files,
 offering a different ecosystem for web applications.
 
-Northeastern ACT Lab Projects
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+Core Knitting Libraries
+~~~~~~~~~~~~~~~~~~~~~~~
 
-The following projects form an integrated ecosystem for computational knitting research:
+**knit-graphs** |knit_graphs_version|
+   Knitting graph data structures and analysis tools.
 
-**knit-graphs** - Fabric Data Structures
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+   - **Purpose**: Models fabric topology and stitch relationships
+   - **Key Features**: Stitch dependency tracking, fabric analysis, pattern validation
+   - **Integration**: Used by KnitScript to represent generated fabric structures
+   - **Repository**: `knit-graphs on PyPI <https://pypi.org/project/knit-graphs/>`_
 
-- **PyPI**: `knit-graphs <https://pypi.org/project/knit-graphs/>`_
-- **Description**: Knitting graph data structures and algorithms
-- **Integration**: Used by knitout-interpreter for fabric representation
-- **Features**:
-  - Loop relationship modeling
-  - Fabric topology analysis
-  - Stitch pattern representation
-  - Graph-based fabric operations
+**knit-script** |vkm_version|
+   A simulation of a knitting machine.
 
-.. code-block:: python
+   - **Purpose**: Used to verify knitting operations and construct knit graphs.
+   - **Repository**: `virtual-knitting-machine on PyPI <https://pypi.org/project/virtual-knitting-machine/>`_
 
-    from knit_graphs.Knit_Graph import Knit_Graph
-    from knitout_interpreter.run_knitout import run_knitout
+**knit-script** |ks_version|
+   A general purpose machine knitting langauge
 
-    # The knit graph is automatically generated
-    instructions, machine, knit_graph = run_knitout("pattern.k")
-    print(f"Graph has {knit_graph.node_count} nodes")
+   - **Purpose**: Fully programmatic support to control knitting machines.
+   - **Repository**: `knit-script on PyPI <https://pypi.org/project/knit-script/>`_
 
-**virtual-knitting-machine** - Machine Simulation
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+**knitout-interpreter** |knitout_interp_version|
+   Knitout processing and execution framework.
 
-- **PyPI**: `virtual-knitting-machine <https://pypi.org/project/virtual-knitting-machine/>`_
-- **Description**: Virtual V-bed knitting machine simulation
-- **Integration**: Core dependency for knitout-interpreter execution
-- **Features**:
-  - Complete machine state tracking
-  - Error detection and validation
-  - Loop management and transfer
-  - Carriage movement simulation
+   - **Purpose**: Processes and validates knitout instruction files
+   - **Key Features**: Instruction parsing, carriage pass organization, error detection
+   - **Integration**: Processes KnitScript's generated knitout output
+   - **Repository**: `knitout-interpreter on PyPI <https://pypi.org/project/knitout-interpreter/>`
 
-.. code-block:: python
+Optimization and Analysis Tools
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-    from virtual_knitting_machine.Knitting_Machine import Knitting_Machine
-    from knitout_interpreter.knitout_execution import Knitout_Executer
+**koda-knitout** |koda_version|
+   Optimization framework for knitout instructions.
 
-    machine = Knitting_Machine()
-    executer = Knitout_Executer(instructions, machine)
+   - **Purpose**: Optimizes knitout files for faster execution and better quality
+   - **Key Features**: Carriage pass optimization, instruction reordering, resource minimization
+   - **Integration**: Can post-process KnitScript's generated knitout for optimization
+   - **Repository**: `koda-knitout on PyPI <https://pypi.org/project/koda-knitout/>`_
 
-**koda-knitout** - Optimization Framework
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+.. |knit_graphs_version| image:: https://img.shields.io/pypi/v/knit-graphs.svg
+   :target: https://pypi.org/project/knit-graphs/
 
-- **PyPI**: `koda-knitout <https://pypi.org/project/koda-knitout/>`_
-- **Description**: Optimization framework for knitout instructions
-- **Purpose**: Automated optimization of knitting patterns for efficiency
-- **Features**:
-  - Instruction sequence optimization
-  - Carriage pass minimization
-  - Yarn usage optimization
-  - Performance analysis tools
+.. |ks_version| image:: https://img.shields.io/pypi/v/knit-script.svg
+   :target: https://pypi.org/project/knit-script/
 
-This project complements knitout-interpreter by providing optimization capabilities
-for the patterns that the interpreter can execute and analyze.
+.. |vkm_version| image:: https://img.shields.io/pypi/v/virtual-knitting-machine.svg
+   :target: https://pypi.org/project/virtual-knitting-machine/
 
-Related Research Areas
-~~~~~~~~~~~~~~~~~~~~~~
+.. |knitout_interp_version| image:: https://img.shields.io/pypi/v/knitout-interpreter.svg
+   :target: https://pypi.org/project/knitout-interpreter/
 
-Computational Fabrication
-^^^^^^^^^^^^^^^^^^^^^^^^^^
+.. |koda_version| image:: https://img.shields.io/pypi/v/koda-knitout.svg
+   :target: https://pypi.org/project/koda-knitout/
 
-The knitout ecosystem contributes to the broader field of computational fabrication:
-
-- **Digital manufacturing** through automated knitting
-- **Parametric design** for customized textile products
-- **Algorithm-driven fabrication** processes
-- **Human-computer interaction** in craft and making
 
 Academic Publications
 ^^^^^^^^^^^^^^^^^^^^^
@@ -113,68 +97,3 @@ Key papers that have shaped this work:
 - **"A Compiler for 3D Machine Knitting"** - McCann et al.
 - **"Automatic Machine Knitting of 3D Meshes"** - Narayanan et al.
 - **"Visual Knitting Machine Programming"** - McCann et al.
-
-Integration Examples
-~~~~~~~~~~~~~~~~~~~~
-
-Using Multiple Projects Together
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-
-.. code-block:: python
-
-    # Complete workflow using the full ecosystem
-    from knitout_interpreter.run_knitout import run_knitout
-    from knitout_interpreter.knitout_execution import Knitout_Executer
-    from virtual_knitting_machine.Knitting_Machine import Knitting_Machine
-    from knit_graphs.Knit_Graph import Knit_Graph
-
-    # Execute pattern and get all components
-    instructions, machine, knit_graph = run_knitout("pattern.k")
-
-    # Detailed analysis
-    executer = Knitout_Executer(instructions, machine)
-
-    # Access integrated results
-    print(f"Execution time: {executer.execution_time} passes")
-    print(f"Machine state: {machine.active_needle_count} active needles")
-    print(f"Fabric structure: {knit_graph.node_count} stitches")
-
-Community and Contributions
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-
-Research Community
-^^^^^^^^^^^^^^^^^^^
-
-These projects serve the computational textiles research community:
-
-- **Academic researchers** in HCI, fabrication, and textiles
-- **Industry practitioners** in digital knitting
-- **Students and educators** in computational design
-- **Makers and artists** exploring digital craft
-
-Contributing to the Ecosystem
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-
-Ways to contribute to the broader project ecosystem:
-
-1. **Report issues** and bugs across projects
-2. **Suggest features** for improved integration
-3. **Contribute code** to any of the component libraries
-4. **Share examples** and use cases
-5. **Write documentation** and tutorials
-
-**GitHub Organizations**:
-- CMU Textiles Lab: `@textiles-lab <https://github.com/textiles-lab>`_
-- Northeastern ACT Lab: Projects under individual maintainer accounts
-
-Future Directions
-~~~~~~~~~~~~~~~~~
-
-The ecosystem continues to evolve with:
-
-- **Enhanced optimization algorithms** in koda-knitout
-- **Expanded machine support** in virtual-knitting-machine
-- **Advanced graph operations** in knit-graphs
-- **Improved parsing capabilities** in knitout-interpreter
-- **Integration with CAD tools** and design software
-- **Support for new knitting techniques** and machine types

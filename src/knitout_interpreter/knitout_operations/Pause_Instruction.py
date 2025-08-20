@@ -1,8 +1,12 @@
 """Module for the Pause Knitting Machine Instruction"""
 from __future__ import annotations
+
 from virtual_knitting_machine.Knitting_Machine import Knitting_Machine
 
-from knitout_interpreter.knitout_operations.knitout_instruction import Knitout_Instruction_Type, Knitout_Instruction
+from knitout_interpreter.knitout_operations.knitout_instruction import (
+    Knitout_Instruction,
+    Knitout_Instruction_Type,
+)
 
 
 class Pause_Instruction(Knitout_Instruction):

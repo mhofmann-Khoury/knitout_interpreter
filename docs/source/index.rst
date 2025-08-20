@@ -22,8 +22,7 @@ knitout-interpreter
    :alt: Pre-commit
 
 A comprehensive Python library for interpreting and executing knitout files used to control automatic V-Bed knitting machines.
-This library provides full support for the `Knitout specification <https://textiles-lab.github.io/knitout/knitout.html>`_ created by McCann et al.,
-enabling programmatic knitting pattern analysis, validation, and execution simulation.
+This library provides full support for the `Knitout specification <https://textiles-lab.github.io/knitout/knitout.html>`_ created by McCann et al., enabling programmatic knitting pattern analysis, validation, and execution simulation.
 
 🧶 Overview
 -----------
@@ -47,11 +46,11 @@ The knitout-interpreter bridges the gap between high-level knitting pattern desc
    core_components
 
 .. toctree::
-   :maxdepth: 3
+   :maxdepth: 4
    :caption: API Reference
    :hidden:
 
-   modules
+   api/knitout_interpreter
 
 .. toctree::
    :maxdepth: 1

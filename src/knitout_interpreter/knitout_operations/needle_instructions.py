@@ -2,34 +2,87 @@
 from __future__ import annotations
 
 from virtual_knitting_machine.Knitting_Machine import Knitting_Machine
-from virtual_knitting_machine.knitting_machine_exceptions.Needle_Exception import Misaligned_Needle_Exception
-from virtual_knitting_machine.machine_components.carriage_system.Carriage_Pass_Direction import Carriage_Pass_Direction
+from virtual_knitting_machine.knitting_machine_exceptions.Needle_Exception import (
+    Misaligned_Needle_Exception,
+)
+from virtual_knitting_machine.machine_components.carriage_system.Carriage_Pass_Direction import (
+    Carriage_Pass_Direction,
+)
 from virtual_knitting_machine.machine_components.needles.Needle import Needle
-from virtual_knitting_machine.machine_components.yarn_management.Yarn_Carrier import Yarn_Carrier
-from virtual_knitting_machine.machine_components.yarn_management.Yarn_Carrier_Set import Yarn_Carrier_Set
-from virtual_knitting_machine.machine_constructed_knit_graph.Machine_Knit_Loop import Machine_Knit_Loop
-from virtual_knitting_machine.machine_constructed_knit_graph.Machine_Knit_Yarn import Machine_Knit_Yarn
+from virtual_knitting_machine.machine_components.yarn_management.Yarn_Carrier import (
+    Yarn_Carrier,
+)
+from virtual_knitting_machine.machine_components.yarn_management.Yarn_Carrier_Set import (
+    Yarn_Carrier_Set,
+)
+from virtual_knitting_machine.machine_constructed_knit_graph.Machine_Knit_Loop import (
+    Machine_Knit_Loop,
+)
+from virtual_knitting_machine.machine_constructed_knit_graph.Machine_Knit_Yarn import (
+    Machine_Knit_Yarn,
+)
 
-from knitout_interpreter.knitout_operations.knitout_instruction import Knitout_Instruction, Knitout_Instruction_Type
+from knitout_interpreter.knitout_operations.knitout_instruction import (
+    Knitout_Instruction,
+    Knitout_Instruction_Type,
+)
 
 
 class Needle_Instruction(Knitout_Instruction):
+    """
+    The base class for all instructions that execute on a needle.
 
+    Attributes:
+        made_loops (list[Machine_Knit_Loop]): The list of loops that were made by this instruction.
+        moved_loops (list[Machine_Knit_Loop]): The list of loops that transferred by this instruction.
+        dropped_loops (list[Machine_Knit_Loop]): The list of loops that dropped by this instruction.
+    """
     def __init__(self, instruction_type: Knitout_Instruction_Type,
                  needle: Needle, direction: None | str | Carriage_Pass_Direction = None, needle_2: None | Needle = None,
                  carrier_set: None | Yarn_Carrier_Set = None,
                  comment: None | str = None):
         super().__init__(instruction_type, comment, interrupts_carriage_pass=False)
-        self.carrier_set = carrier_set
-        self.needle_2 = needle_2
+        self._carrier_set: None | Yarn_Carrier_Set = carrier_set
+        self._needle_2: None | Needle = needle_2
         if direction is not None and isinstance(direction, str):
             direction = Carriage_Pass_Direction.get_direction(direction)
-        self.direction: None | Carriage_Pass_Direction = direction
-        self.needle = needle
-        self.carriage_pass = None
+        self._direction: None | Carriage_Pass_Direction = direction
+        self._needle: Needle = needle
         self.made_loops: list[Machine_Knit_Loop] = []
         self.moved_loops: list[Machine_Knit_Loop] = []
         self.dropped_loops: list[Machine_Knit_Loop] = []
+
+    @property
+    def carrier_set(self) -> None | Yarn_Carrier_Set:
+        """
+        Returns:
+            Yarn_Carrier_Set | None: The carrier set used by this instruction or None if it does not involve carriers.
+        """
+        return self._carrier_set
+
+    @property
+    def needle_2(self) -> None | Needle:
+        """
+        Returns:
+            Needle | None: The needle that loops are transferred to or None if this instruction does not involve transfers.
+        """
+        return self._needle_2
+
+    @property
+    def direction(self) -> None | Carriage_Pass_Direction:
+        """
+        Returns:
+            Carriage_Pass_Direction | None: The direction used by this instruction or None if this is a xfer instruction that can happen in any direction.
+        """
+        return self._direction
+
+    @property
+    def needle(self) -> Needle:
+        """
+        Returns:
+            Needle: The needle that this operation executes on.
+        """
+        return self._needle
 
     def get_yarns(self, knitting_machine: Knitting_Machine) -> dict[int, Machine_Knit_Yarn]:
         """Get the yarns currently active on the carriers.

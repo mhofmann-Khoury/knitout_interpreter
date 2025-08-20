@@ -2,21 +2,38 @@
 from __future__ import annotations
 
 import time
-from typing import cast, Iterator
+from typing import Iterator, cast
 
 from virtual_knitting_machine.Knitting_Machine import Knitting_Machine
-from virtual_knitting_machine.machine_components.carriage_system.Carriage_Pass_Direction import Carriage_Pass_Direction
+from virtual_knitting_machine.machine_components.carriage_system.Carriage_Pass_Direction import (
+    Carriage_Pass_Direction,
+)
 from virtual_knitting_machine.machine_components.needles.Needle import Needle
-from virtual_knitting_machine.machine_components.yarn_management.Yarn_Carrier_Set import Yarn_Carrier_Set
+from virtual_knitting_machine.machine_components.yarn_management.Yarn_Carrier_Set import (
+    Yarn_Carrier_Set,
+)
 
-from knitout_interpreter.knitout_operations.Knitout_Line import Knitout_Line, Knitout_Comment_Line
+from knitout_interpreter.knitout_operations.knitout_instruction import (
+    Knitout_Instruction_Type,
+)
+from knitout_interpreter.knitout_operations.Knitout_Line import (
+    Knitout_Comment_Line,
+    Knitout_Line,
+)
+from knitout_interpreter.knitout_operations.needle_instructions import (
+    Needle_Instruction,
+    Xfer_Instruction,
+)
 from knitout_interpreter.knitout_operations.Rack_Instruction import Rack_Instruction
-from knitout_interpreter.knitout_operations.knitout_instruction import Knitout_Instruction_Type
-from knitout_interpreter.knitout_operations.needle_instructions import Needle_Instruction, Xfer_Instruction
 
 
 class Carriage_Pass:
-    """Manages knitout operations that are organized in a single carriage pass."""
+    """Manages knitout operations that are organized in a single carriage pass.
+
+    Attributes:
+        all_needle_rack (bool): True if this carriage pass is set to allow all needle racking.
+        rack (int): The offset racking alignment for the carriage pass.
+    """
 
     def __init__(self, first_instruction: Needle_Instruction, rack: int, all_needle_rack: bool):
         """Initialize a new carriage pass with the first instruction.
@@ -29,17 +46,33 @@ class Carriage_Pass:
         self._creation_time: float = time.time()
         self.all_needle_rack: bool = all_needle_rack
         self.rack: int = rack
-        self.xfer_pass: bool = isinstance(first_instruction, Xfer_Instruction)
-        if self.xfer_pass:
-            self.carrier_set: Yarn_Carrier_Set | None = None
+        self._xfer_pass: bool = isinstance(first_instruction, Xfer_Instruction)
+        if self._xfer_pass:
+            self._carrier_set: Yarn_Carrier_Set | None = None
             self._direction: Carriage_Pass_Direction | None = None
         else:
-            self.carrier_set: Yarn_Carrier_Set | None = first_instruction.carrier_set
+            self._carrier_set: Yarn_Carrier_Set | None = first_instruction.carrier_set
             self._direction: Carriage_Pass_Direction | None = first_instruction.direction
         self._instructions: list[Needle_Instruction] = [first_instruction]
         self._needles_to_instruction: dict[Needle, Needle_Instruction] = {first_instruction.needle: first_instruction}
         self._instruction_types_to_needles: dict[Knitout_Instruction_Type, dict[Needle, Needle_Instruction]] = {first_instruction.instruction_type:
                                                                                                                     {first_instruction.needle: first_instruction}}
+
+    @property
+    def carrier_set(self) -> Yarn_Carrier_Set | None:
+        """
+        Returns:
+            Yarn_Carrier_Set | None: The carrier set used in this carriage pass or None if the pass does not involve carriers.
+        """
+        return self._carrier_set
+
+    @property
+    def xfer_pass(self) -> bool:
+        """
+        Returns:
+            bool: True if this carriage pass is transfer operations.
+        """
+        return self._xfer_pass
 
     def instruction_set(self) -> set[Needle_Instruction]:
         """Get an unordered set of the instructions in the carriage pass.
@@ -299,7 +332,7 @@ class Carriage_Pass:
         updated = rack_instruction.execute(knitting_machine)
         if updated:
             executed_instructions.append(rack_instruction)
-        if self.xfer_pass:
+        if self._xfer_pass:
             self.direction = Carriage_Pass_Direction.Rightward  # default xfers to be in ascending order
         for instruction in self:
             updated = instruction.execute(knitting_machine)
@@ -317,14 +350,14 @@ class Carriage_Pass:
         """
         string = ""
         indent = ""
-        if not self.xfer_pass:
+        if not self._xfer_pass:
             string = f"in {self._direction} direction:"
             if len(self._instruction_types_to_needles) > 1:
                 indent = "\t"
                 string += "\n"
         for instruction_type, needles in self._instruction_types_to_needles.items():
             string += f"{indent}{instruction_type.value} {list(needles.keys())}"
-        if self.xfer_pass:
+        if self._xfer_pass:
             string += f" at {self.rack}"
         if self.carrier_set is not None:
             string += f" with {self.carrier_set}"
