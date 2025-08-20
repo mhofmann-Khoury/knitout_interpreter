@@ -4,8 +4,10 @@ from unittest import TestCase
 from knit_graphs.Knit_Graph_Visualizer import visualize_knit_graph_safe
 from resources.load_test_resources import load_test_resource
 
-from knitout_interpreter import Knitout_Executer
-from knitout_interpreter.knitout_operations import Knitout_Instruction_Type
+from knitout_interpreter.knitout_execution import Knitout_Executer
+from knitout_interpreter.knitout_operations.knitout_instruction import (
+    Knitout_Instruction_Type,
+)
 from knitout_interpreter.run_knitout import run_knitout
 
 

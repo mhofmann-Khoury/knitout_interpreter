@@ -9,10 +9,10 @@ from virtual_knitting_machine.machine_components.yarn_management.Yarn_Carrier_Se
     Yarn_Carrier_Set,
 )
 
-from knitout_interpreter import Knitout_Executer
-from knitout_interpreter.knitout_execution_structures import Carriage_Pass
-from knitout_interpreter.knitout_language import parse_knitout
-from knitout_interpreter.knitout_operations import Knit_Instruction
+from knitout_interpreter.knitout_execution import Knitout_Executer
+from knitout_interpreter.knitout_execution_structures.Carriage_Pass import Carriage_Pass
+from knitout_interpreter.knitout_language.Knitout_Parser import parse_knitout
+from knitout_interpreter.knitout_operations.needle_instructions import Knit_Instruction
 
 
 class TestCarriage_Pass(TestCase):
