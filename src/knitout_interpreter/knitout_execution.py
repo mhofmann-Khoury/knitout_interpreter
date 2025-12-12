@@ -150,7 +150,7 @@ class Knitout_Executer:
         self.process: list[Knitout_Instruction | Carriage_Pass] = []
         self.executed_instructions: list[Knitout_Line] = []
         current_pass = None
-        for i, instruction in enumerate(self.instructions):
+        for instruction in self.instructions:
             try:
                 if isinstance(instruction, (Pause_Instruction, Knitout_Comment_Line)):
                     self.executed_instructions.append(instruction)
@@ -178,7 +178,7 @@ class Knitout_Executer:
                 comment = Knitout_No_Op(instruction, f"Excluded {type(e).__name__}: {e.message}")
                 self.executed_instructions.append(comment)
             except Knitout_Machine_StateError as e:
-                raise Knitout_Machine_StateError(instruction, e.error, i) from e
+                raise Knitout_Machine_StateError(instruction, e.error) from e
         if current_pass is not None:
             self.executed_instructions.extend(current_pass.execute(self.knitting_machine))
             self.process.append(current_pass)

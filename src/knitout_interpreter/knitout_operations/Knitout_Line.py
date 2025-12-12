@@ -198,9 +198,13 @@ class Knitout_Comment_Line(Knitout_Line):
         Args:
             comment (None | str | Knitout_Line | Knitout_Comment_Line): The comment text, or a Knitout_Line to convert to a comment.
         """
+        original_line_number = None
         if isinstance(comment, Knitout_Line):
+            original_line_number = comment.original_line_number
             comment = str(Knitout_Comment_Line.comment_str) if isinstance(comment, Knitout_Comment_Line) else f"No-Op:\t{comment}".strip()
         super().__init__(comment, interrupts_carriage_pass=False)
+        if original_line_number is not None:
+            self.original_line_number = original_line_number
 
     def execute(self, machine_state: Knitting_Machine) -> bool:
         return True

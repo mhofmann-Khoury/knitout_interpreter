@@ -72,6 +72,8 @@ exclude = [
     "tests/**/*",                   # Don't include test files in distribution
     "docs/_build",                  # Don't include built documentation
     "*.pyc",                        # No compiled Python files
+    "*.pgt",
+    "*.pgc",
     "__pycache__",                  # No Python cache directories
     ".coverage",                    # No coverage data files
     "htmlcov",                      # No coverage HTML reports
