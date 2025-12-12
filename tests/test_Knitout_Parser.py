@@ -66,7 +66,8 @@ class TestKnitout_Parser(TestCase):
             in 2
             out 3
             outhook 4
-            releasehook 5""")
+            releasehook 5"""
+        )
         assert len(codes) == 5, f"Expected five carrier operations but got: {codes}"
         print(codes)
 

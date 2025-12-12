@@ -1,13 +1,9 @@
 """Module containing the Kick_Instruction class."""
 
 from virtual_knitting_machine.Knitting_Machine import Knitting_Machine
-from virtual_knitting_machine.machine_components.carriage_system.Carriage_Pass_Direction import (
-    Carriage_Pass_Direction,
-)
+from virtual_knitting_machine.machine_components.carriage_system.Carriage_Pass_Direction import Carriage_Pass_Direction
 from virtual_knitting_machine.machine_components.needles.Needle import Needle
-from virtual_knitting_machine.machine_components.yarn_management.Yarn_Carrier_Set import (
-    Yarn_Carrier_Set,
-)
+from virtual_knitting_machine.machine_components.yarn_management.Yarn_Carrier_Set import Yarn_Carrier_Set
 
 from knitout_interpreter.knitout_operations.needle_instructions import Miss_Instruction
 
@@ -15,24 +11,31 @@ from knitout_interpreter.knitout_operations.needle_instructions import Miss_Inst
 class Kick_Instruction(Miss_Instruction):
     """A subclass of the Miss_Instruction used to mark kickbacks added in dat-complication process."""
 
-    def __init__(self, position: int | Needle, direction: str | Carriage_Pass_Direction, cs: Yarn_Carrier_Set | None = None, comment: None | str = None):
+    def __init__(
+        self,
+        position: int | Needle,
+        direction: str | Carriage_Pass_Direction,
+        cs: Yarn_Carrier_Set,
+        comment: None | str = None,
+    ):
         """Initialize a kick instruction for a specific needle position.
 
         Args:
-            position: The needle position for the kickback (must be between 0 and 540).
-            direction: The direction of the carriage pass.
-            cs: The yarn carrier set to use. Defaults to None.
-            comment: Optional comment for the instruction. Defaults to None.
+            position (int | Needle): The needle position for the kickback (must be between 0 and 540).
+            direction (str | Carriage_Pass_Direction): The direction of the carriage pass.
+            cs (Yarn_Carrier_Set): The yarn carrier set to use.
+            comment (str | None, optional): Optional comment for the instruction. Defaults to None.
 
         Raises:
-            AssertionError: If position is not between 0 and 540.
+            ValueError: If position is on the needle bed (i.e., greater than 0)
         """
         if isinstance(position, Needle):
             self._position: int = position.position
         else:
             self._position: int = position
-        assert 0 <= self.position, f"Cannot add a kickback beyond the bounds of the needle bed at position {position}"
-        super().__init__(needle=Needle(is_front=True, position=position), direction=direction, cs=cs, comment=comment)
+        if self.position < 0:
+            raise ValueError(f"Cannot add a kickback beyond the bounds of the needle bed at position {position}")
+        super().__init__(needle=Needle(is_front=True, position=self._position), direction=direction, cs=cs, comment=comment)
 
     @property
     def position(self) -> int:
@@ -68,9 +71,13 @@ class Kick_Instruction(Miss_Instruction):
         return True
 
     @staticmethod
-    def execute_kick(machine_state: Knitting_Machine,
-                     needle: Needle | int, direction: str | Carriage_Pass_Direction, cs: Yarn_Carrier_Set,
-                     comment: str | None = None) -> Miss_Instruction:
+    def execute_kick(
+        machine_state: Knitting_Machine,
+        needle: Needle | int,
+        direction: str | Carriage_Pass_Direction,
+        cs: Yarn_Carrier_Set,
+        comment: str | None = None,
+    ) -> Miss_Instruction:
         """Execute a kick instruction on the machine.
 
         Args:

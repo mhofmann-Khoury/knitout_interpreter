@@ -5,6 +5,6 @@
 ;;Carriers: 1 2 3 4 5 6 7 8 9 10
 ;;Position: Right
 inhook 1;
-knit + f1 1;
+tuck - f1 1;
 releasehook 1;
 outhook 1;

@@ -42,7 +42,7 @@ Core Knitting Libraries
    - **Integration**: Used by KnitScript to represent generated fabric structures
    - **Repository**: `knit-graphs on PyPI <https://pypi.org/project/knit-graphs/>`_
 
-**knit-script** |vkm_version|
+**virtual-knitting-machine** |vkm_version|
    A simulation of a knitting machine.
 
    - **Purpose**: Used to verify knitting operations and construct knit graphs.
@@ -87,13 +87,3 @@ Optimization and Analysis Tools
 
 .. |koda_version| image:: https://img.shields.io/pypi/v/koda-knitout.svg
    :target: https://pypi.org/project/koda-knitout/
-
-
-Academic Publications
-^^^^^^^^^^^^^^^^^^^^^
-
-Key papers that have shaped this work:
-
-- **"A Compiler for 3D Machine Knitting"** - McCann et al.
-- **"Automatic Machine Knitting of 3D Meshes"** - Narayanan et al.
-- **"Visual Knitting Machine Programming"** - McCann et al.

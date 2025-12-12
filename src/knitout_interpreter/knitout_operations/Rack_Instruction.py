@@ -1,12 +1,10 @@
 """Module for the Rack_Instruction class."""
+
 from __future__ import annotations
 
 from virtual_knitting_machine.Knitting_Machine import Knitting_Machine
 
-from knitout_interpreter.knitout_operations.knitout_instruction import (
-    Knitout_Instruction,
-    Knitout_Instruction_Type,
-)
+from knitout_interpreter.knitout_operations.knitout_instruction import Knitout_Instruction, Knitout_Instruction_Type
 
 
 class Rack_Instruction(Knitout_Instruction):
@@ -61,6 +59,16 @@ class Rack_Instruction(Knitout_Instruction):
         if not self.all_needle_rack:
             return f"{self.instruction_type} {int(self._rack_value)}{self.comment_str}"
         return f"{self.instruction_type} {self._rack_value}{self.comment_str}"
+
+    def will_update_machine_state(self, machine_state: Knitting_Machine) -> bool:
+        """
+        Args:
+            machine_state (Knitting_Machine): The machine state to test if this instruction will update it.
+
+        Returns:
+            bool: True if the rack set by this instruction differs from the current racking of the machine.
+        """
+        return machine_state.rack != self.rack or machine_state.all_needle_rack != self.all_needle_rack
 
     def execute(self, machine_state: Knitting_Machine) -> bool:
         """Execute the rack instruction on the given machine.

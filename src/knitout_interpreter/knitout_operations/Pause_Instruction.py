@@ -1,12 +1,10 @@
 """Module for the Pause Knitting Machine Instruction"""
+
 from __future__ import annotations
 
 from virtual_knitting_machine.Knitting_Machine import Knitting_Machine
 
-from knitout_interpreter.knitout_operations.knitout_instruction import (
-    Knitout_Instruction,
-    Knitout_Instruction_Type,
-)
+from knitout_interpreter.knitout_operations.knitout_instruction import Knitout_Instruction, Knitout_Instruction_Type
 
 
 class Pause_Instruction(Knitout_Instruction):
@@ -19,6 +17,16 @@ class Pause_Instruction(Knitout_Instruction):
             comment: Optional comment for the pause instruction.
         """
         super().__init__(Knitout_Instruction_Type.Pause, comment, interrupts_carriage_pass=True)
+
+    def will_update_machine_state(self, machine_state: Knitting_Machine) -> bool:
+        """
+        Args:
+            machine_state (Knitting_Machine): The machine state to test if this instruction will update it.
+
+        Returns:
+            bool: Always False because pause instructions don't update the machine state.
+        """
+        return False
 
     def execute(self, machine_state: Knitting_Machine) -> bool:
         """Execute the pause instruction.

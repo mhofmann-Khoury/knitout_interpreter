@@ -1,80 +1,69 @@
 """Actions for reducing in Knitout Parser"""
-from typing import Any
+
+from collections.abc import Callable
+from typing import Any, TypeVar, cast
 
 from parglare import get_collector
-from virtual_knitting_machine.machine_components.carriage_system.Carriage_Pass_Direction import (
-    Carriage_Pass_Direction,
-)
+from parglare.parser import LRStackNode
+from virtual_knitting_machine.machine_components.carriage_system.Carriage_Pass_Direction import Carriage_Pass_Direction
 from virtual_knitting_machine.machine_components.needles.Needle import Needle
-from virtual_knitting_machine.machine_components.needles.Slider_Needle import (
-    Slider_Needle,
-)
-from virtual_knitting_machine.machine_components.yarn_management.Yarn_Carrier_Set import (
-    Yarn_Carrier_Set,
-)
+from virtual_knitting_machine.machine_components.needles.Slider_Needle import Slider_Needle
+from virtual_knitting_machine.machine_components.yarn_management.Yarn_Carrier import Yarn_Carrier
+from virtual_knitting_machine.machine_components.yarn_management.Yarn_Carrier_Set import Yarn_Carrier_Set
 
-from knitout_interpreter.knitout_operations.carrier_instructions import (
-    In_Instruction,
-    Inhook_Instruction,
-    Out_Instruction,
-    Outhook_Instruction,
-    Releasehook_Instruction,
-)
-from knitout_interpreter.knitout_operations.Header_Line import (
-    Carriers_Header_Line,
-    Gauge_Header_Line,
-    Knitout_Header_Line,
-    Machine_Header_Line,
-    Position_Header_Line,
-    Yarn_Header_Line,
-)
+from knitout_interpreter.knitout_operations.carrier_instructions import In_Instruction, Inhook_Instruction, Out_Instruction, Outhook_Instruction, Releasehook_Instruction
+from knitout_interpreter.knitout_operations.Header_Line import Carriers_Header_Line, Gauge_Header_Line, Knitout_Header_Line, Machine_Header_Line, Position_Header_Line, Yarn_Header_Line
 from knitout_interpreter.knitout_operations.kick_instruction import Kick_Instruction
-from knitout_interpreter.knitout_operations.Knitout_Line import (
-    Knitout_Comment_Line,
-    Knitout_Line,
-    Knitout_Version_Line,
-)
-from knitout_interpreter.knitout_operations.needle_instructions import (
-    Drop_Instruction,
-    Knit_Instruction,
-    Miss_Instruction,
-    Split_Instruction,
-    Tuck_Instruction,
-    Xfer_Instruction,
-)
+from knitout_interpreter.knitout_operations.Knitout_Line import Knitout_Comment_Line, Knitout_Line, Knitout_Version_Line
+from knitout_interpreter.knitout_operations.needle_instructions import Drop_Instruction, Knit_Instruction, Miss_Instruction, Split_Instruction, Tuck_Instruction, Xfer_Instruction
 from knitout_interpreter.knitout_operations.Pause_Instruction import Pause_Instruction
 from knitout_interpreter.knitout_operations.Rack_Instruction import Rack_Instruction
 
 action = get_collector()
 
+F = TypeVar("F", bound=Callable[..., Any])
 
-@action
-def comment(_: Any, __: Any, content: str | None) -> str | None:
+
+def typed_action(func: F) -> F:
+    """
+    Wrapper that applies @action decorator while preserving types.
+
+    Args:
+        func (F): Function to be decorated with the action decorator.
+
+    Returns:
+        F: Wrapped function.
+    """
+    return cast(F, action(func))
+
+
+@typed_action
+def comment(_: LRStackNode, __: list, content: str | None) -> str | None:
     """Extracts the content of a comment.
 
     Args:
-        _: The parser element that created this value.
-        __: Unused parameter.
-        content: The content of the comment.
+        _ (LRStackNode): The stack node element being processed by this action.
+        __ (list): A list of values found for this action.
+        content (str | None): The content of the comment.
 
     Returns:
-        The content of the comment.
+        str | None: The content of the comment.
     """
     return content
 
 
-@action
-def code_line(_: Any, __: Any, c: Knitout_Line | None, com: str | None) -> Knitout_Line | None:
+@typed_action
+def code_line(_: LRStackNode, __: list, c: Knitout_Line | None, com: str | None) -> Knitout_Line | None:
     """Creates a knitout line with optional comment.
 
     Args:
-        _: The parser element that created this value.
-        __: Unused parameter.
-        c: The knitout line to execute, if any.
-        com: The comment to append to the knitout line.
+        _ (LRStackNode): The stack node element being processed by this action.
+        __ (list): A list of values found for this action.
+        c (Knitout_Line | None): The knitout line to execute, if any.
+        com (str | None): The comment to append to the knitout line.
 
     Returns:
-        The knitout line created or None if no values are given.
+        Knitout_Line | None: The knitout line created or None if no values are given.
     """
     if c is None:
         if com is None:
@@ -85,73 +74,73 @@ def code_line(_: Any, __: Any, c: Knitout_Line | None, com: str | None) -> Knito
     return c
 
 
-@action
-def magic_string(_: Any, __: Any, v: int) -> Knitout_Version_Line:
+@typed_action
+def magic_string(_: LRStackNode, __: list, v: int) -> Knitout_Version_Line:
     """Creates a knitout version line.
 
     Args:
-        _: The parser element that created this value.
-        __: Unused parameter.
-        v: Version number.
+        _ (LRStackNode): The stack node element being processed by this action.
+        __ (list): A list of values found for this action.
+        v (int): Version number.
 
     Returns:
-        The version line knitout line.
+        Knitout_Version_Line: The version line knitout line.
     """
     return Knitout_Version_Line(v)
 
 
-@action
-def header_line(_: Any, __: Any, h_op: Knitout_Header_Line) -> Knitout_Header_Line:
+@typed_action
+def header_line(_: LRStackNode, __: list, h_op: Knitout_Header_Line) -> Knitout_Header_Line:
     """Returns a header line operation.
 
     Args:
-        _: The parser element that created this value.
-        __: Unused parameter.
-        h_op: Operation on the line.
+        _ (LRStackNode): The stack node element being processed by this action.
+        __ (list): A list of values found for this action.
+        h_op (Knitout_Header_Line): Operation on the line.
 
     Returns:
-        The header operation.
+        Knitout_Header_Line: The header operation.
     """
     return h_op
 
 
-@action
-def machine_op(_: Any, __: Any, m: str) -> Machine_Header_Line:
+@typed_action
+def machine_op(_: LRStackNode, __: list, m: str) -> Machine_Header_Line:
     """Creates a machine header line.
 
     Args:
-        _: The parser element that created this value.
-        __: Unused parameter.
-        m: The machine name as a string.
+        _ (LRStackNode): The stack node element being processed by this action.
+        __ (list): A list of values found for this action.
+        m (str): The machine name as a string.
 
     Returns:
-        The machine declaration operation.
+        Machine_Header_Line: The machine declaration operation.
     """
     return Machine_Header_Line(m)
 
 
-@action
-def gauge_op(_: Any, __: Any, g: int) -> Gauge_Header_Line:
+@typed_action
+def gauge_op(_: LRStackNode, __: list, g: int) -> Gauge_Header_Line:
     """Creates a gauge header line.
 
     Args:
-        _: The parser element that created this value.
-        __: Unused parameter.
-        g: Gauge value.
+        _ (LRStackNode): The stack node element being processed by this action.
+        __ (list): A list of values found for this action.
+        g (int): Gauge value.
 
     Returns:
-        Gauge_Declaration.
+        Gauge_Header_Line: The gauge header.
     """
     return Gauge_Header_Line(g)
 
 
-@action
-def yarn_op(_: Any, __: Any, cid: int, plies: int, weight: int, color: str) -> Yarn_Header_Line:
+@typed_action
+def yarn_op(_: LRStackNode, __: list, cid: int, plies: int, weight: int, color: str) -> Yarn_Header_Line:
     """Creates a yarn header line.
 
     Args:
-        _: The parser element that created this value.
-        __: Unused parameter.
+        _ (LRStackNode): The stack node element being processed by this action.
+        __ (list): A list of values found for this action.
         cid: The carrier to assign the yarn too.
         plies: Plies in the yarn.
         weight: Weight of the yarn.
@@ -163,13 +152,13 @@ def yarn_op(_: Any, __: Any, cid: int, plies: int, weight: int, color: str) -> Y
     return Yarn_Header_Line(cid, plies, weight, color)
 
 
-@action
-def carriers_op(_: Any, __: Any, CS: Yarn_Carrier_Set) -> Carriers_Header_Line:
+@typed_action
+def carriers_op(_: LRStackNode, __: list, CS: Yarn_Carrier_Set) -> Carriers_Header_Line:
     """Creates a carriers header line.
 
     Args:
-        _: The parser element that created this value.
-        __: Unused parameter.
+        _ (LRStackNode): The stack node element being processed by this action.
+        __ (list): A list of values found for this action.
         CS: The carriers that are available.
 
     Returns:
@@ -178,13 +167,13 @@ def carriers_op(_: Any, __: Any, CS: Yarn_Carrier_Set) -> Carriers_Header_Line:
     return Carriers_Header_Line(CS)
 
 
-@action
-def position_op(_: Any, __: Any, p: str) -> Position_Header_Line:
+@typed_action
+def position_op(_: LRStackNode, __: list, p: str) -> Position_Header_Line:
     """Creates a position header line.
 
     Args:
-        _: The parser element that created this value.
-        __: Unused parameter.
+        _ (LRStackNode): The stack node element being processed by this action.
+        __ (list): A list of values found for this action.
         p: The position of operations.
 
     Returns:
@@ -193,13 +182,13 @@ def position_op(_: Any, __: Any, p: str) -> Position_Header_Line:
     return Position_Header_Line(p)
 
 
-@action
-def in_op(_: Any, __: Any, c: int) -> In_Instruction:
+@typed_action
+def in_op(_: LRStackNode, __: list, c: int) -> In_Instruction:
     """Creates an in instruction.
 
     Args:
-        _: The parser element that created this value.
-        __: Unused parameter.
+        _ (LRStackNode): The stack node element being processed by this action.
+        __ (list): A list of values found for this action.
         c: The carrier to bring in.
 
     Returns:
@@ -208,13 +197,13 @@ def in_op(_: Any, __: Any, c: int) -> In_Instruction:
     return In_Instruction(c)
 
 
-@action
-def inhook_op(_: Any, __: Any, c: int) -> Inhook_Instruction:
+@typed_action
+def inhook_op(_: LRStackNode, __: list, c: int) -> Inhook_Instruction:
     """Creates an inhook instruction.
 
     Args:
-        _: The parser element that created this value.
-        __: Unused parameter.
+        _ (LRStackNode): The stack node element being processed by this action.
+        __ (list): A list of values found for this action.
         c: The carrier to hook in.
 
     Returns:
@@ -223,13 +212,13 @@ def inhook_op(_: Any, __: Any, c: int) -> Inhook_Instruction:
     return Inhook_Instruction(c)
 
 
-@action
-def releasehook_op(_: Any, __: Any, c: int) -> Releasehook_Instruction:
+@typed_action
+def releasehook_op(_: LRStackNode, __: list, c: int) -> Releasehook_Instruction:
     """Creates a releasehook instruction.
 
     Args:
-        _: The parser element that created this value.
-        __: Unused parameter.
+        _ (LRStackNode): The stack node element being processed by this action.
+        __ (list): A list of values found for this action.
         c: Carrier set.
 
     Returns:
@@ -238,13 +227,13 @@ def releasehook_op(_: Any, __: Any, c: int) -> Releasehook_Instruction:
     return Releasehook_Instruction(c)
 
 
-@action
-def out_op(_: Any, __: Any, c: int) -> Out_Instruction:
+@typed_action
+def out_op(_: LRStackNode, __: list, c: int) -> Out_Instruction:
     """Creates an out instruction.
 
     Args:
-        _: The parser element that created this value.
-        __: Unused parameter.
+        _ (LRStackNode): The stack node element being processed by this action.
+        __ (list): A list of values found for this action.
         c: Carrier set.
 
     Returns:
@@ -253,13 +242,13 @@ def out_op(_: Any, __: Any, c: int) -> Out_Instruction:
     return Out_Instruction(c)
 
 
-@action
-def outhook_op(_: Any, __: Any, c: int) -> Outhook_Instruction:
+@typed_action
+def outhook_op(_: LRStackNode, __: list, c: int) -> Outhook_Instruction:
     """Creates an outhook instruction.
 
     Args:
-        _: The parser element that created this value.
-        __: Unused parameter.
+        _ (LRStackNode): The stack node element being processed by this action.
+        __ (list): A list of values found for this action.
         c: Carrier set.
 
     Returns:
@@ -268,13 +257,13 @@ def outhook_op(_: Any, __: Any, c: int) -> Outhook_Instruction:
     return Outhook_Instruction(c)
 
 
-@action
-def rack_op(_: Any, __: Any, R: float) -> Rack_Instruction:
+@typed_action
+def rack_op(_: LRStackNode, __: list, R: float) -> Rack_Instruction:
     """Creates a rack instruction.
 
     Args:
-        _: The parser element that created this value.
-        __: Unused parameter.
+        _ (LRStackNode): The stack node element being processed by this action.
+        __ (list): A list of values found for this action.
         R: Rack value.
 
     Returns:
@@ -283,13 +272,13 @@ def rack_op(_: Any, __: Any, R: float) -> Rack_Instruction:
     return Rack_Instruction(R)
 
 
-@action
-def knit_op(_: Any, __: Any, D: str, N: Needle, CS: Yarn_Carrier_Set) -> Knit_Instruction:
+@typed_action
+def knit_op(_: LRStackNode, __: list, D: str, N: Needle, CS: Yarn_Carrier_Set) -> Knit_Instruction:
     """Creates a knit instruction.
 
     Args:
-        _: The parser element that created this value.
-        __: Unused parameter.
+        _ (LRStackNode): The stack node element being processed by this action.
+        __ (list): A list of values found for this action.
         D: Direction operates in.
         N: Needle to operate on.
         CS: A carrier set.
@@ -300,13 +289,13 @@ def knit_op(_: Any, __: Any, D: str, N: Needle, CS: Yarn_Carrier_Set) -> Knit_In
     return Knit_Instruction(N, Carriage_Pass_Direction.get_direction(D), CS)
 
 
-@action
-def tuck_op(_: Any, __: Any, D: str, N: Needle, CS: Yarn_Carrier_Set) -> Tuck_Instruction:
+@typed_action
+def tuck_op(_: LRStackNode, __: list, D: str, N: Needle, CS: Yarn_Carrier_Set) -> Tuck_Instruction:
     """Creates a tuck instruction.
 
     Args:
-        _: The parser element that created this value.
-        __: Unused parameter.
+        _ (LRStackNode): The stack node element being processed by this action.
+        __ (list): A list of values found for this action.
         D: Direction operates in.
         N: Needle to operate on.
         CS: A carrier set.
@@ -317,13 +306,13 @@ def tuck_op(_: Any, __: Any, D: str, N: Needle, CS: Yarn_Carrier_Set) -> Tuck_In
     return Tuck_Instruction(N, Carriage_Pass_Direction.get_direction(D), CS)
 
 
-@action
-def miss_op(_: Any, __: Any, D: str, N: Needle, CS: Yarn_Carrier_Set) -> Miss_Instruction:
+@typed_action
+def miss_op(_: LRStackNode, __: list, D: str, N: Needle, CS: Yarn_Carrier_Set) -> Miss_Instruction:
     """Creates a miss instruction.
 
     Args:
-        _: The parser element that created this value.
-        __: Unused parameter.
+        _ (LRStackNode): The stack node element being processed by this action.
+        __ (list): A list of values found for this action.
         D: Direction to operate in.
         N: Needle to operate on.
         CS: A carrier set.
@@ -334,13 +323,13 @@ def miss_op(_: Any, __: Any, D: str, N: Needle, CS: Yarn_Carrier_Set) -> Miss_In
     return Miss_Instruction(N, Carriage_Pass_Direction.get_direction(D), CS)
 
 
-@action
-def kick_op(_: Any, __: Any, D: str, N: Needle, CS: Yarn_Carrier_Set) -> Kick_Instruction:
+@typed_action
+def kick_op(_: LRStackNode, __: list, D: str, N: Needle, CS: Yarn_Carrier_Set) -> Kick_Instruction:
     """Creates a kick instruction.
 
     Args:
-        _: The parser element that created this value.
-        __: Unused parameter.
+        _ (LRStackNode): The stack node element being processed by this action.
+        __ (list): A list of values found for this action.
         D: The direction to operate in.
         N: The needle to position the kickback.
         CS: The carrier set to kick.
@@ -351,13 +340,13 @@ def kick_op(_: Any, __: Any, D: str, N: Needle, CS: Yarn_Carrier_Set) -> Kick_In
     return Kick_Instruction(N.position, Carriage_Pass_Direction.get_direction(D), CS)
 
 
-@action
-def split_op(_: Any, __: Any, D: str, N: Needle, N2: Needle, CS: Yarn_Carrier_Set) -> Split_Instruction:
+@typed_action
+def split_op(_: LRStackNode, __: list, D: str, N: Needle, N2: Needle, CS: Yarn_Carrier_Set) -> Split_Instruction:
     """Creates a split instruction.
 
     Args:
-        _: The parser element that created this value.
-        __: Unused parameter.
+        _ (LRStackNode): The stack node element being processed by this action.
+        __ (list): A list of values found for this action.
         D: Direction operates in.
         N: Needle to operate on.
         N2: Second needle to move to.
@@ -369,13 +358,13 @@ def split_op(_: Any, __: Any, D: str, N: Needle, N2: Needle, CS: Yarn_Carrier_Se
     return Split_Instruction(N, Carriage_Pass_Direction.get_direction(D), N2, CS)
 
 
-@action
-def drop_op(_: Any, __: Any, N: Needle) -> Drop_Instruction:
+@typed_action
+def drop_op(_: LRStackNode, __: list, N: Needle) -> Drop_Instruction:
     """Creates a drop instruction.
 
     Args:
-        _: The parser element that created this value.
-        __: Unused parameter.
+        _ (LRStackNode): The stack node element being processed by this action.
+        __ (list): A list of values found for this action.
         N: Needle to drop from.
 
     Returns:
@@ -384,13 +373,13 @@ def drop_op(_: Any, __: Any, N: Needle) -> Drop_Instruction:
     return Drop_Instruction(N)
 
 
-@action
-def xfer_op(_: Any, __: Any, N: Needle, N2: Needle) -> Xfer_Instruction:
+@typed_action
+def xfer_op(_: LRStackNode, __: list, N: Needle, N2: Needle) -> Xfer_Instruction:
     """Creates a transfer instruction.
 
     Args:
-        _: The parser element that created this value.
-        __: Unused parameter.
+        _ (LRStackNode): The stack node element being processed by this action.
+        __ (list): A list of values found for this action.
         N: Needle to transfer from.
         N2: Needle to transfer to.
 
@@ -400,13 +389,13 @@ def xfer_op(_: Any, __: Any, N: Needle, N2: Needle) -> Xfer_Instruction:
     return Xfer_Instruction(N, N2)
 
 
-@action
-def pause_op(_: Any, __: Any) -> Pause_Instruction:
+@typed_action
+def pause_op(_: LRStackNode, __: list) -> Pause_Instruction:
     """Creates a pause instruction.
 
     Args:
-        _: The parser element that created this value.
-        __: Unused parameter.
+        _ (LRStackNode): The stack node element being processed by this action.
+        __ (list): A list of values found for this action.
 
     Returns:
         Pause operation.
@@ -414,12 +403,12 @@ def pause_op(_: Any, __: Any) -> Pause_Instruction:
     return Pause_Instruction()
 
 
-@action
+@typed_action
 def identifier(_: Any, node: str) -> str:
     """Returns an identifier string.
 
     Args:
-        _: The parser element that created this value.
+        _ (LRStackNode): The stack node element being processed by this action.
         node: Identifier string.
 
     Returns:
@@ -428,12 +417,12 @@ def identifier(_: Any, node: str) -> str:
     return node
 
 
-@action
+@typed_action
 def float_exp(_: Any, node: str) -> float:
     """Converts a string to a float.
 
     Args:
-        _: The parser element that created this value.
+        _ (LRStackNode): The stack node element being processed by this action.
         node: Float string.
 
     Returns:
@@ -446,12 +435,12 @@ def float_exp(_: Any, node: str) -> float:
     return float(digits)
 
 
-@action
+@typed_action
 def int_exp(_: Any, node: str) -> int:
     """Converts a string to an integer.
 
     Args:
-        _: The parser element that created this value.
+        _ (LRStackNode): The stack node element being processed by this action.
         node: Integer string.
 
     Returns:
@@ -460,12 +449,12 @@ def int_exp(_: Any, node: str) -> int:
     return int(float_exp(None, node))
 
 
-@action
+@typed_action
 def needle_id(_: Any, node: str) -> Needle:
     """Creates a needle from a string representation.
 
     Args:
-        _: The parser element that created this value.
+        _ (LRStackNode): The stack node element being processed by this action.
         node: String of the given needle.
 
     Returns:
@@ -483,16 +472,16 @@ def needle_id(_: Any, node: str) -> Needle:
         return Needle(is_front, pos)
 
 
-@action
-def carrier_set(_: Any, __: Any, carriers: list[int]) -> Yarn_Carrier_Set:
+@typed_action
+def carrier_set(_: LRStackNode, __: list, carriers: list[int]) -> Yarn_Carrier_Set:
     """Creates a yarn carrier set.
 
     Args:
-        _: The parser element that created this value.
-        __: Unused parameter.
+        _ (LRStackNode): The stack node element being processed by this action.
+        __ (list): A list of values found for this action.
         carriers: Carriers in set.
 
     Returns:
         Carrier set.
     """
-    return Yarn_Carrier_Set(carriers)
+    return Yarn_Carrier_Set(cast(list[int | Yarn_Carrier], carriers))

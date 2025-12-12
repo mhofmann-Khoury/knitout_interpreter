@@ -12,6 +12,4 @@ class TestKnitting_Machine_Header(TestCase):
     def test_read_header_from_executer(self):
         ko_context = Knitout_Context()
         codes, machine, knitgraph = ko_context.process_knitout_file(load_test_resource("short_header_test.k"))
-        print(codes)
         executer = Knitout_Executer(codes, Knitting_Machine())
-        print(executer.executed_instructions)

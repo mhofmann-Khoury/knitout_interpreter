@@ -1,4 +1,5 @@
 """Parser code for accessing Parglare language support"""
+
 import re
 
 import parglare.exceptions
@@ -6,6 +7,7 @@ from importlib_resources import files
 from parglare import Grammar, Parser
 
 import knitout_interpreter
+from knitout_interpreter.knitout_errors.Knitout_Error import Incomplete_Knitout_Line_Error, Knitout_ParseError
 from knitout_interpreter.knitout_language.knitout_actions import action
 from knitout_interpreter.knitout_operations.Knitout_Line import Knitout_Line
 
@@ -25,7 +27,7 @@ class Knitout_Parser:
             FileNotFoundError: If the <knitout.pg> grammar file cannot be located in the package.
         """
         try:
-            pg_resource_stream = files(knitout_interpreter.knitout_language).joinpath('knitout.pg')
+            pg_resource_stream = files(knitout_interpreter.knitout_language).joinpath("knitout.pg")
             self._grammar: Grammar = Grammar.from_file(pg_resource_stream, debug=debug_grammar, ignore_case=True)
         except (FileNotFoundError, AttributeError) as e:
             raise FileNotFoundError(
@@ -46,9 +48,14 @@ class Knitout_Parser:
         self._parser: Parser = Parser(self._grammar, debug=debug_parser, debug_layout=debug_parser_layout, actions=action.all)
         self._parser.knitout_parser = self  # make this structure available from actions
 
-    def parse_knitout_to_instructions(self, pattern: str, pattern_is_file: bool = False,
-                                      reset_parser: bool = True,
-                                      debug_parser: bool = False, debug_parser_layout: bool = False) -> list[Knitout_Line]:
+    def parse_knitout_to_instructions(
+        self,
+        pattern: str,
+        pattern_is_file: bool = False,
+        reset_parser: bool = True,
+        debug_parser: bool = False,
+        debug_parser_layout: bool = False,
+    ) -> list[Knitout_Line]:
         """Parse knitout pattern into a list of instruction objects.
 
         Args:
@@ -62,27 +69,28 @@ class Knitout_Parser:
             List of knitout instructions created by parsing the given pattern.
 
         Raises:
-            parglare.exceptions.ParseError: If there's an error parsing the knitout code.
+            Knitout_ParseError: If there's an error parsing the knitout code.
+            Incomplete_Knitout_Line_Error: If a knitout line processes into an incomplete code.
         """
         codes: list[Knitout_Line] = []
         if reset_parser:
             self._set_parser(debug_parser, debug_parser_layout)
         if pattern_is_file:
-            with open(pattern, "r") as pattern_file:
+            with open(pattern) as pattern_file:
                 lines = pattern_file.readlines()
         else:
             lines = pattern.splitlines()
         for i, line in enumerate(lines):
-            if not re.match(r'^\s*$', line):
+            if not re.match(r"^\s*$", line):
                 try:
                     code = self._parser.parse(line)
-                except parglare.exceptions.ParseError as e:
-                    print(f"Knitout Parsing Error at {i}: {line}")
-                    raise e
+                except parglare.exceptions.SyntaxError as e:
+                    raise Knitout_ParseError(i, line, e) from None
                 if code is None:
                     continue
+                elif not isinstance(code, Knitout_Line):
+                    raise Incomplete_Knitout_Line_Error(i, line) from None
                 else:
-                    assert isinstance(code, Knitout_Line), f"Expected Knitout Line but got {code}"
                     codes.append(code)
         return codes
 
@@ -103,7 +111,6 @@ def parse_knitout(pattern: str, pattern_is_file: bool = False, debug_parser: boo
         List of knitout instructions created by parsing the given pattern.
 
     Raises:
-        parglare.exceptions.ParseError: If there's an error parsing the knitout code.
         FileNotFoundError: If the grammar file or input file cannot be found.
     """
     parser = Knitout_Parser(debug_parser, debug_parser_layout)

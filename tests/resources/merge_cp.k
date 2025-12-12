@@ -11,11 +11,15 @@ tuck - f2 1
 tuck - f1 1
 tuck + f1 1;
 tuck + f2 1;
+rack 0; No-Op Rack
 tuck + f3 1;
 tuck + f4 1;
 knit - f4 1
+rack 0;
 knit - f3 1
+rack 0;
 knit - f2 1
+rack 0;
 knit - f1 1
 knit + f1 1;
 knit + f2 1;

@@ -1,30 +1,23 @@
 """Module containing the Carriage Pass class."""
+
 from __future__ import annotations
 
 import time
-from typing import Iterator, cast
+import warnings
+from collections.abc import Iterator, Sequence
+from typing import overload
 
 from virtual_knitting_machine.Knitting_Machine import Knitting_Machine
-from virtual_knitting_machine.machine_components.carriage_system.Carriage_Pass_Direction import (
-    Carriage_Pass_Direction,
-)
+from virtual_knitting_machine.machine_components.carriage_system.Carriage_Pass_Direction import Carriage_Pass_Direction
 from virtual_knitting_machine.machine_components.needles.Needle import Needle
-from virtual_knitting_machine.machine_components.yarn_management.Yarn_Carrier_Set import (
-    Yarn_Carrier_Set,
-)
+from virtual_knitting_machine.machine_components.yarn_management.Yarn_Carrier_Set import Yarn_Carrier_Set
 
-from knitout_interpreter.knitout_operations.knitout_instruction import (
-    Knitout_Instruction_Type,
-)
-from knitout_interpreter.knitout_operations.Knitout_Line import (
-    Knitout_Comment_Line,
-    Knitout_Line,
-)
-from knitout_interpreter.knitout_operations.needle_instructions import (
-    Needle_Instruction,
-    Xfer_Instruction,
-)
+from knitout_interpreter._warning_stack_level_helper import get_user_warning_stack_level_from_knitout_interpreter_package
+from knitout_interpreter.knitout_operations.knitout_instruction import Knitout_Instruction_Type
+from knitout_interpreter.knitout_operations.Knitout_Line import Knitout_Comment_Line
+from knitout_interpreter.knitout_operations.needle_instructions import Needle_Instruction, Xfer_Instruction
 from knitout_interpreter.knitout_operations.Rack_Instruction import Rack_Instruction
+from knitout_interpreter.knitout_warnings.Knitout_Warning import Reorder_Carriage_Pass_Warning
 
 
 class Carriage_Pass:
@@ -39,9 +32,9 @@ class Carriage_Pass:
         """Initialize a new carriage pass with the first instruction.
 
         Args:
-            first_instruction: The first needle instruction in this carriage pass.
-            rack: The rack position for this carriage pass.
-            all_needle_rack: Whether this pass uses all-needle racking.
+            first_instruction (Needle_Instruction): The first needle instruction in this carriage pass.
+            rack (int): The rack position for this carriage pass.
+            all_needle_rack (bool): Whether this pass uses all-needle racking.
         """
         self._creation_time: float = time.time()
         self.all_needle_rack: bool = all_needle_rack
@@ -55,8 +48,7 @@ class Carriage_Pass:
             self._direction: Carriage_Pass_Direction | None = first_instruction.direction
         self._instructions: list[Needle_Instruction] = [first_instruction]
         self._needles_to_instruction: dict[Needle, Needle_Instruction] = {first_instruction.needle: first_instruction}
-        self._instruction_types_to_needles: dict[Knitout_Instruction_Type, dict[Needle, Needle_Instruction]] = {first_instruction.instruction_type:
-                                                                                                                    {first_instruction.needle: first_instruction}}
+        self._instruction_types_to_needles: dict[Knitout_Instruction_Type, dict[Needle, Needle_Instruction]] = {first_instruction.instruction_type: {first_instruction.needle: first_instruction}}
 
     @property
     def carrier_set(self) -> Yarn_Carrier_Set | None:
@@ -75,69 +67,62 @@ class Carriage_Pass:
         return self._xfer_pass
 
     def instruction_set(self) -> set[Needle_Instruction]:
-        """Get an unordered set of the instructions in the carriage pass.
-
+        """
         Returns:
-            An unordered set of the instructions in the carriage pass.
+            set[Needle_Instruction]: An unordered set of the instructions in the carriage pass.
         """
         return set(self._instructions)
 
     def rightward_sorted_needles(self) -> list[Needle]:
-        """Get needles sorted from left to right.
-
-        Returns:
-            List of needles in the carriage pass sorted from left to right.
         """
-        return cast(list[Needle], Carriage_Pass_Direction.Rightward.sort_needles(self._needles_to_instruction.keys(), self.rack))
+        Returns:
+           list[Needle]: List of needles in the carriage pass sorted from left to right.
+        """
+        return Carriage_Pass_Direction.Rightward.sort_needles(self._needles_to_instruction.keys(), self.rack)
 
     def leftward_sorted_needles(self) -> list[Needle]:
-        """Get needles sorted from right to left.
-
-        Returns:
-            List of needles in the carriage pass sorted from right to left.
         """
-        return cast(list[Needle], Carriage_Pass_Direction.Leftward.sort_needles(self._needles_to_instruction.keys(), self.rack))
+        Returns:
+            list[Needle]: List of needles in the carriage pass sorted from right to left.
+        """
+        return Carriage_Pass_Direction.Leftward.sort_needles(self._needles_to_instruction.keys(), self.rack)
 
     def sorted_needles(self) -> list[Needle]:
-        """Get needles sorted by carriage pass direction.
-
+        """
         Returns:
-            List of needles in carriage pass sorted by direction of carriage pass
-            or from left to right if no direction is given.
+            list[Needle]:
+                List of needles in carriage pass sorted by direction of carriage pass or from left to right if no direction is given.
         """
         if self.direction is None:
             return self.rightward_sorted_needles()
         else:
-            return cast(list[Needle], self.direction.sort_needles(self._needles_to_instruction.keys(), self.rack))
+            return self.direction.sort_needles(self._needles_to_instruction.keys(), self.rack)
 
-    def instructions_by_needles(self, needles: list[Needle]) -> list[Needle_Instruction]:
-        """Get instructions ordered by the given needle list.
-
+    def instructions_by_needles(self, needles: Sequence[Needle]) -> list[Needle_Instruction]:
+        """
         Args:
-            needles: Ordered list of needles involved in the carriage pass.
+            needles (Sequence[Needle]): Needles involved in the carriage pass.
 
         Returns:
-            The ordered set of instructions that start from the given needles.
+            list[Needle_Instruction]: The ordered list of instructions that start from the given needles.
         """
         return [self._needles_to_instruction[n] for n in needles]
 
     def carriage_pass_range(self) -> tuple[int, int]:
-        """Get the leftmost and rightmost needle positions in the carriage pass.
-
+        """
         Returns:
-            Tuple of (leftmost position, rightmost position) in the carriage pass.
+            tuple[int, int]:  The leftmost position and rightmost position in the carriage pass.
         """
         sorted_needles = self.rightward_sorted_needles()
         return int(sorted_needles[0].racked_position_on_front(rack=self.rack)), int(sorted_needles[-1].racked_position_on_front(rack=self.rack))
 
     def rack_instruction(self, comment: str = "Racking for next carriage pass.") -> Rack_Instruction:
-        """Create a racking instruction to set up this carriage pass.
-
+        """
         Args:
-            comment: Comment to include with the racking instruction.
+            comment (str, optional): Comment to include with the racking instruction. Defaults to "Racking for next carriage pass."
 
         Returns:
-            Racking instruction to set up this carriage pass.
+            Rack_Instruction: Racking instruction to set up this carriage pass.
         """
         return Rack_Instruction.rack_instruction_from_int_specification(self.rack, self.all_needle_rack, comment)
 
@@ -149,7 +134,7 @@ class Carriage_Pass:
         Should only be used to reorder Xfer Passes.
 
         Returns:
-            The direction of the carriage pass.
+            Carriage_Pass_Direction | None: The direction of the carriage pass.
         """
         return self._direction
 
@@ -158,8 +143,16 @@ class Carriage_Pass:
         """Set the direction of the carriage pass.
 
         Args:
-            direction: The new direction for the carriage pass.
+            direction (Carriage_Pass_Direction): The new direction for the carriage pass.
+
+        Warns:
+            Knitting_Machine_Warning: If the direction would change a directed carriage pass
         """
+        if not self.xfer_pass and direction != self.direction:
+            warnings.warn(
+                Reorder_Carriage_Pass_Warning(self),
+                stacklevel=get_user_warning_stack_level_from_knitout_interpreter_package(),
+            )
         self._direction = direction
         sorted_needles = self.needles
         self._instructions = [self._needles_to_instruction[n] for n in sorted_needles]
@@ -169,20 +162,17 @@ class Carriage_Pass:
         """Get needles in the order given by instruction set.
 
         Returns:
-            Needles in order given by instruction set.
+            list[Needle]: Needles in order given by instruction set.
         """
         needles = [i.needle for i in self._instructions]
-        if self.direction is not None:
-            return cast(list[Needle], self.direction.sort_needles(needles, self.rack))
-        else:
-            return needles  # needles in order of given instructions
+        return self.direction.sort_needles(needles, self.rack) if self.direction is not None else needles
 
     @property
     def first_instruction(self) -> Needle_Instruction:
         """Get the first instruction given to carriage pass.
 
         Returns:
-            First instruction given to carriage pass.
+            Needle_Instruction: First instruction given to carriage pass.
         """
         return self._instructions[0]
 
@@ -191,7 +181,7 @@ class Carriage_Pass:
         """Get the last instruction executed in the carriage pass.
 
         Returns:
-            Last instruction executed in the given carriage pass.
+            Needle_Instruction: Last instruction executed in the given carriage pass.
         """
         return self._instructions[-1]
 
@@ -200,7 +190,7 @@ class Carriage_Pass:
         """Get the needle at the end of the ordered instructions.
 
         Returns:
-            Needle at the end of the ordered instructions.
+            Needle: Needle at the end of the ordered instructions.
         """
         return self.needles[-1]
 
@@ -208,10 +198,10 @@ class Carriage_Pass:
         """Check if the carriage pass contains a specific instruction type.
 
         Args:
-            instruction_type: Instruction type to consider.
+            instruction_type (Knitout_Instruction_Type): Instruction type to consider.
 
         Returns:
-            True if the instruction type is used at least once in this carriage pass.
+            bool: True if the instruction type is used at least once in this carriage pass. False, otherwise.
         """
         return instruction_type in self._instruction_types_to_needles
 
@@ -219,13 +209,12 @@ class Carriage_Pass:
         """Attempt to add an instruction to the carriage pass.
 
         Args:
-            instruction: The instruction to attempt to add to the carriage pass.
-            rack: The required racking of this instruction.
-            all_needle_rack: The all_needle racking requirement for this instruction.
+            instruction (Needle_Instruction): The instruction to attempt to add to the carriage pass.
+            rack (int): The required racking of this instruction.
+            all_needle_rack (bool): The all_needle racking requirement for this instruction.
 
         Returns:
-            True if instruction was added to pass. Otherwise, False implies that
-            the instruction cannot be added to this carriage pass.
+            bool: True if instruction was added to pass. Otherwise, False implies that the instruction cannot be added to this carriage pass.
         """
         if self.can_add_instruction(instruction, rack, all_needle_rack):
             self._instructions.append(instruction)
@@ -241,10 +230,10 @@ class Carriage_Pass:
         """Check if an instruction is compatible with this type of carriage pass.
 
         Args:
-            instruction: The instruction to consider compatibility with.
+            instruction (Needle_Instruction): The instruction to consider compatibility with.
 
         Returns:
-            True if instruction is compatible with this type of carriage pass.
+            bool: True if instruction is compatible with this type of carriage pass.
         """
         return bool(self.first_instruction.instruction_type.compatible_pass(instruction.instruction_type))
 
@@ -252,31 +241,30 @@ class Carriage_Pass:
         """Check if an instruction can be added to this carriage pass.
 
         Args:
-            instruction: The instruction to consider adding to the carriage pass.
-            rack: The required racking of this instruction.
-            all_needle_rack: The all_needle racking requirement for this instruction.
+            instruction (Needle_Instruction): The instruction to consider adding to the carriage pass.
+            rack (int): The required racking of this instruction.
+            all_needle_rack (all_needle_rack): The all_needle racking requirement for this instruction.
 
         Returns:
-            True if the instruction can be added to this carriage pass. Otherwise, False.
+            bool: True if the instruction can be added to this carriage pass. Otherwise, False.
         """
-        if rack != self.rack:
-            return False
-        elif all_needle_rack != self.all_needle_rack:
-            return False
-        elif instruction.direction != self._direction:
-            return False
-        elif instruction.carrier_set != self.carrier_set:
-            return False
-        elif not self.compatible_with_pass_type(instruction):
-            return False
-        elif instruction.needle in self._needles_to_instruction:  # Already has an instruction at this needle.
+        if (
+            rack != self.rack
+            or all_needle_rack != self.all_needle_rack
+            or instruction.direction != self._direction
+            or instruction.carrier_set != self.carrier_set
+            or not self.compatible_with_pass_type(instruction)
+            or instruction.needle in self._needles_to_instruction
+        ):
             return False
         elif self._direction is None:
             if instruction.needle_2 in self._needles_to_instruction:
                 return False
-        elif (self.all_needle_rack  # All needle rack
-              and instruction.needle.is_front != self.last_needle.is_front  # last and new instruction on opposite beds
-              and instruction.needle.racked_position_on_front(self.rack) == self.last_needle.racked_position_on_front(self.rack)):  # Last and new instruction at all-needle same position
+        elif (
+            self.all_needle_rack  # All needle rack
+            and instruction.needle.is_front != self.last_needle.is_front  # last and new instruction on opposite beds
+            and instruction.needle.racked_position_on_front(self.rack) == self.last_needle.racked_position_on_front(self.rack)
+        ):  # Last and new instruction at all-needle same position
             return True
         elif not self._direction.needles_are_in_pass_direction(self.last_needle, instruction.needle, self.rack, self.all_needle_rack):
             return False
@@ -286,10 +274,10 @@ class Carriage_Pass:
         """Check if this carriage pass can be merged with the next one.
 
         Args:
-            next_carriage_pass: A carriage pass that happens immediately after this carriage pass.
+            next_carriage_pass (Carriage_Pass): A carriage pass that happens immediately after this carriage pass.
 
         Returns:
-            True if these can be merged into one carriage pass.
+            bool: True if these can be merged into one carriage pass. False, otherwise.
         """
         if self.direction == next_carriage_pass.direction and self.compatible_with_pass_type(next_carriage_pass.first_instruction):
             next_left_needle, next_right_needle = next_carriage_pass.carriage_pass_range()
@@ -303,31 +291,31 @@ class Carriage_Pass:
         """Merge the next carriage pass into this carriage pass.
 
         Args:
-            next_carriage_pass: A carriage pass that happens immediately after this carriage pass.
-            check_compatibility: If true, checks compatibility before merging.
+            next_carriage_pass (Carriage_Pass): A carriage pass that happens immediately after this carriage pass.
+            check_compatibility (bool, optional): If true, checks compatibility before merging. Defaults to True
 
         Returns:
-            True if the merge was successful.
+            bool: True if the merge was successful.
         """
         if check_compatibility and not self.can_merge_pass(next_carriage_pass):
             return False
         for instruction in next_carriage_pass:
             added = self.add_instruction(instruction, next_carriage_pass.rack, next_carriage_pass.all_needle_rack)
-            assert added, f'Attempted to merge {self} and {next_carriage_pass} but failed to add {instruction}.'
+            assert added, f"Attempted to merge {self} and {next_carriage_pass} but failed to add {instruction}."
         return True
 
-    def execute(self, knitting_machine: Knitting_Machine) -> list[Knitout_Line]:
+    def execute(self, knitting_machine: Knitting_Machine) -> list[Needle_Instruction | Rack_Instruction | Knitout_Comment_Line]:
         """Execute carriage pass with an implied racking operation on the given knitting machine.
 
         Will default to ordering xfers in a rightward ascending direction.
 
         Args:
-            knitting_machine: The knitting machine to execute the carriage pass on.
+            knitting_machine (Knitting_Machine): The knitting machine to execute the carriage pass on.
 
         Returns:
-            A list of executed instructions from the carriage pass.
+            list[Needle_Instruction | Rack_Instruction | Knitout_Comment_Line]: A list of executed instructions from the carriage pass. Instructions that do not update the machine state are commented.
         """
-        executed_instructions = []
+        executed_instructions: list[Needle_Instruction | Rack_Instruction | Knitout_Comment_Line] = []
         rack_instruction = self.rack_instruction()
         updated = rack_instruction.execute(knitting_machine)
         if updated:
@@ -346,7 +334,7 @@ class Carriage_Pass:
         """Return string representation of the carriage pass.
 
         Returns:
-            String representation showing direction, instruction types, and details.
+            str: String representation showing direction, instruction types, and details.
         """
         string = ""
         indent = ""
@@ -364,11 +352,11 @@ class Carriage_Pass:
         string += "\n"
         return string
 
-    def __list__(self) -> list[Knitout_Line]:
+    def __list__(self) -> list[Needle_Instruction]:
         """Convert carriage pass to list of knitout lines.
 
         Returns:
-            List of knitout lines from this carriage pass.
+            list[Needle_Instruction]: The list of needle instructions that form this carriage pass.
         """
         return [*self]
 
@@ -376,7 +364,7 @@ class Carriage_Pass:
         """Get the number of instructions in the carriage pass.
 
         Returns:
-            Number of instructions in the carriage pass.
+            int: Number of instructions in the carriage pass.
         """
         return len(self._instructions)
 
@@ -384,7 +372,7 @@ class Carriage_Pass:
         """Return detailed representation of the carriage pass.
 
         Returns:
-            String representation of the internal instructions list.
+            str: String representation of the internal instructions list.
         """
         return str(self._instructions)
 
@@ -392,18 +380,24 @@ class Carriage_Pass:
         """Iterate over the instructions in the carriage pass.
 
         Returns:
-            Iterator over the instructions.
+            Iterator[Needle_Instruction]: Iterator over the instructions.
         """
         return iter(self._instructions)
 
-    def __getitem__(self, item: int | slice) -> Knitout_Line | list[Knitout_Line]:
+    @overload
+    def __getitem__(self, index: int) -> Needle_Instruction: ...
+
+    @overload
+    def __getitem__(self, index: slice) -> list[Needle_Instruction]: ...
+
+    def __getitem__(self, item: int | slice) -> Needle_Instruction | list[Needle_Instruction]:
         """Get instruction(s) by index or slice.
 
         Args:
-            item: Index or slice to retrieve.
+            item (int | slice): Index or slice to retrieve.
 
         Returns:
-            Instruction or list of instructions at the specified index/slice.
+            Needle_Instruction | list[Needle_Instruction]: Instruction or list of instructions at the specified index/slice.
         """
         return self._instructions[item]
 
@@ -411,6 +405,6 @@ class Carriage_Pass:
         """Get hash of the carriage pass based on creation time.
 
         Returns:
-            Hash value based on creation time.
+            int: Hash value based on creation time.
         """
         return hash(self._creation_time)

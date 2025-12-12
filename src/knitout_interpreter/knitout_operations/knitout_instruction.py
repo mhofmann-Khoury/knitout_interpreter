@@ -1,4 +1,5 @@
 """Structure for Instructions"""
+
 from __future__ import annotations
 
 from enum import Enum
@@ -10,6 +11,7 @@ from knitout_interpreter.knitout_operations.Knitout_Line import Knitout_Line
 
 class Knitout_Instruction_Type(Enum):
     """Enumeration of knitout instruction types."""
+
     In = "in"
     Inhook = "inhook"
     Releasehook = "releasehook"
@@ -37,10 +39,10 @@ class Knitout_Instruction_Type(Enum):
         """Get the instruction type from a string.
 
         Args:
-            inst_str: Instruction string to convert.
+            inst_str (str): Instruction string to convert.
 
         Returns:
-            The corresponding Knitout_Instruction_Type enum value.
+            Knitout_Instruction_Type: The corresponding Knitout_Instruction_Type enum value.
         """
         return Knitout_Instruction_Type[inst_str.capitalize()]
 
@@ -49,27 +51,51 @@ class Knitout_Instruction_Type(Enum):
         """Check if instruction operates on yarn carriers.
 
         Returns:
-            True if instruction operates on yarn carriers.
+            bool: True if instruction operates on yarn carriers.
         """
-        return self in [Knitout_Instruction_Type.In, Knitout_Instruction_Type.Inhook,
-                        Knitout_Instruction_Type.Releasehook,
-                        Knitout_Instruction_Type.Out, Knitout_Instruction_Type.Outhook]
+        return self in [
+            Knitout_Instruction_Type.In,
+            Knitout_Instruction_Type.Inhook,
+            Knitout_Instruction_Type.Releasehook,
+            Knitout_Instruction_Type.Out,
+            Knitout_Instruction_Type.Outhook,
+        ]
 
     @property
     def is_needle_instruction(self) -> bool:
         """Check if instruction operates on needles.
 
         Returns:
-            True if operation operates on needles.
+            bool: True if operation operates on needles.
         """
-        return self in [Knitout_Instruction_Type.Knit, Knitout_Instruction_Type.Tuck, Knitout_Instruction_Type.Split,
-                        Knitout_Instruction_Type.Drop, Knitout_Instruction_Type.Xfer, Knitout_Instruction_Type.Kick]
+        return self in [
+            Knitout_Instruction_Type.Knit,
+            Knitout_Instruction_Type.Tuck,
+            Knitout_Instruction_Type.Split,
+            Knitout_Instruction_Type.Drop,
+            Knitout_Instruction_Type.Xfer,
+            Knitout_Instruction_Type.Kick,
+            Knitout_Instruction_Type.Miss,
+        ]
+
+    @property
+    def is_loop_making_instruction(self) -> bool:
+        """Check if instruction operates on needles.
+
+        Returns:
+            bool: True if operation creates a loop on the first needle in the instruction.
+        """
+        return self in [
+            Knitout_Instruction_Type.Knit,
+            Knitout_Instruction_Type.Tuck,
+            Knitout_Instruction_Type.Split,
+        ]
 
     @property
     def is_miss_instruction(self) -> bool:
         """
-        Returns: True if the operation is a miss and can occur in a miss instruction pass.
-
+        Returns:
+            bool: True if the operation is a miss and can occur in a miss instruction pass.
         """
         return self in [Knitout_Instruction_Type.Miss, Knitout_Instruction_Type.Kick]
 
@@ -78,7 +104,7 @@ class Knitout_Instruction_Type(Enum):
         """Check if instruction can be done in a knit pass.
 
         Returns:
-            True if instruction can be done in a knit pass.
+            bool: True if instruction can be done in a knit pass.
         """
         return self in [Knitout_Instruction_Type.Knit, Knitout_Instruction_Type.Tuck, Knitout_Instruction_Type.Kick]
 
@@ -87,7 +113,7 @@ class Knitout_Instruction_Type(Enum):
         """Check if instruction is compatible with all-needle knitting.
 
         Returns:
-            True if instruction is compatible with all-needle knitting.
+            bool: True if instruction is compatible with all-needle knitting.
         """
         return self.in_knitting_pass
 
@@ -96,16 +122,22 @@ class Knitout_Instruction_Type(Enum):
         """Check if instruction requires a direction.
 
         Returns:
-            True if instruction requires a direction.
+            bool: True if instruction requires a direction.
         """
-        return self in [Knitout_Instruction_Type.Knit, Knitout_Instruction_Type.Tuck, Knitout_Instruction_Type.Miss, Knitout_Instruction_Type.Split, Knitout_Instruction_Type.Kick]
+        return self in [
+            Knitout_Instruction_Type.Knit,
+            Knitout_Instruction_Type.Tuck,
+            Knitout_Instruction_Type.Miss,
+            Knitout_Instruction_Type.Split,
+            Knitout_Instruction_Type.Kick,
+        ]
 
     @property
     def requires_carrier(self) -> bool:
         """Check if instruction requires a carrier.
 
         Returns:
-            True if instruction requires a carrier.
+            bool: True if instruction requires a carrier.
         """
         return self.directed_pass
 
@@ -114,7 +146,7 @@ class Knitout_Instruction_Type(Enum):
         """Check if instruction requires a second needle.
 
         Returns:
-            True if instruction requires a second needle.
+            bool: True if instruction requires a second needle.
         """
         return self in [Knitout_Instruction_Type.Xfer, Knitout_Instruction_Type.Split]
 
@@ -123,7 +155,7 @@ class Knitout_Instruction_Type(Enum):
         """Check if this is a transfer instruction that can operate on sliders.
 
         Returns:
-            True if this is a transfer instruction that can operate on sliders.
+            bool: True if this is a transfer instruction that can operate on sliders.
         """
         return self is Knitout_Instruction_Type.Xfer
 
@@ -131,14 +163,12 @@ class Knitout_Instruction_Type(Enum):
         """Determine if instruction can share a machine pass with another instruction.
 
         Args:
-            other_instruction: The other instruction to check compatibility with.
+            other_instruction (Knitout_Instruction_Type): The other instruction to check compatibility with.
 
         Returns:
-            True if both instructions could be executed in the same pass.
+            bool: True if both instructions could be executed in the same pass.
         """
-        if self.is_miss_instruction and other_instruction.is_miss_instruction:
-            return True
-        elif self.in_knitting_pass and other_instruction.in_knitting_pass:
+        if self.is_miss_instruction and other_instruction.is_miss_instruction or self.in_knitting_pass and other_instruction.in_knitting_pass:
             return True
         else:
             return self is other_instruction
@@ -161,6 +191,16 @@ class Knitout_Instruction(Knitout_Line):
 
     def __str__(self) -> str:
         return f"{self.instruction_type}{self.comment_str}"
+
+    def will_update_machine_state(self, machine_state: Knitting_Machine) -> bool:
+        """
+        Args:
+            machine_state (Knitting_Machine): The machine state to test if this instruction will update it.
+
+        Returns:
+            bool: True if this instruction will update the machine state. False, otherwise.
+        """
+        return True
 
     def execute(self, machine_state: Knitting_Machine) -> bool:
         """Execute the instruction on the machine state.

@@ -6,34 +6,34 @@ from pathlib import Path
 sys.path.insert(0, str(Path(__file__).parent.parent.parent / "src"))
 
 # Project information
-project = 'knitout-interpreter'
-copyright = '2024, Megan Hofmann'
-author = 'Megan Hofmann'
-release = '0.0.18'
+project = "knitout-interpreter"
+copyright = "2024, Megan Hofmann"
+author = "Megan Hofmann"
+release = "0.0.18"
 
 # Extensions
 extensions = [
-    'sphinx.ext.autodoc',
-    'sphinx.ext.napoleon',
-    'sphinx.ext.viewcode',
-    'sphinx.ext.githubpages',
-    'sphinx.ext.intersphinx',
-    'sphinx.ext.autosummary',
+    "sphinx.ext.autodoc",
+    "sphinx.ext.napoleon",
+    "sphinx.ext.viewcode",
+    "sphinx.ext.githubpages",
+    "sphinx.ext.intersphinx",
+    "sphinx.ext.autosummary",
 ]
 
 # Autodoc settings (consolidated - no duplicates)
 autodoc_default_options = {
-    'members': True,
-    'undoc-members': True,
-    'show-inheritance': True,
-    'member-order': 'bysource',
-    'exclude-members': '__weakref__'
+    "members": True,
+    "undoc-members": True,
+    "show-inheritance": True,
+    "member-order": "bysource",
+    "exclude-members": "__weakref__",
 }
 
 # Autodoc type hints
-autodoc_member_order = 'bysource'
-autodoc_typehints = 'description'
-autodoc_typehints_description_target = 'documented'
+autodoc_member_order = "bysource"
+autodoc_typehints = "description"
+autodoc_typehints_description_target = "documented"
 
 # Autosummary settings
 autosummary_generate = True
@@ -55,35 +55,35 @@ napoleon_type_aliases = None
 napoleon_attr_annotations = True
 
 # HTML theme - using Read the Docs theme like parglare
-html_theme = 'sphinx_rtd_theme'
+html_theme = "sphinx_rtd_theme"
 
 # Theme options
 html_theme_options = {
-    'canonical_url': '',
-    'analytics_id': '',
-    'logo_only': False,
-    'display_version': True,
-    'prev_next_buttons_location': 'bottom',
-    'style_external_links': False,
+    "canonical_url": "",
+    "analytics_id": "",
+    "logo_only": False,
+    "display_version": True,
+    "prev_next_buttons_location": "bottom",
+    "style_external_links": False,
     # Toc options
-    'collapse_navigation': True,
-    'sticky_navigation': True,
-    'navigation_depth': 4,
-    'includehidden': True,
-    'titles_only': False
+    "collapse_navigation": True,
+    "sticky_navigation": True,
+    "navigation_depth": 4,
+    "includehidden": True,
+    "titles_only": False,
 }
 
 # Add custom CSS
-html_static_path = ['_static']
-html_css_files = ['custom.css']
+html_static_path = ["_static"]
+html_css_files = ["custom.css"]
 
 # Suppress warnings
-suppress_warnings = ['autodoc.duplicate_object']
+suppress_warnings = ["autodoc.duplicate_object"]
 
 # Intersphinx mapping
 intersphinx_mapping = {
-    'python': ('https://docs.python.org/3', None),
+    "python": ("https://docs.python.org/3", None),
 }
 
 # Master document
-master_doc = 'index'
+master_doc = "index"
