@@ -172,23 +172,6 @@ class Knitout_Line:
         return hash(self._creation_time)
 
 
-class Knitout_Version_Line(Knitout_Line):
-    """Represents a knitout version specification line."""
-
-    def __init__(self, version: int = 2, comment: None | str = None):
-        """Initialize a version line.
-
-        Args:
-            version (int, optional): The knitout version number. Defaults to 2.
-            comment (str, optional): Optional comment for the version line.
-        """
-        super().__init__(comment, interrupts_carriage_pass=False)
-        self.version: int = version
-
-    def __str__(self) -> str:
-        return f";!knitout-{self.version}{self.comment_str}"
-
-
 class Knitout_Comment_Line(Knitout_Line):
     """Represents a comment line in knitout."""
 

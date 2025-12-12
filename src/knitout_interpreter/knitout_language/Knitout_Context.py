@@ -10,9 +10,9 @@ from virtual_knitting_machine.Knitting_Machine import Knitting_Machine
 
 from knitout_interpreter.knitout_execution import Knitout_Executer
 from knitout_interpreter.knitout_language.Knitout_Parser import parse_knitout
-from knitout_interpreter.knitout_operations.Header_Line import Knitout_Header_Line, Knitting_Machine_Header
+from knitout_interpreter.knitout_operations.Header_Line import Knitout_Header_Line, Knitout_Version_Line, Knitting_Machine_Header
 from knitout_interpreter.knitout_operations.knitout_instruction import Knitout_Instruction
-from knitout_interpreter.knitout_operations.Knitout_Line import Knitout_Comment_Line, Knitout_Line, Knitout_Version_Line
+from knitout_interpreter.knitout_operations.Knitout_Line import Knitout_Comment_Line, Knitout_Line
 
 
 def process_knitout_instructions(
