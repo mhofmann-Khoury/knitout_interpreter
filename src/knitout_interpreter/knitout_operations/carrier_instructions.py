@@ -6,7 +6,6 @@ import warnings
 
 from virtual_knitting_machine.Knitting_Machine import Knitting_Machine
 from virtual_knitting_machine.knitting_machine_warnings.carrier_operation_warnings import Mismatched_Releasehook_Warning
-from virtual_knitting_machine.knitting_machine_warnings.Yarn_Carrier_System_Warning import Out_Inactive_Carrier_Warning
 from virtual_knitting_machine.machine_components.carriage_system.Carriage_Pass_Direction import Carriage_Pass_Direction
 from virtual_knitting_machine.machine_components.yarn_management.Yarn_Carrier import Yarn_Carrier
 from virtual_knitting_machine.machine_constructed_knit_graph.Machine_Knit_Yarn import Machine_Knit_Yarn
@@ -100,9 +99,20 @@ class In_Instruction(Yarn_Carrier_Instruction):
     def __init__(self, carrier: int | Yarn_Carrier, comment: None | str = None):
         super().__init__(Knitout_Instruction_Type.In, carrier, comment)
 
+    def will_update_machine_state(self, machine_state: Knitting_Machine) -> bool:
+        """
+        Args:
+            machine_state (Knitting_Machine): The current machine model to update.
+
+        Returns:
+            bool: True if the carrier being brought in is not active so that the instruction will have an effect. False otherwise.
+        """
+        return not machine_state.carrier_system[self.carrier].is_active
+
     def execute(self, machine_state: Knitting_Machine) -> bool:
+        will_update = self.will_update_machine_state(machine_state)
         machine_state.bring_in(self.carrier_id)
-        return True
+        return will_update
 
     @staticmethod
     def execute_in(machine_state: Knitting_Machine, carrier: int | Yarn_Carrier, comment: str | None = None) -> In_Instruction:
@@ -126,9 +136,20 @@ class Inhook_Instruction(Hook_Instruction):
     def __init__(self, carrier_set: Yarn_Carrier | int, comment: None | str = None):
         super().__init__(Knitout_Instruction_Type.Inhook, carrier_set, comment, requires_clear_inserting_hook=True)
 
+    def will_update_machine_state(self, machine_state: Knitting_Machine) -> bool:
+        """
+        Args:
+            machine_state (Knitting_Machine): The current machine model to update.
+
+        Returns:
+            bool: True if the carrier being brought in is not active so that the instruction will have an effect. False otherwise.
+        """
+        return not machine_state.carrier_system[self.carrier].is_active
+
     def execute(self, machine_state: Knitting_Machine) -> bool:
+        will_update = self.will_update_machine_state(machine_state)
         machine_state.in_hook(self.carrier_id)
-        return True
+        return will_update
 
     @staticmethod
     def execute_inhook(machine_state: Knitting_Machine, carrier: int | Yarn_Carrier, comment: str | None = None) -> Inhook_Instruction:
@@ -224,9 +245,20 @@ class Out_Instruction(Yarn_Carrier_Instruction):
     def __init__(self, carrier: int | Yarn_Carrier, comment: None | str = None):
         super().__init__(Knitout_Instruction_Type.Out, carrier, comment)
 
+    def will_update_machine_state(self, machine_state: Knitting_Machine) -> bool:
+        """
+        Args:
+            machine_state (Knitting_Machine): The current machine model to update.
+
+        Returns:
+            bool: True if the carrier being outhooked is active and available to be removed. False, otherwise.
+        """
+        return machine_state.carrier_system[self.carrier].is_active
+
     def execute(self, machine_state: Knitting_Machine) -> bool:
+        will_update = self.will_update_machine_state(machine_state)
         machine_state.out(self.carrier_id)
-        return True
+        return will_update
 
     @staticmethod
     def execute_out(machine_state: Knitting_Machine, carrier: int | Yarn_Carrier, comment: str | None = None) -> Out_Instruction:
@@ -251,6 +283,16 @@ class Outhook_Instruction(Hook_Instruction):
     def __init__(self, carrier_set: Yarn_Carrier | int, comment: None | str = None):
         super().__init__(Knitout_Instruction_Type.Outhook, carrier_set, comment)
 
+    def will_update_machine_state(self, machine_state: Knitting_Machine) -> bool:
+        """
+        Args:
+            machine_state (Knitting_Machine): The current machine model to update.
+
+        Returns:
+            bool: True if the carrier being outhooked is active and available to be removed. False, otherwise.
+        """
+        return machine_state.carrier_system[self.carrier].is_active
+
     def execute(self, machine_state: Knitting_Machine) -> bool:
         """Execute the instruction on the machine state.
 
@@ -258,20 +300,11 @@ class Outhook_Instruction(Hook_Instruction):
             machine_state (Knitting_Machine): The machine state to update.
 
         Returns:
-            True if the process completes an update by cutting the carrier.
-
-        Warns:
-            Out_Inactive_Carrier_Warning: If the carrier to cut is not currently active on the machine state.
+            bool: True if the process completes an update by cutting the carrier. False, otherwise.
         """
-        carrier = machine_state.carrier_system[self.carrier_id]
-        if not carrier.is_active:
-            warnings.warn(
-                Out_Inactive_Carrier_Warning(self.carrier_id),
-                stacklevel=get_user_warning_stack_level_from_knitout_interpreter_package(),
-            )
-            return False
+        will_update = self.will_update_machine_state(machine_state)
         machine_state.out_hook(self.carrier_id)
-        return True
+        return will_update
 
     @staticmethod
     def execute_outhook(machine_state: Knitting_Machine, carrier: int | Yarn_Carrier, comment: str | None = None) -> Outhook_Instruction:
