@@ -200,6 +200,8 @@ class Knitout_No_Op(Knitout_Comment_Line):
         original_instruction (Knitout_Line): The original instruction that was commented out by this no-op.
     """
 
+    NO_OP_TERM: str = "No-Op:"  # The term used to recognize no-op operations
+
     def __init__(self, no_op_operation: Knitout_Line, additional_comment: str | None = None):
         """Initialize a comment line.
 
@@ -207,7 +209,7 @@ class Knitout_No_Op(Knitout_Comment_Line):
             no_op_operation (Knitout_Line): The operation with no effect on the machine state to convert to a no-op comment.
             additional_comment (str, optional): Additional details to include with the no-op. Defaults to no additional details.
         """
-        comment = str(Knitout_Comment_Line.comment_str) if isinstance(no_op_operation, Knitout_Comment_Line) else f"No-Op:\t{no_op_operation}".strip()
+        comment = str(Knitout_Comment_Line.comment_str) if isinstance(no_op_operation, Knitout_Comment_Line) else f"{self.NO_OP_TERM} {no_op_operation}".strip()
         if additional_comment is not None:
             comment = f"{comment}; {additional_comment}"
         self.original_instruction: Knitout_Line = no_op_operation
@@ -216,3 +218,11 @@ class Knitout_No_Op(Knitout_Comment_Line):
 
     def execute(self, machine_state: Knitting_Machine) -> bool:
         return False  # No-Ops do not need to be included in executed knitout code.
+
+
+class Knitout_BreakPoint(Knitout_Comment_Line):
+    BP_TERM: str = "BreakPoint"
+
+    def __init__(self, additional_comment: str | None = None):
+        self.bp_comment: str | None = additional_comment
+        super().__init__(f"{self.BP_TERM}: {additional_comment}")

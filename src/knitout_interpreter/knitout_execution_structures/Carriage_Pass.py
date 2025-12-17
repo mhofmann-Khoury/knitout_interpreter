@@ -14,7 +14,7 @@ from virtual_knitting_machine.machine_components.yarn_management.Yarn_Carrier_Se
 
 from knitout_interpreter._warning_stack_level_helper import get_user_warning_stack_level_from_knitout_interpreter_package
 from knitout_interpreter.knitout_operations.knitout_instruction import Knitout_Instruction_Type
-from knitout_interpreter.knitout_operations.Knitout_Line import Knitout_Comment_Line
+from knitout_interpreter.knitout_operations.Knitout_Line import Knitout_Comment_Line, Knitout_No_Op
 from knitout_interpreter.knitout_operations.needle_instructions import Needle_Instruction, Xfer_Instruction
 from knitout_interpreter.knitout_operations.Rack_Instruction import Rack_Instruction
 from knitout_interpreter.knitout_warnings.Knitout_Warning import Reorder_Carriage_Pass_Warning
@@ -327,7 +327,7 @@ class Carriage_Pass:
             if updated:
                 executed_instructions.append(instruction)
             else:
-                executed_instructions.append(Knitout_Comment_Line(instruction))
+                executed_instructions.append(Knitout_No_Op(instruction))
         return executed_instructions
 
     def __str__(self) -> str:

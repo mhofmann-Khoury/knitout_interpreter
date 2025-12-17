@@ -33,3 +33,11 @@ class Reorder_Carriage_Pass_Warning(Knitout_Warning):
     def __init__(self, carriage_pass: Carriage_Pass) -> None:
         self.carriage_pass: Carriage_Pass = carriage_pass
         super().__init__(f"Re-ordering a directed carriage pass may have unintended results: {carriage_pass}")
+
+
+class Knitout_BreakPoint_Condition_Warning(Knitout_Warning):
+    """Warning raised when a knitout debugger ignores a conditional breakpoint where the condition caused an exception"""
+
+    def __init__(self, exception: BaseException) -> None:
+        self.exception: BaseException = exception
+        super().__init__(f"Knitout Breakpoint condition triggered an exception:\n\t{exception}")

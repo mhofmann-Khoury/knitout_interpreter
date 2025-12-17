@@ -3,6 +3,7 @@
 from unittest import TestCase
 
 from knitout_interpreter.knitout_language.Knitout_Parser import parse_knitout
+from knitout_interpreter.knitout_operations.Knitout_Line import Knitout_BreakPoint, Knitout_No_Op
 from knitout_interpreter.knitout_operations.Rack_Instruction import Rack_Instruction
 
 
@@ -123,3 +124,27 @@ class TestKnitout_Parser(TestCase):
                 ;;Position: Right"""
         )
         print(codes)
+
+    def test_no_ops(self):
+        codes = parse_knitout(
+            r""";No-Op: inhook 1
+            in 2
+            out 3
+            ;No-Op: outhook 4
+            releasehook 5"""
+        )
+        self.assertTrue(isinstance(codes[0], Knitout_No_Op))
+        self.assertTrue(isinstance(codes[3], Knitout_No_Op))
+
+    def test_breakpoints(self):
+        codes = parse_knitout(
+            r""";BreakPoint
+            inhook 1
+            in 2
+            out 3
+            ;BreakPoint: With Comment
+            outhook 4
+            releasehook 5"""
+        )
+        self.assertTrue(isinstance(codes[0], Knitout_BreakPoint))
+        self.assertTrue(isinstance(codes[4], Knitout_BreakPoint))

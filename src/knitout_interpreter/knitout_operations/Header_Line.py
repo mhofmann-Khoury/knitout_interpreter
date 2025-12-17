@@ -244,6 +244,14 @@ class Knitting_Machine_Header:
         self.set_header_by_specification(self.specification)
 
     @property
+    def header_len(self) -> int:
+        """
+        Returns:
+            int: The number of lines that will be in this header, including the version line.
+        """
+        return 1 + len(self._header_lines)
+
+    @property
     def machine(self) -> Knitting_Machine:
         """
         Returns:
