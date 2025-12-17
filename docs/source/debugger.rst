@@ -1,5 +1,5 @@
 Debugging Knitout
-================
+=================
 
 Knitout now supports debugging by attaching to the python debugger in whichever environment you are running it in.
 
