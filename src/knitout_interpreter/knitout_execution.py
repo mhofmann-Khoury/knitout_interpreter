@@ -89,12 +89,14 @@ class Knitout_Executer:
             elif right is not None:
                 self._right_most_position = max(self._right_most_position, right)
 
-    def attach_debugger(self, debugger: Knitout_Debugger) -> None:
+    def attach_debugger(self, debugger: Knitout_Debugger | None = None) -> None:
         """
         Attaches the given debugger to this knitout execution.
         Args:
-            debugger (Knitout_Debugger): The debugger to attach to this knitout execution process.
+            debugger (Knitout_Debugger, optional): The debugger to attach to this knitout execution process. Defaults to attaching a new default debugger.
         """
+        if debugger is None:
+            debugger = Knitout_Debugger()
         self.debugger = debugger
         self.debugger.attach_executer(self)
 

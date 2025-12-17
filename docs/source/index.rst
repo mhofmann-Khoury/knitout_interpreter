@@ -44,6 +44,7 @@ The knitout-interpreter bridges the gap between high-level knitting pattern desc
    quickstart
    examples
    core_components
+   debugger
 
 .. toctree::
    :maxdepth: 4

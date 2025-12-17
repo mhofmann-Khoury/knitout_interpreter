@@ -291,7 +291,7 @@ class Knitout_Debugger:
             executed_program: list[Knitout_Instruction | Knitout_Comment_Line] = self._executer.executed_program  # noqa: F841
             if self.taking_snapshots:
                 self.machine_snapshots[knitout_line] = Knitting_Machine_Snapshot(knitting_machine)
-            if sys.gettrace() is not None:  # Check if IDE debugger is attached
+            if sys.gettrace() is not None and sys.stdin.isatty():  # Check if IDE debugger is attached
                 print(f"\n{'=' * 70}")
                 if isinstance(knitout_instruction, Knitout_BreakPoint):
                     print(f"Knitout Program has a breakpoint at this line: {knitout_line}")
@@ -323,7 +323,7 @@ class Knitout_Debugger:
             knitting_machine: Knitting_Machine = self._executer.knitting_machine
             if self.taking_snapshots:
                 self.machine_snapshots[knitout_line] = Knitting_Machine_Snapshot(knitting_machine)
-            if sys.gettrace() is not None:  # Check if IDE debugger is attached
+            if sys.gettrace() is not None and sys.stdin.isatty():  # Check if IDE debugger is attached
                 print(f"\n{'=' * 70}")
                 print(f"Knitout Stopped Before Carriage Pass Starting on line {knitout_line}: {knitout_instruction}")
                 self.print_usage_guide()
@@ -350,7 +350,7 @@ class Knitout_Debugger:
             executed_program: list[Knitout_Instruction | Knitout_Comment_Line] = self._executer.executed_program  # noqa: F841
             if self.taking_snapshots:
                 self.machine_snapshots[knitout_line] = Knitting_Machine_Snapshot(knitting_machine)
-            if sys.gettrace() is not None:  # Check if IDE debugger is attached
+            if sys.gettrace() is not None and sys.stdin.isatty():  # Check if IDE debugger is attached
                 print(f"\n{'=' * 70}")
                 print(f"Knitout Paused on {exception.__class__.__name__} raised at Line {knitout_line}: {knitout_instruction}")
                 print(f"\t{exception}")
