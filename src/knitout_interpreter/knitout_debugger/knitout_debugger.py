@@ -29,16 +29,11 @@ class Debug_Mode(Enum):
 class Debuggable_Knitout_Execution(Protocol):
     """
     A protocol for knitout execution processes that can be debugged by the Knitout_Debugger class.
-
-    Attributes:
-        knitting_machine (Knitting_Machine): The knitting machine that the debugged process is executing on.
-        executed_instructions (list[Knitout_Line]): The list of instructions that have been executed including the header, comments, and instructions.
-        debugger (Knitout_Debugger | None): The debugger attached to the execution process, if any.
     """
 
-    knitting_machine: Knitting_Machine
-    executed_instructions: list[Knitout_Line]
-    debugger: Knitout_Debugger | None
+    knitting_machine: Knitting_Machine  # The knitting machine that the debugged process is executing on.
+    executed_instructions: list[Knitout_Line]  # The list of instructions that have been executed including the header, comments, and instructions.
+    debugger: Knitout_Debugger | None  # The debugger attached to the execution process, if any.
 
     # noinspection PyPropertyDefinition
     @property
