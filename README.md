@@ -136,10 +136,10 @@ from virtual_knitting_machine.Knitting_Machine import Knitting_Machine
 parsed_instructions = parse_knitout("example.k", pattern_is_file=True)
 
 executer = Knitout_Executer(
-    instructions=parsed_instructions,
-    knitting_machine=Knitting_Machine(),
-    accepted_error_types=[],  # Optional: Knitting Machine Errors to ignore
-    knitout_version=2
+  knitout_program=parsed_instructions,
+  knitting_machine=Knitting_Machine(),
+  accepted_error_types=[],  # Optional: Knitting Machine Errors to ignore
+  knitout_version=2
 )
 ```
 
@@ -192,17 +192,17 @@ from virtual_knitting_machine.Knitting_Machine import Knitting_Machine
 parsed_instructions = parse_knitout("example.k", pattern_is_file=True)
 
 executer = Knitout_Executer(
-    instructions=parsed_instructions,
-    knitting_machine=Knitting_Machine(),
-    accepted_error_types=[],  # Optional: Knitting Machine Errors to ignore
-    knitout_version=2
+  knitout_program=parsed_instructions,
+  knitting_machine=Knitting_Machine(),
+  accepted_error_types=[],  # Optional: Knitting Machine Errors to ignore
+  knitout_version=2
 )
 
 for carriage_pass in executer.carriage_passes:
-    print(f"Pass direction: {carriage_pass.direction}")
-    print(f"Instructions: {len(carriage_pass)}")
-    print(f"Needle range: {carriage_pass.carriage_pass_range()}")
-    print(f"Carriers used: {carriage_pass.carrier_set}")
+  print(f"Pass direction: {carriage_pass.direction}")
+  print(f"Instructions: {len(carriage_pass)}")
+  print(f"Needle range: {carriage_pass.carriage_pass_range()}")
+  print(f"Carriers used: {carriage_pass.carrier_set}")
 ```
 
 ## 📖 Examples

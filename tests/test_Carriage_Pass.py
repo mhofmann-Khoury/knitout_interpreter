@@ -28,4 +28,4 @@ class TestCarriage_Pass(TestCase):
         codes = parse_knitout(load_test_resource("all_needle_racked.k"), pattern_is_file=True)
         executer = Knitout_Executer(codes)
         for carriage_pass in executer.carriage_passes:
-            assert len(carriage_pass) > 2, f"Found a shortened carriage pass {carriage_pass}"
+            self.assertGreater(len(carriage_pass), 2, f"Found a shortened carriage pass {carriage_pass}")

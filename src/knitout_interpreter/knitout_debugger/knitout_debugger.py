@@ -15,7 +15,6 @@ from knitout_interpreter._warning_stack_level_helper import get_user_warning_sta
 from knitout_interpreter.knitout_execution_structures.Carriage_Pass import Carriage_Pass
 from knitout_interpreter.knitout_operations.knitout_instruction import Knitout_Instruction
 from knitout_interpreter.knitout_operations.Knitout_Line import Knitout_BreakPoint, Knitout_Comment_Line, Knitout_Line
-from knitout_interpreter.knitout_operations.needle_instructions import Needle_Instruction
 from knitout_interpreter.knitout_operations.Pause_Instruction import Pause_Instruction
 from knitout_interpreter.knitout_warnings.Knitout_Warning import Knitout_BreakPoint_Condition_Warning
 
@@ -241,19 +240,17 @@ class Knitout_Debugger:
         else:
             return True, self.breakpoints[line_number]
 
-    def should_break(self, instruction: Knitout_Line) -> bool:
-        """Determine if we should break at this line.
-
+    def should_break(self, instruction: Knitout_Comment_Line | Knitout_Instruction) -> bool:
+        """
         Args:
-            instruction (Knitout_Line): Knitout_Line instruction that will be executed on this line.
+            instruction (Knitout_Comment_Line | Knitout_Instruction): The instruction or comment that is about to be executed.
 
         Returns:
-            bool: True if the breakpoint should pause execution given the current state of the knitting machine and upcoming instruction. False otherwise.
+            bool: True if the debugger should pause execution given the current state of the knitting machine and upcoming instruction. False otherwise.
         """
-        if self._executer is None or (not self._executer.executing_current_carriage_pass and isinstance(instruction, Needle_Instruction)):
-            # Don't break on needle instructions until they are being executed with the completely formed carriage pass.
+        if self._executer is None:
             return False
-        elif self.take_step or isinstance(instruction, (Pause_Instruction, Knitout_BreakPoint)):
+        elif self.take_step or isinstance(instruction, (Pause_Instruction, Knitout_BreakPoint)) or (self.take_carriage_pass_step and self._executer.starting_new_carriage_pass):
             return True  # Pause in step mode or on pause and breakpoint instructions
         # Test instruction for active breakpoint
         next_line_number = instruction.original_line_number if instruction.original_line_number is not None else self.current_line
@@ -288,17 +285,21 @@ class Knitout_Debugger:
             # noinspection PyUnusedLocal
             current_carriage_pass: Carriage_Pass | None = self._executer.current_carriage_pass  # noqa: F841
             # noinspection PyUnusedLocal
-            executed_program: list[Knitout_Instruction | Knitout_Comment_Line] = self._executer.executed_program  # noqa: F841
+            executed_program: list[Knitout_Line] = self._executer.executed_instructions  # noqa: F841
             if self.taking_snapshots:
                 self.machine_snapshots[knitout_line] = Knitting_Machine_Snapshot(knitting_machine)
             if sys.gettrace() is not None and sys.stdin.isatty():  # Check if IDE debugger is attached
                 print(f"\n{'=' * 70}")
-                if isinstance(knitout_instruction, Knitout_BreakPoint):
+                if self.take_step:
+                    print(f"Stepped to line {knitout_line}: {knitout_instruction}")
+                elif isinstance(knitout_instruction, Knitout_BreakPoint):
                     print(f"Knitout Program has a breakpoint at this line: {knitout_line}")
                     if knitout_instruction.bp_comment is not None:
                         print(f"\t BreakPoint Comment: {knitout_instruction.bp_comment}")
                 elif isinstance(knitout_instruction, Pause_Instruction):
                     print(f"Knitout Program paused at this line: {knitout_line}")
+                elif self.take_carriage_pass_step and self._executer.starting_new_carriage_pass:
+                    print(f"Knitout Stopped Before Carriage Pass Starting on line {knitout_line}: {knitout_instruction}")
                 else:
                     print(f"Knitout Breakpoint Hit at Line {knitout_line}: {knitout_instruction}")
                     if self._condition_exception is not None:
@@ -316,7 +317,7 @@ class Knitout_Debugger:
             # noinspection PyUnusedLocal
             knitout_debugger: Knitout_Debugger = self  # noqa: F841
             # noinspection PyUnusedLocal
-            executed_program: list[Knitout_Instruction | Knitout_Comment_Line] = self._executer.executed_program  # noqa: F841
+            executed_program: list[Knitout_Line] = self._executer.executed_instructions  # noqa: F841
             current_carriage_pass: Carriage_Pass = cast(Carriage_Pass, self._executer.current_carriage_pass)
             knitout_instruction: Knitout_Instruction | Knitout_Comment_Line = current_carriage_pass.first_instruction
             knitout_line: int = knitout_instruction.original_line_number if knitout_instruction.original_line_number is not None else self.current_line
@@ -347,7 +348,7 @@ class Knitout_Debugger:
             # noinspection PyUnusedLocal
             current_carriage_pass: Carriage_Pass | None = self._executer.current_carriage_pass  # noqa: F841
             # noinspection PyUnusedLocal
-            executed_program: list[Knitout_Instruction | Knitout_Comment_Line] = self._executer.executed_program  # noqa: F841
+            executed_program: list[Knitout_Line] = self._executer.executed_instructions  # noqa: F841
             if self.taking_snapshots:
                 self.machine_snapshots[knitout_line] = Knitting_Machine_Snapshot(knitting_machine)
             if sys.gettrace() is not None and sys.stdin.isatty():  # Check if IDE debugger is attached

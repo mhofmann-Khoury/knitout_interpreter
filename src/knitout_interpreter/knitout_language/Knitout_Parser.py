@@ -15,66 +15,45 @@ from knitout_interpreter.knitout_operations.Knitout_Line import Knitout_BreakPoi
 class Knitout_Parser:
     """Parser for reading knitout using the parglare library."""
 
+    _KNITOUT_GRAMMAR_FILENAME: str = "knitout.pg"  # The name of the knitout grammar file
+
     def __init__(self, debug_grammar: bool = False, debug_parser: bool = False, debug_parser_layout: bool = False) -> None:
         """Initialize the Knitout parser with optional debugging features.
 
         Args:
-            debug_grammar: Enable grammar debugging. Defaults to False.
-            debug_parser: Enable parser debugging. Defaults to False.
-            debug_parser_layout: Enable parser layout debugging. Defaults to False.
+            debug_grammar (bool, optional): Enable grammar debugging. Defaults to False.
+            debug_parser (bool, optional): Enable parser debugging. Defaults to False.
+            debug_parser_layout (bool, optional): Enable parser layout debugging. Defaults to False.
 
         Raises:
             FileNotFoundError: If the <knitout.pg> grammar file cannot be located in the package.
         """
         try:
-            pg_resource_stream = files(knitout_interpreter.knitout_language).joinpath("knitout.pg")
-            self._grammar: Grammar = Grammar.from_file(pg_resource_stream, debug=debug_grammar, ignore_case=True)
+            grammar_file = files(knitout_interpreter.knitout_language).joinpath(self._KNITOUT_GRAMMAR_FILENAME)
+            self._grammar: Grammar = Grammar.from_file(grammar_file, debug=debug_grammar, ignore_case=True)
         except (FileNotFoundError, AttributeError) as e:
-            raise FileNotFoundError(
-                f"Could not locate 'knitout.pg' in package 'knitout_interpreter.knitout_language'. "
-                f"Please ensure the package is properly installed and the grammar file is included. "
-                f"Original error: {e}"
-            ) from e
-        self._grammar: Grammar = Grammar.from_file(pg_resource_stream, debug=debug_grammar, ignore_case=True)
-        self._set_parser(debug_parser, debug_parser_layout)
-
-    def _set_parser(self, debug_parser: bool, debug_parser_layout: bool) -> None:
-        """Set up the parser with the current grammar and debugging options.
-
-        Args:
-            debug_parser: Enable parser debugging.
-            debug_parser_layout: Enable parser layout debugging.
-        """
+            e.add_note(f"Could not locate {self._KNITOUT_GRAMMAR_FILENAME} in package {knitout_interpreter.knitout_language}. ")
+            raise e from None
+        self._grammar: Grammar = Grammar.from_file(grammar_file, debug=debug_grammar, ignore_case=True)
         self._parser: Parser = Parser(self._grammar, debug=debug_parser, debug_layout=debug_parser_layout, actions=action.all)
         self._parser.knitout_parser = self  # make this structure available from actions
 
-    def parse_knitout_to_instructions(
-        self,
-        pattern: str,
-        pattern_is_file: bool = False,
-        reset_parser: bool = True,
-        debug_parser: bool = False,
-        debug_parser_layout: bool = False,
-    ) -> list[Knitout_Line]:
+    def parse_knitout_to_instructions(self, pattern: str, pattern_is_file: bool = False, set_line_numbers: bool = True) -> list[Knitout_Line]:
         """Parse knitout pattern into a list of instruction objects.
 
         Args:
-            pattern: Either a file path or the knitout string to be parsed.
-            pattern_is_file: If True, treat pattern as a file path. Defaults to False.
-            reset_parser: Reset parser to have no prior input. Defaults to True.
-            debug_parser: Enable parser debugging. Defaults to False.
-            debug_parser_layout: Enable parser layout debugging. Defaults to False.
+            pattern (str): Either a file path or the knitout string to be parsed.
+            pattern_is_file (bool, optional) : If True, treat pattern as a file path. Defaults to True.
+            set_line_numbers (bool, optional): If True, set the original line numbers of based on their order in the pattern. Defaults to True.
 
         Returns:
-            List of knitout instructions created by parsing the given pattern.
+            list[Knitout_Line]: List of knitout lines created by parsing the given pattern.
 
         Raises:
             Knitout_ParseError: If there's an error parsing the knitout code.
             Incomplete_Knitout_Line_Error: If a knitout line processes into an incomplete code.
         """
         codes: list[Knitout_Line] = []
-        if reset_parser:
-            self._set_parser(debug_parser, debug_parser_layout)
         if pattern_is_file:
             with open(pattern) as pattern_file:
                 lines = pattern_file.readlines()
@@ -94,6 +73,9 @@ class Knitout_Parser:
                     codes.append(code)
         codes_with_no_ops = [self.parse_to_no_op(code) if isinstance(code, Knitout_Comment_Line) else code for code in codes]
         codes_with_bp = [self.parse_to_breakpoint(code) if isinstance(code, Knitout_Comment_Line) else code for code in codes_with_no_ops]
+        if set_line_numbers:
+            for ln, code in enumerate(codes_with_bp):
+                code.original_line_number = ln + 1
         return codes_with_bp
 
     @staticmethod
@@ -140,23 +122,28 @@ class Knitout_Parser:
         return bp
 
 
-def parse_knitout(pattern: str, pattern_is_file: bool = False, debug_parser: bool = False, debug_parser_layout: bool = False) -> list[Knitout_Line]:
+def parse_knitout(pattern: str, pattern_is_file: bool = False, set_line_numbers: bool = True, debug_parser: bool = False, debug_parser_layout: bool = False) -> list[Knitout_Line]:
     """Execute the parsing code for the parglare parser.
 
-    This is a convenience function that creates a Knitout_Parser instance
-    and parses the given pattern.
+    This is a convenience function that creates a Knitout_Parser instance and parses the given pattern.
 
     Args:
-        pattern: Either a file path or the knitout string to be parsed.
-        pattern_is_file: If True, treat pattern as a file path. Defaults to False.
-        debug_parser: Enable parser debugging. Defaults to False.
-        debug_parser_layout: Enable parser layout debugging. Defaults to False.
+        pattern (str): Either a file path or the knitout string to be parsed.
+        pattern_is_file (bool, optional) : If True, treat pattern as a file path. Defaults to True.
+        set_line_numbers (bool, optional): If True, set the original line numbers of based on their order in the pattern. Defaults to True.
+        debug_parser (bool, optional): Enable parser debugging. Defaults to False.
+        debug_parser_layout (bool, optional): Enable parser layout debugging. Defaults to False.
 
     Returns:
-        List of knitout instructions created by parsing the given pattern.
+        list[Knitout_Line]: List of knitout lines created by parsing the given pattern.
 
     Raises:
         FileNotFoundError: If the grammar file or input file cannot be found.
+        Knitout_ParseError: If the knitout_program cannot be parsed from the given file.
+        Incomplete_Knitout_Line_Error: If a line in the knitout_program is incomplete and cannot be parsed into a full instruction.
     """
-    parser = Knitout_Parser(debug_parser, debug_parser_layout)
-    return parser.parse_knitout_to_instructions(pattern, pattern_is_file, reset_parser=False)
+    try:
+        parser = Knitout_Parser(debug_parser, debug_parser_layout)
+        return parser.parse_knitout_to_instructions(pattern, pattern_is_file, set_line_numbers=set_line_numbers)
+    except (FileNotFoundError, Knitout_ParseError, Incomplete_Knitout_Line_Error) as e:
+        raise e from None

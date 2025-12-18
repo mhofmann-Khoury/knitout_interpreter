@@ -105,7 +105,7 @@ class Knitout_Context:
         Args:
             instructions (Sequence[Knitout_Line]): Instructions to execute on the knitting machine.
         """
-        execution = Knitout_Executer(instructions=instructions, knitting_machine=self.machine_state, knitout_version=self.version)
+        execution = Knitout_Executer(knitout_program=instructions, knitting_machine=self.machine_state, knitout_version=self.version)
         self.executed_instructions = cast(list[Knitout_Instruction], execution.executed_instructions)
 
     def execute_knitout(

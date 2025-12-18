@@ -41,3 +41,10 @@ class Knitout_BreakPoint_Condition_Warning(Knitout_Warning):
     def __init__(self, exception: BaseException) -> None:
         self.exception: BaseException = exception
         super().__init__(f"Knitout Breakpoint condition triggered an exception:\n\t{exception}")
+
+
+class Missed_Snapshot_Warning(Knitout_Warning):
+    """Warning raised when knit execution is set with a target line that may have already passed."""
+
+    def __init__(self, target_line: int, current_line: int) -> None:
+        super().__init__(f"Snapshot on target line {target_line} likely missed. Execution on line {current_line}")
