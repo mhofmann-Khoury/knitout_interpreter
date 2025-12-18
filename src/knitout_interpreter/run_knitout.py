@@ -3,7 +3,7 @@
 from knit_graphs.Knit_Graph import Knit_Graph
 from virtual_knitting_machine.Knitting_Machine import Knitting_Machine
 
-from knitout_interpreter.knitout_debugger.knitout_debugger import Knitout_Debugger
+from knitout_interpreter.debugger.knitout_debugger import Knitout_Debugger
 from knitout_interpreter.knitout_execution import execute_knitout
 from knitout_interpreter.knitout_operations.Knitout_Line import Knitout_Line
 

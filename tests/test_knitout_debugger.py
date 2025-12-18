@@ -5,8 +5,8 @@ from unittest import TestCase
 from resources.load_test_resources import load_test_resource
 from virtual_knitting_machine.machine_components.needles.Needle import Needle
 
-from knitout_interpreter.knitout_debugger.common_debugging_conditions import is_instruction_type, loop_count_exceeds
-from knitout_interpreter.knitout_debugger.knitout_debugger import Knitout_Debugger
+from knitout_interpreter.debugger.common_debugging_conditions import is_instruction_type, loop_count_exceeds
+from knitout_interpreter.debugger.knitout_debugger import Knitout_Debugger
 from knitout_interpreter.knitout_errors.Knitout_Error import Knitout_Machine_StateError
 from knitout_interpreter.knitout_execution import Knitout_Executer
 from knitout_interpreter.knitout_operations.carrier_instructions import Hook_Instruction

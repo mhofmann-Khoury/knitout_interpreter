@@ -13,7 +13,7 @@ from virtual_knitting_machine.Knitting_Machine_Specification import Knitting_Mac
 from virtual_knitting_machine.machine_components.carriage_system.Carriage_Pass_Direction import Carriage_Pass_Direction
 
 from knitout_interpreter._warning_stack_level_helper import get_user_warning_stack_level_from_knitout_interpreter_package
-from knitout_interpreter.knitout_debugger.debug_decorator import debug_knitout_instruction
+from knitout_interpreter.debugger.debug_decorator import debug_knitout_instruction
 from knitout_interpreter.knitout_errors.Knitout_Error import Incomplete_Knitout_Line_Error, Knitout_Machine_StateError, Knitout_ParseError
 from knitout_interpreter.knitout_execution_structures.Carriage_Pass import Carriage_Pass
 from knitout_interpreter.knitout_language.Knitout_Parser import parse_knitout
@@ -25,7 +25,7 @@ from knitout_interpreter.knitout_operations.Pause_Instruction import Pause_Instr
 from knitout_interpreter.knitout_warnings.Knitout_Warning import Missed_Snapshot_Warning
 
 if TYPE_CHECKING:
-    from knitout_interpreter.knitout_debugger.knitout_debugger import Knitout_Debugger
+    from knitout_interpreter.debugger.knitout_debugger import Knitout_Debugger
 
 
 class Knitout_Executer:

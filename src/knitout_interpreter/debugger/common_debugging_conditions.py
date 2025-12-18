@@ -2,7 +2,7 @@
 
 from collections.abc import Iterable
 
-from knitout_interpreter.knitout_debugger.knitout_debugger import Knitout_Debugger
+from knitout_interpreter.debugger.knitout_debugger import Knitout_Debugger
 from knitout_interpreter.knitout_operations.knitout_instruction import Knitout_Instruction
 from knitout_interpreter.knitout_operations.Knitout_Line import Knitout_Comment_Line, Knitout_Line
 
