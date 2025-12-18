@@ -381,6 +381,13 @@ class Knitout_Executer:
         if self._current_carriage_pass is not None:
             self._execute_current_carriage_pass()
 
+    def __len__(self) -> int:
+        """
+        Returns:
+            int: The length of the executed knitout program, including headers, comments, and executed instructions.
+        """
+        return self.execution_length
+
 
 def execute_knitout(
     knitout_program: Sequence[Knitout_Line] | str,

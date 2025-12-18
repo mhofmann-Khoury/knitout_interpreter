@@ -6,20 +6,16 @@ import sys
 import warnings
 from collections.abc import Callable
 from enum import Enum
-from typing import TYPE_CHECKING, cast
+from typing import Protocol
 
 from virtual_knitting_machine.Knitting_Machine import Knitting_Machine
 from virtual_knitting_machine.Knitting_Machine_Snapshot import Knitting_Machine_Snapshot
 
 from knitout_interpreter._warning_stack_level_helper import get_user_warning_stack_level_from_knitout_interpreter_package
-from knitout_interpreter.knitout_execution_structures.Carriage_Pass import Carriage_Pass
 from knitout_interpreter.knitout_operations.knitout_instruction import Knitout_Instruction
 from knitout_interpreter.knitout_operations.Knitout_Line import Knitout_BreakPoint, Knitout_Comment_Line, Knitout_Line
 from knitout_interpreter.knitout_operations.Pause_Instruction import Pause_Instruction
 from knitout_interpreter.knitout_warnings.Knitout_Warning import Knitout_BreakPoint_Condition_Warning
-
-if TYPE_CHECKING:
-    from knitout_interpreter.knitout_execution import Knitout_Executer
 
 
 class Debug_Mode(Enum):
@@ -28,6 +24,30 @@ class Debug_Mode(Enum):
     Step_Instruction = "step-instruction"
     Continue = "continue"
     Step_Carriage_Pass = "step-carriage-pass"
+
+
+class Debuggable_Knitout_Execution(Protocol):
+    """
+    A protocol for knitout execution processes that can be debugged by the Knitout_Debugger class.
+
+    Attributes:
+        knitting_machine (Knitting_Machine): The knitting machine that the debugged process is executing on.
+        executed_instructions (list[Knitout_Line]): The list of instructions that have been executed including the header, comments, and instructions.
+        debugger (Knitout_Debugger | None): The debugger attached to the execution process, if any.
+    """
+
+    knitting_machine: Knitting_Machine
+    executed_instructions: list[Knitout_Line]
+    debugger: Knitout_Debugger | None
+
+    # noinspection PyPropertyDefinition
+    @property
+    def starting_new_carriage_pass(self) -> bool:
+        """
+        Returns:
+            bool: True if the next instruction to be processed will initiate a new carriage pass, False otherwise.
+        """
+        ...
 
 
 class Knitout_Debugger:
@@ -39,7 +59,7 @@ class Knitout_Debugger:
     """
 
     def __init__(self) -> None:
-        self._executer: Knitout_Executer | None = None
+        self._executer: Debuggable_Knitout_Execution | None = None
         self.breakpoints: dict[int, Callable[[Knitting_Machine, Knitout_Line], bool] | None] = {}  # line_num -> condition function
         self._disabled_breakpoints: set[int] = set()
         self._debug_mode: Debug_Mode = Debug_Mode.Continue
@@ -50,7 +70,7 @@ class Knitout_Debugger:
         self._stop_on_condition_exceptions: bool = True
         self._raised_exceptions: set[BaseException] = set()
 
-    def attach_executer(self, executer: Knitout_Executer) -> None:
+    def attach_executer(self, executer: Debuggable_Knitout_Execution) -> None:
         """
         Attaches the given executer to this debugger.
 
@@ -121,6 +141,30 @@ class Knitout_Debugger:
         """
         return self._stop_on_condition_exceptions
 
+    @property
+    def current_line(self) -> int:
+        """
+        Returns:
+            int: The current line that the debugger is processing.
+        """
+        return len(self.executed_instructions)
+
+    @property
+    def executed_instructions(self) -> list[Knitout_Line]:
+        """
+        Returns:
+            list[Knitout_Line]: The instructions executed up to this point by the debugged process.
+        """
+        return [] if self._executer is None else self._executer.executed_instructions
+
+    @property
+    def knitting_machine(self) -> Knitting_Machine:
+        """
+        Returns:
+            Knitting_Machine: The knitting machine the debugged process is running on.
+        """
+        return Knitting_Machine() if self._executer is None else self._executer.knitting_machine
+
     def step(self, step_carriage_passes_only: bool = False) -> None:
         """
         Sets the debugger to a stepping mode. By default, enter instruction level step mode.
@@ -167,17 +211,6 @@ class Knitout_Debugger:
         Sets the debugger to stop when a breakpoint condition raises an exception.
         """
         self._stop_on_condition_exceptions = True
-
-    @property
-    def current_line(self) -> int:
-        """
-        Returns:
-            int: The current line that the debugger is processing.
-        """
-        if self._executer is None:
-            return 0
-        else:
-            return self._executer.execution_length
 
     def set_breakpoint(self, line_number: int, condition: Callable[[Knitting_Machine, Knitout_Line], bool] | None = None) -> None:
         """Set a breakpoint at a specific knitout line number with an optional condition for breaking.
@@ -259,7 +292,7 @@ class Knitout_Debugger:
             if bp_condition is None:
                 return True
             try:
-                if bp_condition(self._executer.knitting_machine, instruction):
+                if bp_condition(self.knitting_machine, instruction):
                     return True
             except Exception as e:
                 if self.stop_on_condition_exceptions:
@@ -281,11 +314,9 @@ class Knitout_Debugger:
             # noinspection PyUnusedLocal
             knitout_debugger: Knitout_Debugger = self  # noqa: F841
             knitout_line: int = knitout_instruction.original_line_number if knitout_instruction.original_line_number is not None else self.current_line
-            knitting_machine: Knitting_Machine = self._executer.knitting_machine
+            knitting_machine: Knitting_Machine = self.knitting_machine
             # noinspection PyUnusedLocal
-            current_carriage_pass: Carriage_Pass | None = self._executer.current_carriage_pass  # noqa: F841
-            # noinspection PyUnusedLocal
-            executed_program: list[Knitout_Line] = self._executer.executed_instructions  # noqa: F841
+            executed_program: list[Knitout_Line] = self.executed_instructions  # noqa: F841
             if self.taking_snapshots:
                 self.machine_snapshots[knitout_line] = Knitting_Machine_Snapshot(knitting_machine)
             if sys.gettrace() is not None and sys.stdin.isatty():  # Check if IDE debugger is attached
@@ -308,29 +339,6 @@ class Knitout_Debugger:
                 breakpoint()  # Only called when IDE debugger is active
                 self._condition_exception = None  # reset condition exception until next time a breakpoint is hit
 
-    def debug_current_carriage_pass(self) -> None:
-        """
-        The debugging protocol given the state of the debugger and the instruction about to be executed.
-        """
-        if self._executer is not None and self.take_carriage_pass_step:
-            # These variables will be visible in the debugger
-            # noinspection PyUnusedLocal
-            knitout_debugger: Knitout_Debugger = self  # noqa: F841
-            # noinspection PyUnusedLocal
-            executed_program: list[Knitout_Line] = self._executer.executed_instructions  # noqa: F841
-            current_carriage_pass: Carriage_Pass = cast(Carriage_Pass, self._executer.current_carriage_pass)
-            knitout_instruction: Knitout_Instruction | Knitout_Comment_Line = current_carriage_pass.first_instruction
-            knitout_line: int = knitout_instruction.original_line_number if knitout_instruction.original_line_number is not None else self.current_line
-            knitting_machine: Knitting_Machine = self._executer.knitting_machine
-            if self.taking_snapshots:
-                self.machine_snapshots[knitout_line] = Knitting_Machine_Snapshot(knitting_machine)
-            if sys.gettrace() is not None and sys.stdin.isatty():  # Check if IDE debugger is attached
-                print(f"\n{'=' * 70}")
-                print(f"Knitout Stopped Before Carriage Pass Starting on line {knitout_line}: {knitout_instruction}")
-                self.print_usage_guide()
-                breakpoint()  # Only called when IDE debugger is active
-                self._condition_exception = None  # reset condition exception until next time a breakpoint is hit
-
     def debug_exception(self, knitout_instruction: Knitout_Comment_Line | Knitout_Instruction, exception: BaseException) -> None:
         """
         Trigger a breakpoint immediately after a knitout instruction causes an exception. Raise the exception after the debugger continues.
@@ -344,11 +352,9 @@ class Knitout_Debugger:
             # noinspection PyUnusedLocal
             knitout_debugger: Knitout_Debugger = self  # noqa: F841
             knitout_line: int = knitout_instruction.original_line_number if knitout_instruction.original_line_number is not None else self.current_line
-            knitting_machine: Knitting_Machine = self._executer.knitting_machine
+            knitting_machine: Knitting_Machine = self.knitting_machine
             # noinspection PyUnusedLocal
-            current_carriage_pass: Carriage_Pass | None = self._executer.current_carriage_pass  # noqa: F841
-            # noinspection PyUnusedLocal
-            executed_program: list[Knitout_Line] = self._executer.executed_instructions  # noqa: F841
+            executed_program: list[Knitout_Line] = self.executed_instructions  # noqa: F841
             if self.taking_snapshots:
                 self.machine_snapshots[knitout_line] = Knitting_Machine_Snapshot(knitting_machine)
             if sys.gettrace() is not None and sys.stdin.isatty():  # Check if IDE debugger is attached
