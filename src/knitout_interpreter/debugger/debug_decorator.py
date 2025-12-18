@@ -6,7 +6,7 @@ from collections.abc import Callable
 from functools import wraps
 from typing import ParamSpec, TypeVar, cast
 
-from knitout_interpreter.knitout_debugger.knitout_debugger import Debuggable_Knitout_Execution
+from knitout_interpreter.debugger.knitout_debugger import Debuggable_Knitout_Execution
 from knitout_interpreter.knitout_errors.Knitout_Error import Knitout_Machine_StateError
 from knitout_interpreter.knitout_operations.knitout_instruction import Knitout_Instruction
 from knitout_interpreter.knitout_operations.Knitout_Line import Knitout_Comment_Line
