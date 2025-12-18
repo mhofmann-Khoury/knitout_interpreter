@@ -7,23 +7,7 @@ Core Components
 Knitout Executer
 ~~~~~~~~~~~~~~~~
 
-The main analysis class that provides comprehensive execution simulation:
-
-.. code-block:: python
-
-    from knitout_interpreter.knitout_execution import Knitout_Executer
-    from knitout_interpreter.knitout_language.Knitout_Parser import parse_knitout
-    from virtual_knitting_machine.Knitting_Machine import Knitting_Machine
-
-    # Parse knitout file
-    parsed_instructions = parse_knitout("example.k", pattern_is_file=True)
-
-    executer = Knitout_Executer(
-        instructions=parsed_instructions,
-        knitting_machine=Knitting_Machine(),
-        accepted_error_types=[],  # Optional: Knitting Machine Errors to ignore
-        knitout_version=2
-    )
+To analyse a knitout program beyond basic verification, access various kee attributes of the ``Knitout_Executer`` class.
 
 **Key Properties:**
 
@@ -31,6 +15,14 @@ The main analysis class that provides comprehensive execution simulation:
 - ``left_most_position`` / ``right_most_position``: The range of needle positions in the executed file
 - ``carriage_passes``: List of carriage passes in the order they are executed
 - ``resulting_knit_graph``: Final fabric structure
+- ``machine_state``: The machine state at the end of the process.
+
+Additionally, you can collect snapshots of the machine state at key moments in the execution. Initialize the executer with specific targets and add and remove targets during an execution process.
+
+.. code-block:: python
+
+	executer = Knitout_Executer('knitout.k', snapshot_targets = set(1)) # Will create a snapshot on line 1.
+	executer.enable_snapshot(10) # adds a snapshot on line 10.
 
 Instruction Types
 ~~~~~~~~~~~~~~~~~
@@ -65,6 +57,15 @@ Header Declarations
 - ``Yarn_Header_Line``: Define yarn properties
 - ``Carriers_Header_Line``: Configure available carriers
 - ``Position_Header_Line``: Set knitting position
+- ``Knitout_Version_Line``: Declares the version of the knitout file.
+
+Helpful Comments
+^^^^^^^^^^^^^^^^
+- ``Knitout_Comment_Line``: A line with only comment information and no effect on execution.
+- ``Knitout_No_Op``: A commented instruction created in the execution analysis process.
+	- No-Ops are specified ";No-Op:..."
+- ``Knitout_BreakPoint``: A way of setting a breakpoint directly from the knitout file.
+	- Breakpoints are specified ";Breakpoint:..."
 
 Carriage Pass Organization
 ~~~~~~~~~~~~~~~~~~~~~~~~~~

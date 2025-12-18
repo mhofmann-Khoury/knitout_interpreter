@@ -9,7 +9,6 @@ System Requirements
 
 - **Python**: 3.11 or higher
 - **Operating System**: Windows, macOS, or Linux
-- **Architecture**: x86_64 or ARM64
 
 From PyPI (Recommended)
 ~~~~~~~~~~~~~~~~~~~~~~~
@@ -52,7 +51,6 @@ This installs additional tools for:
 - Code quality checking (mypy, pre-commit)
 - Testing and coverage measurement
 - Documentation generation
-- Security scanning
 
 From Test-PyPI
 ~~~~~~~~~~~~~~~

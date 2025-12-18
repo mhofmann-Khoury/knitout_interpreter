@@ -58,6 +58,5 @@ The knitout-interpreter bridges the gap between high-level knitting pattern desc
    :caption: Project Info
    :hidden:
 
-   dependencies
    related_projects
    acknowledgments

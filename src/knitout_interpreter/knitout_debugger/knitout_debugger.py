@@ -4,7 +4,7 @@ from __future__ import annotations
 
 import sys
 import warnings
-from collections.abc import Callable
+from collections.abc import Callable, Iterable
 from enum import Enum
 from typing import Protocol
 
@@ -54,21 +54,21 @@ class Knitout_Debugger:
     """Debugger for knitout execution with breakpoints and stepping.
 
     Attributes:
-        breakpoints (dict[int, Callable[[Knitting_Machine, Knitout_Line], bool] | None]): Dictionary of breakpoint line numbers and conditions for activation.
         machine_snapshots (dict[int, Knitting_Machine_Snapshot]): Dictionary mapping line numbers that were paused on to the state of the knitting machine at that line.
     """
 
     def __init__(self) -> None:
         self._executer: Debuggable_Knitout_Execution | None = None
-        self.breakpoints: dict[int, Callable[[Knitting_Machine, Knitout_Line], bool] | None] = {}  # line_num -> condition function
-        self._disabled_breakpoints: set[int] = set()
+        self._breakpoints: set[int] = set()
+        self._step_conditions: dict[str, Callable[[Knitout_Debugger, Knitout_Comment_Line | Knitout_Instruction], bool]] = {}
+        self._carriage_pass_conditions: dict[str, Callable[[Knitout_Debugger, Knitout_Comment_Line | Knitout_Instruction], bool]] = {}
         self._debug_mode: Debug_Mode = Debug_Mode.Continue
         self._is_active: bool = False
         self._take_snapshots: bool = True
-        self.machine_snapshots: dict[int, Knitting_Machine_Snapshot] = {}
-        self._condition_exception: Exception | None = None
-        self._stop_on_condition_exceptions: bool = True
+        self._condition_error: Exception | None = None
+        self._stop_on_condition_error: bool = True
         self._raised_exceptions: set[BaseException] = set()
+        self.machine_snapshots: dict[int, Knitting_Machine_Snapshot] = {}
 
     def attach_executer(self, executer: Debuggable_Knitout_Execution) -> None:
         """
@@ -94,8 +94,7 @@ class Knitout_Debugger:
         print(f"{'=' * 60}")
         print(f"Mode: {self._debug_mode.value}")
         print(f"Current Line: {self.current_line}")
-        print(f"Active Breakpoints: {sorted(self.breakpoints.keys())}")
-        print(f"Disabled Breakpoints: {sorted(self._disabled_breakpoints)}")
+        print(f"Active Breakpoints: {sorted(self._breakpoints)}")
         print(f"{'=' * 60}\n")
 
     @property
@@ -134,12 +133,12 @@ class Knitout_Debugger:
         return self._take_snapshots
 
     @property
-    def stop_on_condition_exceptions(self) -> bool:
+    def stop_on_condition_errors(self) -> bool:
         """
         Returns:
-            bool: True if the debugger will stop on breakpoints where the condition triggers an exception. False, otherwise.
+            bool: True if the debugger will stop when conditions trigger an exception. False, otherwise.
         """
-        return self._stop_on_condition_exceptions
+        return self._stop_on_condition_error
 
     @property
     def current_line(self) -> int:
@@ -158,12 +157,12 @@ class Knitout_Debugger:
         return [] if self._executer is None else self._executer.executed_instructions
 
     @property
-    def knitting_machine(self) -> Knitting_Machine:
+    def knitting_machine(self) -> Knitting_Machine | None:
         """
         Returns:
-            Knitting_Machine: The knitting machine the debugged process is running on.
+            Knitting_Machine | None: The knitting machine the debugged process is running on or None if it has no debugging process.
         """
-        return Knitting_Machine() if self._executer is None else self._executer.knitting_machine
+        return self._executer.knitting_machine if self._executer is not None else None
 
     def step(self, step_carriage_passes_only: bool = False) -> None:
         """
@@ -204,24 +203,13 @@ class Knitout_Debugger:
         """
         Sets the debugger to ignore condition exceptions and continue over these breakpoints.
         """
-        self._stop_on_condition_exceptions = False
+        self._stop_on_condition_error = False
 
     def pause_on_condition_exceptions(self) -> None:
         """
         Sets the debugger to stop when a breakpoint condition raises an exception.
         """
-        self._stop_on_condition_exceptions = True
-
-    def set_breakpoint(self, line_number: int, condition: Callable[[Knitting_Machine, Knitout_Line], bool] | None = None) -> None:
-        """Set a breakpoint at a specific knitout line number with an optional condition for breaking.
-
-        Args:
-            line_number (int): Line number in the knitout file (1-indexed)
-            condition (Callable[[Knitting_Machine, Knitout_Line], bool], optional): Conditional function that takes (machine, instruction) and returns bool. Defaults to no condition.
-        """
-        if line_number in self._disabled_breakpoints:
-            self._disabled_breakpoints.remove(line_number)
-        self.breakpoints[line_number] = condition
+        self._stop_on_condition_error = True
 
     def disable_breakpoint(self, line_number: int) -> None:
         """
@@ -230,8 +218,8 @@ class Knitout_Debugger:
         Args:
             line_number (int): The line number of the breakpoint to ignore.
         """
-        if line_number in self.breakpoints:
-            self._disabled_breakpoints.add(line_number)
+        if line_number in self._breakpoints:
+            self._breakpoints.remove(line_number)
 
     def enable_breakpoint(self, line_number: int) -> None:
         """
@@ -241,37 +229,122 @@ class Knitout_Debugger:
         Args:
             line_number (int): The line number of the breakpoint to consider.
         """
-        if line_number in self._disabled_breakpoints:
-            self._disabled_breakpoints.remove(line_number)
-        if line_number not in self.breakpoints:
-            self.set_breakpoint(line_number)
+        self._breakpoints.add(line_number)
 
-    def clear_breakpoint(self, line_number: int) -> None:
-        """Remove breakpoint at line number. If no breakpoint is set at that line number, nothing happens.
+    def enable_step_condition(self, name: str, condition: Callable[[Knitout_Debugger, Knitout_Comment_Line | Knitout_Instruction], bool], is_carriage_pass_step: bool = False) -> None:
+        """
+        Adds the given condition to the debugger.
 
         Args:
-            line_number (int): Line number of the breakpoint to remove.
+            name (str): The unique name of the condition, used to deactivate it.
+            condition (Callable[[Knitout_Debugger, Knitout_Comment_Line | Knitout_Instruction], bool]): The condition to be tested for pausing.
+            is_carriage_pass_step (bool, optional): If true, only sets the condition on carriage pass steps. Defaults to setting the condition for all steps.
         """
-        if line_number in self._disabled_breakpoints:
-            self._disabled_breakpoints.remove(line_number)
-        if line_number in self.breakpoints:
-            del self.breakpoints[line_number]
+        if is_carriage_pass_step:
+            self._carriage_pass_conditions[name] = condition
+        else:
+            self._step_conditions[name] = condition
 
-    def breakpoint_is_active(self, line_number: int) -> tuple[bool, Callable[[Knitting_Machine, Knitout_Line], bool] | None]:
+    def disable_condition(self, name: str, disable_steps: bool = True, disable_carriage_pass: bool = True) -> None:
+        """
+        Removes any step conditions by the given name.
+
+        Args:
+            name (str): The name of the condition to deactivate. If no condition exists by that name, nothing will happen.
+            disable_steps (bool, optional): If True, disables condition on stepping. Defaults to True.
+            disable_carriage_pass (bool, optional): If True, disables condition on carriage pass steps. Defaults to True.
+        """
+        if disable_steps and name in self._step_conditions:
+            del self._step_conditions[name]
+        if disable_carriage_pass and name in self._carriage_pass_conditions:
+            del self._carriage_pass_conditions[name]
+
+    def _breakpoint_is_active(self, line_number: int) -> bool:
         """
         Args:
             line_number (int): The line number to determine if the breakpoint is active and what conditions it must meet.
 
         Returns:
-            tuple[bool, None | Callable[[Knitting_Machine, Knitout_Line], bool]]:
-                A tuple of two values:
-                * If the first value is True, the breakpoint at the line number is enabled.
-                * The second value will be the conditional of the enabled break point or None if it is not conditioned or the breakpoint is not enabled.
+            bool: True if the given line number is an active breakpoint. False, otherwise.
         """
-        if line_number in self._disabled_breakpoints or line_number not in self.breakpoints:
-            return False, None
-        else:
-            return True, self.breakpoints[line_number]
+        return line_number in self._breakpoints
+
+    @property
+    def has_step_conditions(self) -> bool:
+        """
+        Returns:
+            bool: True if the debugger has one or more conditions applied to it pausing at each step. False, otherwise.
+        """
+        return len(self._step_conditions) > 0
+
+    @property
+    def has_carriage_pass_conditions(self) -> bool:
+        """
+        Returns:
+            bool: True if the debugger has one or more conditions applied to pausing at the beginning of a carriage pass. False, otherwise.
+        """
+        return len(self._carriage_pass_conditions) > 0
+
+    def _meets_conditions(self, instruction: Knitout_Comment_Line | Knitout_Instruction, conditions: Iterable[Callable[[Knitout_Debugger, Knitout_Comment_Line | Knitout_Instruction], bool]]) -> bool:
+        """
+        Args:
+            instruction (Knitout_Comment_Line | Knitout_Instruction): The instruction to consider pausing before.
+            conditions (Iterable[Callable[[Knitout_Debugger, Knitout_Comment_Line | Knitout_Instruction], bool]]: The conditions on pausing.
+
+        Returns:
+            bool: True if all the given conditions are met or a condition raises an error. False, otherwise.
+        """
+        for condition in conditions:
+            try:
+                if not condition(self, instruction):
+                    return False
+            except Exception as e:
+                if self.stop_on_condition_errors:
+                    self._condition_error = e
+                    return True
+                else:
+                    warnings.warn(Knitout_BreakPoint_Condition_Warning(e), stacklevel=get_user_warning_stack_level_from_knitout_interpreter_package())
+        return True
+
+    def _meets_step_conditions(self, instruction: Knitout_Comment_Line | Knitout_Instruction) -> bool:
+        """
+        Args:
+            instruction (Knitout_Comment_Line | Knitout_Instruction): The instruction to consider pausing before.
+
+        Returns:
+            bool: True if the all step-conditions are met or a condition error is encountered. False, otherwise.
+        """
+        return not self.has_step_conditions or self._meets_conditions(instruction, self._step_conditions.values())
+
+    def meets_carriage_pass_conditions(self, instruction: Knitout_Comment_Line | Knitout_Instruction) -> bool:
+        """
+        Args:
+            instruction (Knitout_Comment_Line | Knitout_Instruction): The instruction to consider pausing before.
+
+        Returns:
+            bool: True if the all step-carriage-pass conditions are met or a condition error is encountered. False, otherwise.
+        """
+        return not self.has_carriage_pass_conditions or self._meets_conditions(instruction, self._carriage_pass_conditions.values())
+
+    def pause_on_step(self, instruction: Knitout_Comment_Line | Knitout_Instruction) -> bool:
+        """
+        Args:
+            instruction (Knitout_Comment_Line | Knitout_Instruction): The instruction to pause before.
+
+        Returns:
+            bool: True if the debugger should pause before the next instruction because of step-mode. False, otherwise.
+        """
+        return isinstance(instruction, (Pause_Instruction, Knitout_BreakPoint)) or (self.take_step and self._meets_step_conditions(instruction))
+
+    def pause_on_carriage_pass(self, instruction: Knitout_Comment_Line | Knitout_Instruction) -> bool:
+        """
+        Args:
+            instruction (Knitout_Comment_Line | Knitout_Instruction): The instruction to pause before.
+
+        Returns:
+            bool: True if the debugger should pause before the next instruction because of step-carriage-pass-mode. False, otherwise.
+        """
+        return self._executer is not None and self.take_carriage_pass_step and self._executer.starting_new_carriage_pass and self.meets_carriage_pass_conditions(instruction)
 
     def should_break(self, instruction: Knitout_Comment_Line | Knitout_Instruction) -> bool:
         """
@@ -283,24 +356,11 @@ class Knitout_Debugger:
         """
         if self._executer is None:
             return False
-        elif self.take_step or isinstance(instruction, (Pause_Instruction, Knitout_BreakPoint)) or (self.take_carriage_pass_step and self._executer.starting_new_carriage_pass):
-            return True  # Pause in step mode or on pause and breakpoint instructions
+        elif self.pause_on_step(instruction) or self.pause_on_carriage_pass(instruction):
+            return True
         # Test instruction for active breakpoint
         next_line_number = instruction.original_line_number if instruction.original_line_number is not None else self.current_line
-        bp_is_active, bp_condition = self.breakpoint_is_active(next_line_number)
-        if bp_is_active:
-            if bp_condition is None:
-                return True
-            try:
-                if bp_condition(self.knitting_machine, instruction):
-                    return True
-            except Exception as e:
-                if self.stop_on_condition_exceptions:
-                    self._condition_exception = e
-                    return True
-                else:
-                    warnings.warn(Knitout_BreakPoint_Condition_Warning(e), stacklevel=get_user_warning_stack_level_from_knitout_interpreter_package())
-        return False
+        return self._breakpoint_is_active(next_line_number)
 
     def debug_instruction(self, knitout_instruction: Knitout_Comment_Line | Knitout_Instruction) -> None:
         """
@@ -314,7 +374,7 @@ class Knitout_Debugger:
             # noinspection PyUnusedLocal
             knitout_debugger: Knitout_Debugger = self  # noqa: F841
             knitout_line: int = knitout_instruction.original_line_number if knitout_instruction.original_line_number is not None else self.current_line
-            knitting_machine: Knitting_Machine = self.knitting_machine
+            knitting_machine: Knitting_Machine = self._executer.knitting_machine
             # noinspection PyUnusedLocal
             executed_program: list[Knitout_Line] = self.executed_instructions  # noqa: F841
             if self.taking_snapshots:
@@ -333,11 +393,11 @@ class Knitout_Debugger:
                     print(f"Knitout Stopped Before Carriage Pass Starting on line {knitout_line}: {knitout_instruction}")
                 else:
                     print(f"Knitout Breakpoint Hit at Line {knitout_line}: {knitout_instruction}")
-                    if self._condition_exception is not None:
-                        print(f"Breakpoint Condition triggered an exception:\n\t{self._condition_exception}")
+                    if self._condition_error is not None:
+                        print(f"Breakpoint Condition triggered an exception:\n\t{self._condition_error}")
                 self.print_usage_guide()
                 breakpoint()  # Only called when IDE debugger is active
-                self._condition_exception = None  # reset condition exception until next time a breakpoint is hit
+                self._condition_error = None  # reset condition exception until next time a breakpoint is hit
 
     def debug_exception(self, knitout_instruction: Knitout_Comment_Line | Knitout_Instruction, exception: BaseException) -> None:
         """
@@ -352,7 +412,7 @@ class Knitout_Debugger:
             # noinspection PyUnusedLocal
             knitout_debugger: Knitout_Debugger = self  # noqa: F841
             knitout_line: int = knitout_instruction.original_line_number if knitout_instruction.original_line_number is not None else self.current_line
-            knitting_machine: Knitting_Machine = self.knitting_machine
+            knitting_machine: Knitting_Machine = self._executer.knitting_machine
             # noinspection PyUnusedLocal
             executed_program: list[Knitout_Line] = self.executed_instructions  # noqa: F841
             if self.taking_snapshots:
@@ -370,12 +430,12 @@ class Knitout_Debugger:
         """Helper function that prints out the Knitout Debugger Breakpoint command line interface and Usage Guide."""
         print(f"\n{'=' * 10}Knitout Debugger Options{'=' * 20}")
         print("knitout_debugger.step()          # Step to next instruction")
-        print("knitout_debugger.continue_knitout()          # Continue to next breakpoint")
         print("knitout_debugger.step_carriage_pass()     # Step to next carriage pass")
+        print("knitout_debugger.continue_knitout()          # Continue to next breakpoint")
         print("knitout_debugger.enable_snapshots()  # Enable the debugger to take snapshots of the knitting machine when breakpoints are hit")
         print("knitout_debugger.disable_snapshots()  # Disable snapshots of the knitting machine state")
         print("knitout_debugger.status()        # Show debugger status")
-        print("knitout_debugger.set_breakpoint(N)   # Set breakpoint at line N")
-        print("knitout_debugger.clear_breakpoint(N) # Remove breakpoint at line N")
-        print("knitout_debugger.disable_breakpoint(N)   # Temporarily disable an breakpoint at line N but does not remove it or any conditions set")
-        print("knitout_debugger.enable_breakpoint(N) # Re-enable a breakpoint breakpoint at line N. If no breakpoint is there, a new breakpoint is set")
+        print("knitout_debugger.disable_breakpoint(N)   # Disable any breakpoint at line N")
+        print("knitout_debugger.enable_breakpoint(N) # Enable a breakpoint breakpoint at line N.")
+        print("knitout_debugger.enable_step_condition(name, condition, step or carriage pass ste)   # Enable the debugger to step on a given named condition")
+        print("knitout_debugger.disabled_step_condition(name)   # Disable any stepping conditions by the given named")

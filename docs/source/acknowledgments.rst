@@ -65,100 +65,6 @@ The work builds upon several key academic contributions:
 - **"Visual Knitting Machine Programming"** - McCann et al.
   Introduced visual programming concepts for knitting machines
 
-**Research Community**
-
-The broader computational textiles and digital fabrication research community
-has provided inspiration, feedback, and collaboration opportunities that have
-shaped this work.
-
-Technical Dependencies
-~~~~~~~~~~~~~~~~~~~~~~
-
-**Open Source Libraries**
-
-This project builds upon excellent open source software:
-
-- **parglare** - Parser generator library by Igor Dejanović
-- **Python** - The Python Software Foundation and core developers
-- **Sphinx** - Documentation generation framework
-- **Git and GitHub** - Version control and collaboration platform
-
-**Related Projects**
-
-- **knit-graphs** - Fabric data structure library
-- **virtual-knitting-machine** - Machine simulation engine
-- **koda-knitout** - Optimization framework
-
-Community Support
-~~~~~~~~~~~~~~~~~~
-
-**Beta Testers and Early Users**
-
-The library has benefited from feedback and testing by:
-
-- Researchers in computational textiles
-- Students in digital fabrication courses
-- Industry practitioners in automated knitting
-- Open source contributors and reviewers
-
-**Code Contributors**
-
-While currently maintained primarily by Megan Hofmann, the project welcomes
-and acknowledges contributions from the broader community.
-
-Industry Connections
-~~~~~~~~~~~~~~~~~~~~
-
-**Machine Manufacturers**
-
-The development has been informed by collaboration and consultation with:
-
-- Knitting machine manufacturers
-- Industrial knitting practitioners
-- Textile industry professionals
-
-**Standards Organizations**
-
-The project aligns with and contributes to standards development in:
-
-- Digital textile manufacturing
-- Machine programming interfaces
-- Computational fabrication workflows
-
-License and Legal
-~~~~~~~~~~~~~~~~~
-
-**MIT License**
-
-This project is released under the MIT License, ensuring broad accessibility
-and use while acknowledging the contributions of all involved parties.
-
-**Intellectual Property**
-
-The work respects and builds upon existing intellectual property in the field,
-properly attributing foundational contributions while adding novel capabilities.
-
-Future Acknowledgments
-~~~~~~~~~~~~~~~~~~~~~~
-
-**Ongoing Collaboration**
-
-The project continues to benefit from:
-
-- Active research collaboration with academic institutions
-- Industry partnerships and consultation
-- Community feedback and contributions
-- Integration with related open source projects
-
-**Call for Contributions**
-
-We welcome and will acknowledge:
-
-- Code contributions and improvements
-- Documentation enhancements
-- Bug reports and feature requests
-- Academic citations and research applications
-- Educational use and course integration
 
 Contact and Attribution
 ~~~~~~~~~~~~~~~~~~~~~~~
@@ -169,9 +75,8 @@ If you use this software in academic work, please cite:
 
 .. code-block:: text
 
-    Hofmann, M. (2024). knitout-interpreter: A Python library for interpreting
-    and executing knitout files. Version 0.0.18.
-    https://github.com/mhofmann-Khoury/knitout_interpreter
+    Hofmann, Megan (2024). knitout-interpreter: A Python library for interpreting and executing knitout files.
+    https://pypi.org/project/knitout-interpreter/
 
 **Contact Information**
 
@@ -183,8 +88,7 @@ If you use this software in academic work, please cite:
 
 This work should be acknowledged in publications as:
 
-  "This work used the knitout-interpreter library developed by Megan Hofmann
-  at Northeastern University's ACT Lab, supported by NSF grants 2341880 and 2327137."
+  "This work used the knitout-interpreter library developed by Megan Hofmann at Northeastern University's ACT Lab, supported by NSF grants 2341880 and 2327137."
 
 ---
 

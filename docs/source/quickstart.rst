@@ -46,14 +46,9 @@ Advanced Analysis with Knitout Executer
 .. code-block:: python
 
     from knitout_interpreter.knitout_execution import Knitout_Executer
-    from knitout_interpreter.knitout_language.Knitout_Parser import parse_knitout
-    from virtual_knitting_machine.Knitting_Machine import Knitting_Machine
-
-    # Parse knitout file
-    instructions = parse_knitout("complex_pattern.k", pattern_is_file=True)
 
     # Execute with analysis
-    executer = Knitout_Executer(instructions, Knitting_Machine())
+    executer = Knitout_Executer("complex_pattern.k")
 
     # Get execution metrics
     print(f"Execution time: {executer.execution_time} carriage passes")

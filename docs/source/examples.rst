@@ -4,8 +4,8 @@ Examples
 📖 Usage Examples
 ------------------
 
-Example 1: Basic Stockinette
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+Example 1: Parse Basic Stockinette
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 .. code-block:: python
 
@@ -47,14 +47,10 @@ Example 2: Pattern Analysis
 
 .. code-block:: python
 
-    from knitout_interpreter.run_knitout import run_knitout
     from knitout_interpreter.knitout_execution import Knitout_Executer
 
-    # Load complex pattern
-    instructions, machine, graph = run_knitout("complex_pattern.knitout")
-
     # Analyze with executer
-    executer = Knitout_Executer(instructions, machine)
+    executer = Knitout_Executer("complex_pattern.knitout")
 
     # Print analysis
     print("=== Pattern Analysis ===")
@@ -72,14 +68,10 @@ Example 3: Working with Carriage Passes
 .. code-block:: python
 
     from knitout_interpreter.knitout_execution import Knitout_Executer
-    from knitout_interpreter.knitout_language.Knitout_Parser import parse_knitout
     from virtual_knitting_machine.Knitting_Machine import Knitting_Machine
 
-    # Parse knitout file
-    parsed_instructions = parse_knitout("example.k", pattern_is_file=True)
-
     executer = Knitout_Executer(
-        instructions=parsed_instructions,
+        instructions
         knitting_machine=Knitting_Machine(),
         accepted_error_types=[],  # Optional: Knitting Machine Errors to ignore
         knitout_version=2
@@ -97,43 +89,12 @@ Example 4: Error Handling
 .. code-block:: python
 
     from knitout_interpreter.run_knitout import run_knitout
-    from virtual_knitting_machine.machine_errors.KnittingMachineError import KnittingMachineError
+    from knitout_interpreter.knitout_errors.Knitout_Error import Knitout_Error
 
     try:
         instructions, machine, graph = run_knitout("pattern_with_errors.k")
         print("Pattern executed successfully!")
-    except KnittingMachineError as e:
+    except Knitout_Error as e:
         print(f"Knitting error occurred: {e}")
     except FileNotFoundError:
         print("Knitout file not found!")
-    except ValueError as e:
-        print(f"Invalid knitout syntax: {e}")
-
-Example 5: Custom Machine Configuration
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-
-.. code-block:: python
-
-    from knitout_interpreter.knitout_execution import Knitout_Executer
-    from knitout_interpreter.knitout_language.Knitout_Parser import parse_knitout
-    from virtual_knitting_machine.Knitting_Machine import Knitting_Machine
-
-    # Parse instructions
-    instructions = parse_knitout("pattern.k", pattern_is_file=True)
-
-    # Create custom machine
-    machine = Knitting_Machine()
-
-    # Configure machine settings if needed
-    # machine.set_custom_settings(...)
-
-    # Execute with custom error handling
-    executer = Knitout_Executer(
-        instructions=instructions,
-        knitting_machine=machine,
-        accepted_error_types=["LoopTransferError"],  # Ignore specific errors
-        knitout_version=2
-    )
-
-    print(f"Execution completed in {executer.execution_time} passes")
-    print(f"Final knit graph has {executer.resulting_knit_graph.node_count} nodes")
