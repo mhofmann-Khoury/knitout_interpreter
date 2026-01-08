@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import os
 import sys
 import warnings
 from collections.abc import Callable, Iterable
@@ -58,7 +59,6 @@ class Knitout_Debugger:
         self._step_conditions: dict[str, Callable[[Knitout_Debugger, Knitout_Comment_Line | Knitout_Instruction], bool]] = {}
         self._carriage_pass_conditions: dict[str, Callable[[Knitout_Debugger, Knitout_Comment_Line | Knitout_Instruction], bool]] = {}
         self._debug_mode: Debug_Mode = Debug_Mode.Continue
-        self._is_active: bool = False
         self._take_snapshots: bool = True
         self._condition_error: Exception | None = None
         self._stop_on_condition_error: bool = True
@@ -374,7 +374,7 @@ class Knitout_Debugger:
             executed_program: list[Knitout_Line] = self.executed_instructions  # noqa: F841
             if self.taking_snapshots:
                 self.machine_snapshots[knitout_line] = Knitting_Machine_Snapshot(knitting_machine)
-            if sys.gettrace() is not None and sys.stdin.isatty():  # Check if IDE debugger is attached
+            if self._is_interactive_debugger_attached():
                 print(f"\n{'=' * 70}")
                 if self.take_step:
                     print(f"Stepped to line {knitout_line}: {knitout_instruction}")
@@ -412,7 +412,7 @@ class Knitout_Debugger:
             executed_program: list[Knitout_Line] = self.executed_instructions  # noqa: F841
             if self.taking_snapshots:
                 self.machine_snapshots[knitout_line] = Knitting_Machine_Snapshot(knitting_machine)
-            if sys.gettrace() is not None and sys.stdin.isatty():  # Check if IDE debugger is attached
+            if self._is_interactive_debugger_attached():
                 print(f"\n{'=' * 70}")
                 print(f"Knitout Paused on {exception.__class__.__name__} raised at Line {knitout_line}: {knitout_instruction}")
                 print(f"\t{exception}")
@@ -434,3 +434,49 @@ class Knitout_Debugger:
         print("knitout_debugger.enable_breakpoint(N) # Enable a breakpoint breakpoint at line N.")
         print("knitout_debugger.enable_step_condition(name, condition, step or carriage pass ste)   # Enable the debugger to step on a given named condition")
         print("knitout_debugger.disabled_step_condition(name)   # Disable any stepping conditions by the given named")
+
+    @staticmethod
+    def _is_interactive_debugger_attached() -> bool:
+        """Check if an interactive debugger session is active.
+
+        Uses multiple heuristics to detect interactive debugging across
+        different IDEs and platforms (PyCharm, VSCode, etc.).
+
+        Returns:
+            bool: True if an interactive debugger session is active. False otherwise.
+        """
+        # No trace function = no debugger
+        if sys.gettrace() is None:
+            return False
+
+        # Check: CI/automated environment detection (if these exist, this session is not interactive and shouldn't be debugged)
+        ci_indicators = {
+            "CI",
+            "CONTINUOUS_INTEGRATION",  # Generic CI
+            "GITHUB_ACTIONS",  # GitHub Actions
+            "TRAVIS",
+            "CIRCLECI",  # Other CI systems
+            "JENKINS_HOME",
+        }
+        if any(var in os.environ for var in ci_indicators):
+            return False
+
+        # Check: Known debugger modules
+        trace = sys.gettrace()
+        if trace is not None:
+            trace_module = getattr(trace, "__module__", "")
+            interactive_debuggers = ["pydevd", "pdb", "bdb", "debugpy", "_pydevd_bundle"]
+            if any(debugger in trace_module for debugger in interactive_debuggers):
+                return True
+
+        # Check: IDE environment variables
+        ide_indicators = {
+            "PYCHARM_HOSTED",  # PyCharm
+            "PYDEVD_LOAD_VALUES_ASYNC",  # PyCharm debugger
+            "VSCODE_PID",  # VSCode
+        }
+        if any(var in os.environ for var in ide_indicators):
+            return True
+
+        # Check: TTY as fallback. An interactive console found (only reliable on Unix)
+        return sys.stdin.isatty()

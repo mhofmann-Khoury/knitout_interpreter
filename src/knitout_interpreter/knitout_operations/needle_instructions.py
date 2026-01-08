@@ -34,18 +34,18 @@ class Needle_Instruction(Knitout_Instruction):
         comment: None | str = None,
     ):
         super().__init__(instruction_type, comment, interrupts_carriage_pass=False)
-        self._carrier_set: None | Yarn_Carrier_Set = carrier_set
-        self._needle_2: None | Needle = needle_2
+        self._carrier_set: Yarn_Carrier_Set | None = carrier_set
+        self._needle_2: Needle | None = needle_2
         if direction is not None and isinstance(direction, str):
             direction = Carriage_Pass_Direction.get_direction(direction)
-        self._direction: None | Carriage_Pass_Direction = direction
+        self._direction: Carriage_Pass_Direction | None = direction
         self._needle: Needle = needle
         self.made_loops: list[Machine_Knit_Loop] = []
         self.moved_loops: list[Machine_Knit_Loop] = []
         self.dropped_loops: list[Machine_Knit_Loop] = []
 
     @property
-    def carrier_set(self) -> None | Yarn_Carrier_Set:
+    def carrier_set(self) -> Yarn_Carrier_Set | None:
         """
         Returns:
             Yarn_Carrier_Set | None: The carrier set used by this instruction or None if it does not involve carriers.

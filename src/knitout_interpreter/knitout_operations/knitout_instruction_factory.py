@@ -56,7 +56,7 @@ def build_directed_needle_instruction(
     direction: Carriage_Pass_Direction,
     carrier_set: Yarn_Carrier_Set,
     comment: str | None = None,
-) -> Knit_Instruction | Tuck_Instruction | Miss_Instruction:
+) -> Knit_Instruction | Tuck_Instruction | Miss_Instruction | Kick_Instruction:
     """Builds knitout instructions that operate on one needle in a directed carriage pass (e.g., miss, knit, tuck).
 
     Args:
@@ -64,16 +64,19 @@ def build_directed_needle_instruction(
         first_needle (Needle): The needle for the operation.
         direction (Carriage_Pass_Direction): The carriage pass direction.
         carrier_set (Yarn_Carrier_Set): The carrier set to use for the operation.
-        comment (str | None, optional): Optional comment to include with the instruction for documentation or debugging purposes.
+        comment (str, optional): Optional comment to include with the instruction for documentation or debugging purposes. Defaults to no comment.
 
     Returns:
-        Knit_Instruction | Tuck_Instruction | Miss_Instruction: The constructed knitout instruction object corresponding to the specified type.
+        Knit_Instruction | Tuck_Instruction | Miss_Instruction | Kick_Instruction: The constructed knitout instruction object corresponding to the specified type.
     """
     if instruction_type is Knitout_Instruction_Type.Knit:
         return Knit_Instruction(first_needle, direction, carrier_set, comment=comment)
     elif instruction_type is Knitout_Instruction_Type.Tuck:
         return Tuck_Instruction(first_needle, direction, carrier_set, comment=comment)
-    return Miss_Instruction(first_needle, direction, carrier_set, comment) if instruction_type is Knitout_Instruction_Type.Miss else Kick_Instruction(first_needle, direction, carrier_set, comment)
+    elif instruction_type is Knitout_Instruction_Type.Miss:
+        return Miss_Instruction(first_needle, direction, carrier_set, comment)
+    else:
+        return Kick_Instruction(first_needle, direction, carrier_set, comment)
 
 
 def build_needle_instruction(

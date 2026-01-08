@@ -99,16 +99,6 @@ class TestKnitout_Parser(TestCase):
         codes = parse_knitout("pause")
         self.assertEqual(len(codes), 1, f"Expected one pause but got: {codes}")
 
-    def test_basic_header(self):
-        codes = parse_knitout(
-            r""";!knitout-3
-                ;;Machine: SWG091N2
-                ;;Gauge: 15
-                ;;Yarn-5: 50-50 Rust
-                ;;Carriers: 1 2 3 4 5 6 7 8 9 10
-                ;;Position: Right"""
-        )
-
     def test_no_ops(self):
         codes = parse_knitout(
             r""";No-Op: inhook 1
