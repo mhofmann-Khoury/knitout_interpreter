@@ -156,7 +156,7 @@ class Carriage_Pass:
             tuple[int, int]:  The leftmost position and rightmost position in the carriage pass.
         """
         sorted_needles = self.rightward_sorted_needles()
-        return int(sorted_needles[0].racked_position_on_front(rack=self.rack)), int(sorted_needles[-1].racked_position_on_front(rack=self.rack))
+        return sorted_needles[0].slot_by_racking(self.rack), sorted_needles[-1].slot_by_racking(self.rack)
 
     def rack_instruction(self, comment: str = "Racking for next carriage pass.") -> Rack_Instruction:
         """
@@ -375,10 +375,12 @@ class Carriage_Pass:
         elif (
             self.all_needle_rack  # All needle rack
             and instruction.needle.is_front != self.last_needle.is_front  # last and new instruction on opposite beds
-            and instruction.needle.racked_position_on_front(self.rack) == self.last_needle.racked_position_on_front(self.rack)
+            and instruction.needle.slot_by_racking(self.rack) == self.last_needle.slot_by_racking(self.rack)
         ):  # Last and new instruction at all-needle same position
             return True
-        elif not self._direction.needles_are_in_pass_direction(self.last_needle, instruction.needle, self.rack, self.all_needle_rack):
+        elif (self._direction is Carriage_Pass_Direction.Leftward and self.last_needle.slot_by_racking(self.rack) <= instruction.needle.slot_by_racking(self.rack)) or (
+            self._direction is Carriage_Pass_Direction.Rightward and self.last_needle.slot_by_racking(self.rack) >= instruction.needle.slot_by_racking(self.rack)
+        ):
             return False
         return True
 

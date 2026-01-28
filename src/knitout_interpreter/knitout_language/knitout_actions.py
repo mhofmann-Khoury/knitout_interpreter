@@ -12,17 +12,9 @@ from virtual_knitting_machine.machine_components.yarn_management.Yarn_Carrier im
 from virtual_knitting_machine.machine_components.yarn_management.Yarn_Carrier_Set import Yarn_Carrier_Set
 
 from knitout_interpreter.knitout_operations.carrier_instructions import In_Instruction, Inhook_Instruction, Out_Instruction, Outhook_Instruction, Releasehook_Instruction
-from knitout_interpreter.knitout_operations.Header_Line import (
-    Carriers_Header_Line,
-    Gauge_Header_Line,
-    Knitout_Header_Line,
-    Knitout_Version_Line,
-    Machine_Header_Line,
-    Position_Header_Line,
-    Yarn_Header_Line,
-)
+from knitout_interpreter.knitout_operations.Header_Line import Carriers_Header_Line, Gauge_Header_Line, Knitout_Header_Line, Knitout_Version_Line, Machine_Header_Line, Position_Header_Line
 from knitout_interpreter.knitout_operations.kick_instruction import Kick_Instruction
-from knitout_interpreter.knitout_operations.Knitout_Line import Knitout_Comment_Line, Knitout_Line
+from knitout_interpreter.knitout_operations.Knitout_Line import Knitout_Comment_Line, Knitout_Line, Yarn_Header_Comment
 from knitout_interpreter.knitout_operations.needle_instructions import Drop_Instruction, Knit_Instruction, Miss_Instruction, Split_Instruction, Tuck_Instruction, Xfer_Instruction
 from knitout_interpreter.knitout_operations.Pause_Instruction import Pause_Instruction
 from knitout_interpreter.knitout_operations.Rack_Instruction import Rack_Instruction
@@ -143,7 +135,7 @@ def gauge_op(_: LRStackNode, __: list, g: int) -> Gauge_Header_Line:
 
 
 @typed_action
-def yarn_op(_: LRStackNode, __: list, cid: int, plies: int, weight: int, color: str) -> Yarn_Header_Line:
+def yarn_op(_: LRStackNode, __: list, cid: int, plies: int, weight: int, color: str) -> Yarn_Header_Comment:
     """Creates a yarn header line.
 
     Args:
@@ -157,7 +149,7 @@ def yarn_op(_: LRStackNode, __: list, cid: int, plies: int, weight: int, color: 
     Returns:
         Yarn declaration.
     """
-    return Yarn_Header_Line(cid, plies, weight, color)
+    return Yarn_Header_Comment(cid, plies, weight, color)
 
 
 @typed_action

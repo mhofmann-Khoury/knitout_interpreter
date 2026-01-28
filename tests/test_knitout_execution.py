@@ -30,13 +30,13 @@ class TestKnitout_Executer(TestCase):
         self.assertEqual(snapshot.last_loop_id, 1)
         self.assertFalse(snapshot.carrier_system.inserting_hook_available)
         self.assertEqual(int(snapshot.carrier_system.hooked_carrier), 1)
-        self.assertEqual(len(snapshot.front_active_needles), 2)
-        self.assertTrue(Needle(True, 3) in snapshot)
-        self.assertTrue(Needle(True, 4) in snapshot)
+        self.assertEqual(len(snapshot.front_loops()), 2)
+        self.assertIn(Needle(True, 3), snapshot)
+        self.assertIn(Needle(True, 4), snapshot)
         snapshot = executer.snapshots[28]
         self.assertTrue(snapshot.carrier_system.inserting_hook_available)
         self.assertTrue(snapshot.carrier_system.is_active([1]))
-        self.assertEqual(len(snapshot.front_active_needles), 4)
+        self.assertEqual(len(snapshot.front_loops()), 4)
         snapshot = executer.snapshots[29]
         self.assertTrue(snapshot.carrier_system.inserting_hook_available)
         self.assertFalse(snapshot.carrier_system.is_active([1]))
@@ -45,7 +45,7 @@ class TestKnitout_Executer(TestCase):
         execution, machine, knit_graph = run_knitout(load_test_resource("single_knit.k"), debugger=self.debugger)
         self.assertTrue(knit_graph.has_loop)
         self.assertEqual(len(machine.front_loops()), 1)
-        self.assertEqual(len(execution), 11)
+        self.assertEqual(len(execution), 9)
 
     def test_merge_cp(self):
         executer = Knitout_Executer(load_test_resource("merge_cp.k"), debugger=self.debugger)

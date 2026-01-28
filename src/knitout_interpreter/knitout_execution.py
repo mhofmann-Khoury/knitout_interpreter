@@ -16,8 +16,9 @@ from knitout_interpreter._warning_stack_level_helper import get_user_warning_sta
 from knitout_interpreter.debugger.debug_decorator import debug_knitout_instruction
 from knitout_interpreter.knitout_errors.Knitout_Error import Incomplete_Knitout_Line_Error, Knitout_Machine_StateError, Knitout_ParseError
 from knitout_interpreter.knitout_execution_structures.Carriage_Pass import Carriage_Pass
+from knitout_interpreter.knitout_execution_structures.knitout_header import Knitting_Machine_Header
 from knitout_interpreter.knitout_language.Knitout_Parser import parse_knitout
-from knitout_interpreter.knitout_operations.Header_Line import Knitout_Version_Line, Knitting_Machine_Header
+from knitout_interpreter.knitout_operations.Header_Line import Knitout_Version_Line
 from knitout_interpreter.knitout_operations.knitout_instruction import Knitout_Instruction
 from knitout_interpreter.knitout_operations.Knitout_Line import Knitout_Comment_Line, Knitout_Line, Knitout_No_Op
 from knitout_interpreter.knitout_operations.needle_instructions import Needle_Instruction
@@ -88,14 +89,14 @@ class Knitout_Executer:
             self.attach_debugger(debugger)
         self._knitout_version = knitout_version
         self.knitting_machine: Knitting_Machine = knitting_machine
-        self.executed_header: Knitting_Machine_Header = Knitting_Machine_Header(self.knitting_machine.machine_specification)
+        self.executed_header: Knitting_Machine_Header = Knitting_Machine_Header(self.knitting_machine, knitout_version)
         self.executed_header.extract_header(knitout_program)
         self.instructions: list[Knitout_Instruction | Knitout_Comment_Line] = [i for i in knitout_program if isinstance(i, (Knitout_Instruction, Knitout_Comment_Line))]
         self.process: list[Knitout_Instruction | Carriage_Pass] = []
         self._carriage_passes: list[Carriage_Pass] = []
         self._left_most_position: int | None = None
         self._right_most_position: int | None = None
-        self.executed_instructions: list[Knitout_Line] = cast(list[Knitout_Line], self.executed_header.get_header_lines(self.knitout_version))
+        self.executed_instructions: list[Knitout_Line] = cast(list[Knitout_Line], self.executed_header.header_lines)
         self._current_carriage_pass: None | Carriage_Pass = None  # The carriage pass currently being formed in execution of the knitout program.
         self._starting_new_cp: bool = False  # If True, the next instruction initiates a new carriage pass.
         self._snapshot_targets: set[int] = set(snapshot_targets) if snapshot_targets is not None else set()  # User specified line numbers to take a snapshot of the knitting machine at

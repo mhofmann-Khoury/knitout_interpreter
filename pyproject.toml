@@ -3,7 +3,7 @@
 # =============================================================================
 # This section tells Poetry how to build your package
 [build-system]
-requires = ["poetry-core>=2.0.0,<3.0.0"]  # Poetry build backend version
+requires = ["poetry-core>=2.3.1,<3.0.0"]  # Poetry build backend version
 build-backend = "poetry.core.masonry.api"  # Use Poetry's build system
 
 # =============================================================================
@@ -12,7 +12,7 @@ build-backend = "poetry.core.masonry.api"  # Use Poetry's build system
 # All the information about your project that will appear on PyPI
 [tool.poetry]
 name = "knitout-interpreter"  # Package name on PyPI (use hyphens)
-version = "0.1.2"               # Current version (update this for each release)
+version = "0.1.3"               # Current version (update this for each release)
 description = "Support for interpreting knitout files used for controlling automatic V-Bed Knitting machines."
 authors = ["Megan Hofmann <m.hofmann@northeastern.edu>"]       # Primary authors
 maintainers = ["Megan Hofmann <m.hofmann@northeastern.edu>"]   # Current maintainers
@@ -87,9 +87,9 @@ exclude = [
 # These are packages your project needs to run in production
 [tool.poetry.dependencies]
 python = ">=3.11,<3.14"                # Minimum Python version (allows 3.11.x, 3.12.x, etc.)
-parglare = "~0.19.0"           # Parser generator library
+parglare = ">=0.19.0"           # Parser generator library
 knit-graphs = ">=0.0.11"         # Knitting graph library
-virtual-knitting-machine = ">=0.0.22"  # Virtual knitting machine
+virtual-knitting-machine = ">=0.0.25"  # Virtual knitting machine
 importlib_resources = ">=6.5" # For loading parglar grammer file
 
 # =============================================================================

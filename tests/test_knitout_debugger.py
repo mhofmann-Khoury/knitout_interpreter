@@ -45,7 +45,7 @@ class TestKnitout_Debugger(TestCase):
         debugger.step_carriage_pass()
         _executer = Knitout_Executer(load_test_resource("single_knit.k"), debugger=debugger)
         self.assertEqual(len(debugger.machine_snapshots), 1)
-        self.assertIn(8, debugger.machine_snapshots)
+        self.assertIn(7, debugger.machine_snapshots)
 
         debugger = Knitout_Debugger()
         debugger.step_carriage_pass()
@@ -64,7 +64,7 @@ class TestKnitout_Debugger(TestCase):
         self.assertIn(9, debugger.machine_snapshots)
         self.assertIn(29, debugger.machine_snapshots)
         snapshot_8 = debugger.machine_snapshots[8]
-        self.assertEqual(len(snapshot_8.all_active_needles), 0)
+        self.assertEqual(len(snapshot_8.all_needles()), 0)
         self.assertFalse(snapshot_8.carrier_system.inserting_hook_available)
         snapshot_9 = debugger.machine_snapshots[9]
         self.assertTrue(Needle(is_front=True, position=4) in snapshot_9)
