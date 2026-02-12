@@ -195,17 +195,15 @@ class Knitout_Comment_Line(Knitout_Line):
 
 
 class Yarn_Header_Comment(Knitout_Comment_Line):
-    def __init__(self, carrier_id: int, plies: int, yarn_weight: float, color: str, comment: str | None = None):
+    def __init__(self, carrier_id: int, color: str, comment: str | None = None):
         """
 
         Args:
             carrier_id (int): The id of the yarn-carrier being assigned a yarn value.
-            plies (int): The number of plies being assigned a yarn value.
-            yarn_weight (float): The weight of the yarn being assigned a yarn value.
             color (str): The color of the yarn being assigned a yarn value.
             comment (str, optional): Additional details in the comments. Defaults to no comment.
         """
-        self._yarn_properties: Yarn_Properties = Yarn_Properties(f"carrier+{carrier_id}_yarn", plies, yarn_weight, color)
+        self._yarn_properties: Yarn_Properties = Yarn_Properties(f"carrier+{carrier_id}_yarn", color)
         self._carrier_id: int = carrier_id
         self._extra_comment: str = comment if comment is not None else ""
         super().__init__(self.yarn_comment)
@@ -216,7 +214,7 @@ class Yarn_Header_Comment(Knitout_Comment_Line):
         Returns:
             str: The string representation of the yarn details to be included in the comment.
         """
-        return f"Yarn-{self._carrier_id}: {self._yarn_properties.plies}-{self._yarn_properties.weight} {self._yarn_properties.color}---{self._extra_comment}"
+        return f"Yarn-{self._carrier_id}: {self._yarn_properties.color}---{self._extra_comment}"
 
 
 class Knitout_No_Op(Knitout_Comment_Line):

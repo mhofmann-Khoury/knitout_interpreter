@@ -1,7 +1,7 @@
 """Factory function for building knitout instructions based on instruction type."""
 
 from virtual_knitting_machine.machine_components.carriage_system.Carriage_Pass_Direction import Carriage_Pass_Direction
-from virtual_knitting_machine.machine_components.needles.Needle import Needle
+from virtual_knitting_machine.machine_components.needles.Needle import Needle_Specification
 from virtual_knitting_machine.machine_components.yarn_management.Yarn_Carrier import Yarn_Carrier
 from virtual_knitting_machine.machine_components.yarn_management.Yarn_Carrier_Set import Yarn_Carrier_Set
 
@@ -15,8 +15,8 @@ from knitout_interpreter.knitout_operations.Rack_Instruction import Rack_Instruc
 
 def build_two_needle_instruction(
     instruction_type: Knitout_Instruction_Type,
-    first_needle: Needle,
-    second_needle: Needle,
+    first_needle: Needle_Specification,
+    second_needle: Needle_Specification,
     direction: None | Carriage_Pass_Direction = None,
     carrier_set: Yarn_Carrier_Set | None = None,
     comment: str | None = None,
@@ -28,8 +28,8 @@ def build_two_needle_instruction(
 
     Args:
         instruction_type (Knitout_Instruction_Type): The type of knitout instruction to create. Must be a Xfer or Split
-        first_needle (Needle): The primary needle for the operation.
-        second_needle (Needle): The secondary needle loops are transferred to.
+        first_needle (Needle_Specification): The primary needle for the operation.
+        second_needle (Needle_Specification): The secondary needle loops are transferred to.
         direction (Carriage_Pass_Direction, optional): The carriage pass direction for directed split operations.
         carrier_set (Yarn_Carrier_Set, optional): The carrier set to use for split operations
         comment (str | None, optional): Optional comment to include with the instruction for documentation or debugging purposes.
@@ -52,7 +52,7 @@ def build_two_needle_instruction(
 
 def build_directed_needle_instruction(
     instruction_type: Knitout_Instruction_Type,
-    first_needle: Needle,
+    first_needle: Needle_Specification,
     direction: Carriage_Pass_Direction,
     carrier_set: Yarn_Carrier_Set,
     comment: str | None = None,
@@ -81,20 +81,20 @@ def build_directed_needle_instruction(
 
 def build_needle_instruction(
     instruction_type: Knitout_Instruction_Type,
-    first_needle: Needle,
+    first_needle: Needle_Specification,
     direction: Carriage_Pass_Direction | None = None,
     carrier_set: Yarn_Carrier_Set | None = None,
-    second_needle: Needle | None = None,
+    second_needle: Needle_Specification | None = None,
     comment: str | None = None,
 ) -> Needle_Instruction:
     """Builds a knitout instruction that operates on a needle.
 
     Args:
         instruction_type (Knitout_Instruction_Type): The type of knitout instruction to create.
-        first_needle (Needle): The primary needle for the operation.
+        first_needle (Needle_Specification): The primary needle for the operation.
         direction (Carriage_Pass_Direction, optional): The carriage pass direction for directional operations. Required for operations that involve yarn carrier movement.
         carrier_set (Yarn_Carrier_Set , optional): The carrier set to use for the operation. Required for operations that manipulate yarn.
-        second_needle (Needle, optional): The secondary needle for operations requiring two needles, such as  transfers and splits.
+        second_needle (Needle_Specification, optional): The secondary needle for operations requiring two needles, such as  transfers and splits.
         comment (str | None, optional): Optional comment to include with the instruction for documentation or debugging purposes.
 
     Returns:
@@ -141,10 +141,10 @@ def build_carrier_instruction(instruction_type: Knitout_Instruction_Type, carrie
 
 def build_instruction(
     instruction_type: Knitout_Instruction_Type,
-    first_needle: Needle | None = None,
+    first_needle: Needle_Specification | None = None,
     direction: None | Carriage_Pass_Direction = None,
     carrier_set: Yarn_Carrier_Set | Yarn_Carrier | None = None,
-    second_needle: Needle | None = None,
+    second_needle: Needle_Specification | None = None,
     racking: float | None = None,
     comment: str | None = None,
 ) -> Knitout_Instruction:
@@ -155,10 +155,10 @@ def build_instruction(
 
     Args:
         instruction_type (Knitout_Instruction_Type): The type of knitout instruction to create.
-        first_needle (Needle, optional): The primary needle for the operation. Required for needle-based instructions like knit, tuck, drop, etc.
+        first_needle (Needle_Specification, optional): The primary needle for the operation. Required for needle-based instructions like knit, tuck, drop, etc.
         direction (Carriage_Pass_Direction, optional): The carriage pass direction for directional operations. Required for operations that involve yarn carrier movement.
         carrier_set (Yarn_Carrier_Set | Yarn_Carrier, optional): The yarn carrier or carrier set to use for the operation. Required for operations that manipulate yarn.
-        second_needle (Needle, optional): The secondary needle for operations requiring two needles, such as  transfers and splits.
+        second_needle (Needle_Specification, optional): The secondary needle for operations requiring two needles, such as  transfers and splits.
         racking (float, optional): The racking value for rack instructions. Specifies the relative position between needle beds.
         comment (str | None, optional): Optional comment to include with the instruction for documentation or debugging purposes.
 

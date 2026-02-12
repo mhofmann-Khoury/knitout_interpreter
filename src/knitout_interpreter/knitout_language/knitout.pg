@@ -15,7 +15,7 @@ header_op: machine_op
 
 machine_op: "Machine" ":" m=identifier;
 gauge_op: "Gauge" ":" g=int_exp;
-yarn_op: "Yarn" "-" cid=int_exp ":" plies=int_exp "-" weight=int_exp color=identifier;
+yarn_op: "Yarn" "-" cid=int_exp ":" int_exp "-" int_exp color=identifier;
 carriers_op: "Carriers" ":" CS=carrier_set;
 position_op: "Position" ":" p=identifier;
 width_op: "Width" ":" w=int_exp;

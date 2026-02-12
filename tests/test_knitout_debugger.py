@@ -3,7 +3,7 @@
 from unittest import TestCase
 
 from resources.load_test_resources import load_test_resource
-from virtual_knitting_machine.machine_components.needles.Needle import Needle
+from virtual_knitting_machine.machine_components.needles.Needle import Needle_Position
 
 from knitout_interpreter.debugger.common_debugging_conditions import is_instruction_type, loop_count_exceeds
 from knitout_interpreter.debugger.knitout_debugger import Knitout_Debugger
@@ -67,11 +67,11 @@ class TestKnitout_Debugger(TestCase):
         self.assertEqual(len(snapshot_8.all_needles()), 0)
         self.assertFalse(snapshot_8.carrier_system.inserting_hook_available)
         snapshot_9 = debugger.machine_snapshots[9]
-        self.assertTrue(Needle(is_front=True, position=4) in snapshot_9)
+        self.assertTrue(Needle_Position(is_front=True, position=4, is_slider=False) in snapshot_9)
         self.assertFalse(snapshot_9.carrier_system.inserting_hook_available)
         snapshot_29 = debugger.machine_snapshots[29]
         for n in range(1, 5):
-            self.assertTrue(Needle(is_front=True, position=n) in snapshot_29)
+            self.assertTrue(Needle_Position(is_front=True, position=n, is_slider=False) in snapshot_29)
         self.assertTrue(snapshot_29.carrier_system.inserting_hook_available)
 
     def test_bp_mid_cp(self):
@@ -83,7 +83,7 @@ class TestKnitout_Debugger(TestCase):
         self.assertIn(10, debugger.machine_snapshots)
         snapshot = debugger.machine_snapshots[10]
         for n in range(3, 5):
-            self.assertTrue(Needle(is_front=True, position=n) in snapshot)
+            self.assertTrue(Needle_Position(is_front=True, position=n, is_slider=False) in snapshot)
 
     def test_bp_from_knitout(self):
         debugger = Knitout_Debugger()

@@ -1,5 +1,7 @@
 """Parser code for accessing Parglare language support"""
 
+from __future__ import annotations
+
 import re
 
 import parglare.exceptions
@@ -36,7 +38,6 @@ class Knitout_Parser:
             raise e from None
         self._grammar: Grammar = Grammar.from_file(grammar_file, debug=debug_grammar, ignore_case=True)
         self._parser: Parser = Parser(self._grammar, debug=debug_parser, debug_layout=debug_parser_layout, actions=action.all)
-        self._parser.knitout_parser = self  # make this structure available from actions
 
     def parse_knitout_to_instructions(self, pattern: str, pattern_is_file: bool = False, set_line_numbers: bool = True) -> list[Knitout_Line]:
         """Parse knitout pattern into a list of instruction objects.

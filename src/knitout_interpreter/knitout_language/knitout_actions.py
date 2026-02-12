@@ -6,8 +6,7 @@ from typing import Any, TypeVar, cast
 from parglare import get_collector
 from parglare.parser import LRStackNode
 from virtual_knitting_machine.machine_components.carriage_system.Carriage_Pass_Direction import Carriage_Pass_Direction
-from virtual_knitting_machine.machine_components.needles.Needle import Needle
-from virtual_knitting_machine.machine_components.needles.Slider_Needle import Slider_Needle
+from virtual_knitting_machine.machine_components.needles.Needle import Needle_Position, Needle_Specification
 from virtual_knitting_machine.machine_components.yarn_management.Yarn_Carrier import Yarn_Carrier
 from virtual_knitting_machine.machine_components.yarn_management.Yarn_Carrier_Set import Yarn_Carrier_Set
 
@@ -135,21 +134,19 @@ def gauge_op(_: LRStackNode, __: list, g: int) -> Gauge_Header_Line:
 
 
 @typed_action
-def yarn_op(_: LRStackNode, __: list, cid: int, plies: int, weight: int, color: str) -> Yarn_Header_Comment:
+def yarn_op(_: LRStackNode, __: list, cid: int, color: str) -> Yarn_Header_Comment:
     """Creates a yarn header line.
 
     Args:
         _ (LRStackNode): The stack node element being processed by this action.
         __ (list): A list of values found for this action.
         cid: The carrier to assign the yarn too.
-        plies: Plies in the yarn.
-        weight: Weight of the yarn.
         color: The yarn color.
 
     Returns:
         Yarn declaration.
     """
-    return Yarn_Header_Comment(cid, plies, weight, color)
+    return Yarn_Header_Comment(cid, color)
 
 
 @typed_action
@@ -273,7 +270,7 @@ def rack_op(_: LRStackNode, __: list, R: float) -> Rack_Instruction:
 
 
 @typed_action
-def knit_op(_: LRStackNode, __: list, D: str, N: Needle, CS: Yarn_Carrier_Set) -> Knit_Instruction:
+def knit_op(_: LRStackNode, __: list, D: str, N: Needle_Specification, CS: Yarn_Carrier_Set) -> Knit_Instruction:
     """Creates a knit instruction.
 
     Args:
@@ -290,7 +287,7 @@ def knit_op(_: LRStackNode, __: list, D: str, N: Needle, CS: Yarn_Carrier_Set) -
 
 
 @typed_action
-def tuck_op(_: LRStackNode, __: list, D: str, N: Needle, CS: Yarn_Carrier_Set) -> Tuck_Instruction:
+def tuck_op(_: LRStackNode, __: list, D: str, N: Needle_Specification, CS: Yarn_Carrier_Set) -> Tuck_Instruction:
     """Creates a tuck instruction.
 
     Args:
@@ -307,7 +304,7 @@ def tuck_op(_: LRStackNode, __: list, D: str, N: Needle, CS: Yarn_Carrier_Set) -
 
 
 @typed_action
-def miss_op(_: LRStackNode, __: list, D: str, N: Needle, CS: Yarn_Carrier_Set) -> Miss_Instruction:
+def miss_op(_: LRStackNode, __: list, D: str, N: Needle_Specification, CS: Yarn_Carrier_Set) -> Miss_Instruction:
     """Creates a miss instruction.
 
     Args:
@@ -324,7 +321,7 @@ def miss_op(_: LRStackNode, __: list, D: str, N: Needle, CS: Yarn_Carrier_Set) -
 
 
 @typed_action
-def kick_op(_: LRStackNode, __: list, D: str, N: Needle, CS: Yarn_Carrier_Set) -> Kick_Instruction:
+def kick_op(_: LRStackNode, __: list, D: str, N: Needle_Specification, CS: Yarn_Carrier_Set) -> Kick_Instruction:
     """Creates a kick instruction.
 
     Args:
@@ -341,7 +338,7 @@ def kick_op(_: LRStackNode, __: list, D: str, N: Needle, CS: Yarn_Carrier_Set) -
 
 
 @typed_action
-def split_op(_: LRStackNode, __: list, D: str, N: Needle, N2: Needle, CS: Yarn_Carrier_Set) -> Split_Instruction:
+def split_op(_: LRStackNode, __: list, D: str, N: Needle_Specification, N2: Needle_Specification, CS: Yarn_Carrier_Set) -> Split_Instruction:
     """Creates a split instruction.
 
     Args:
@@ -359,7 +356,7 @@ def split_op(_: LRStackNode, __: list, D: str, N: Needle, N2: Needle, CS: Yarn_C
 
 
 @typed_action
-def drop_op(_: LRStackNode, __: list, N: Needle) -> Drop_Instruction:
+def drop_op(_: LRStackNode, __: list, N: Needle_Specification) -> Drop_Instruction:
     """Creates a drop instruction.
 
     Args:
@@ -374,7 +371,7 @@ def drop_op(_: LRStackNode, __: list, N: Needle) -> Drop_Instruction:
 
 
 @typed_action
-def xfer_op(_: LRStackNode, __: list, N: Needle, N2: Needle) -> Xfer_Instruction:
+def xfer_op(_: LRStackNode, __: list, N: Needle_Specification, N2: Needle_Specification) -> Xfer_Instruction:
     """Creates a transfer instruction.
 
     Args:
@@ -450,7 +447,7 @@ def int_exp(_: Any, node: str) -> int:
 
 
 @typed_action
-def needle_id(_: Any, node: str) -> Needle:
+def needle_id(_: Any, node: str) -> Needle_Specification:
     """Creates a needle from a string representation.
 
     Args:
@@ -466,10 +463,7 @@ def needle_id(_: Any, node: str) -> Needle:
     if slider:
         num_str = node[2:]  # cut slider off
     pos = int(num_str)
-    if slider:
-        return Slider_Needle(is_front, pos)
-    else:
-        return Needle(is_front, pos)
+    return Needle_Position(is_front, pos, slider)
 
 
 @typed_action

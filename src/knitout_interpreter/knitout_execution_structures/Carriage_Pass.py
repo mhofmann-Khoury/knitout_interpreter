@@ -9,7 +9,7 @@ from typing import overload
 
 from virtual_knitting_machine.Knitting_Machine import Knitting_Machine
 from virtual_knitting_machine.machine_components.carriage_system.Carriage_Pass_Direction import Carriage_Pass_Direction
-from virtual_knitting_machine.machine_components.needles.Needle import Needle
+from virtual_knitting_machine.machine_components.needles.Needle import Needle_Position, Needle_Specification
 from virtual_knitting_machine.machine_components.yarn_management.Yarn_Carrier_Set import Yarn_Carrier_Set
 
 from knitout_interpreter._warning_stack_level_helper import get_user_warning_stack_level_from_knitout_interpreter_package
@@ -48,8 +48,10 @@ class Carriage_Pass:
             self._carrier_set: Yarn_Carrier_Set | None = first_instruction.carrier_set
             self._direction: Carriage_Pass_Direction | None = first_instruction.direction
         self._instructions: list[Needle_Instruction] = [first_instruction]
-        self._needles_to_instruction: dict[Needle, Needle_Instruction] = {first_instruction.needle: first_instruction}
-        self._instruction_types_to_needles: dict[Knitout_Instruction_Type, dict[Needle, Needle_Instruction]] = {first_instruction.instruction_type: {first_instruction.needle: first_instruction}}
+        self._needles_to_instruction: dict[Needle_Specification, Needle_Instruction] = {first_instruction.needle: first_instruction}
+        self._instruction_types_to_needles: dict[Knitout_Instruction_Type, dict[Needle_Specification, Needle_Instruction]] = {
+            first_instruction.instruction_type: {first_instruction.needle: first_instruction}
+        }
 
     @property
     def carrier_set(self) -> Yarn_Carrier_Set | None:
@@ -74,35 +76,34 @@ class Carriage_Pass:
         """
         return set(self._instructions)
 
-    def rightward_sorted_needles(self) -> list[Needle]:
+    def rightward_sorted_needles(self) -> list[Needle_Specification]:
         """
         Returns:
-           list[Needle]: List of needles in the carriage pass sorted from left to right.
+           list[Needle_Specification]: List of needles in the carriage pass sorted from left to right.
         """
         return Carriage_Pass_Direction.Rightward.sort_needles(self._needles_to_instruction.keys(), self.rack)
 
-    def leftward_sorted_needles(self) -> list[Needle]:
+    def leftward_sorted_needles(self) -> list[Needle_Specification]:
         """
         Returns:
-            list[Needle]: List of needles in the carriage pass sorted from right to left.
+            list[Needle_Specification]: List of needles in the carriage pass sorted from right to left.
         """
         return Carriage_Pass_Direction.Leftward.sort_needles(self._needles_to_instruction.keys(), self.rack)
 
-    def sorted_needles(self) -> list[Needle]:
+    def sorted_needles(self) -> list[Needle_Specification]:
         """
         Returns:
-            list[Needle]:
-                List of needles in carriage pass sorted by direction of carriage pass or from left to right if no direction is given.
+            list[Needle_Specification]: List of needles in carriage pass sorted by direction of carriage pass or from left to right if no direction is given.
         """
         if self.direction is None:
             return self.rightward_sorted_needles()
         else:
             return self.direction.sort_needles(self._needles_to_instruction.keys(), self.rack)
 
-    def instruction_by_needle(self, needle: Needle) -> Needle_Instruction:
+    def instruction_by_needle(self, needle: Needle_Specification) -> Needle_Instruction:
         """
         Args:
-            needle (Needle): The needle to find the instruction of.
+            needle (Needle_Specification): The needle to find the instruction of.
 
         Returns:
             Needle_Instruction: The instruction that operates on the given needle.
@@ -127,9 +128,9 @@ class Carriage_Pass:
         """
         if not self.instruction_on_slot(slot):
             raise IndexError(f"No instruction on needle slot {slot} in {self}")
-        front_needle = Needle(True, slot)
+        front_needle = Needle_Position(True, slot, is_slider=False)
         front_instruction = self.instruction_by_needle(front_needle) if front_needle in self._needles_to_instruction else None
-        back_needle = Needle(False, slot)
+        back_needle = Needle_Position(False, slot, is_slider=False)
         back_instruction = self.instruction_by_needle(back_needle) if back_needle in self._needles_to_instruction else None
         if front_instruction is not None and back_instruction is not None:
             return front_instruction, back_instruction
@@ -140,15 +141,15 @@ class Carriage_Pass:
         else:
             raise IndexError(f"No instruction on needle slot {slot} in {self}")
 
-    def instructions_by_needles(self, needles: Sequence[Needle]) -> list[Needle_Instruction]:
+    def instructions_by_needles(self, needles: Sequence[Needle_Specification]) -> list[Needle_Instruction]:
         """
         Args:
-            needles (Sequence[Needle]): Needles involved in the carriage pass.
+            needles (Sequence[Needle_Specification]): Needles involved in the carriage pass.
 
         Returns:
             list[Needle_Instruction]: The ordered list of instructions that start from the given needles.
         """
-        return [self._needles_to_instruction[n] for n in needles]
+        return [self.instruction_by_needle(n) for n in needles]
 
     def carriage_pass_range(self) -> tuple[int, int]:
         """
@@ -200,10 +201,10 @@ class Carriage_Pass:
         self._instructions = [self._needles_to_instruction[n] for n in sorted_needles]
 
     @property
-    def needles(self) -> list[Needle]:
+    def needles(self) -> list[Needle_Specification]:
         """
         Returns:
-            list[Needle]: Needles in order given by instruction set.
+            list[Needle_Specification]: Needles in order given by instruction set.
         """
         needles = [i.needle for i in self._instructions]
         return self.direction.sort_needles(needles, self.rack) if self.direction is not None else needles
@@ -235,19 +236,19 @@ class Carriage_Pass:
         return self._instructions[-1]
 
     @property
-    def last_needle(self) -> Needle:
+    def last_needle(self) -> Needle_Specification:
         """Get the needle at the end of the ordered instructions.
 
         Returns:
-            Needle: Needle at the end of the ordered instructions.
+            Needle_Specification: Needle at the end of the ordered instructions.
         """
         return self.needles[-1]
 
     @property
-    def first_needle(self) -> Needle:
+    def first_needle(self) -> Needle_Specification:
         """
         Returns:
-            Needle: The needle at the beginning of the ordered instructions.
+            Needle_Specification: The needle at the beginning of the ordered instructions.
         """
         return self.needles[0]
 
@@ -267,10 +268,10 @@ class Carriage_Pass:
         """
         return max(self.first_needle.position, self.last_needle.position)
 
-    def instruction_on_slot(self, slot: int | Needle) -> bool:
+    def instruction_on_slot(self, slot: int | Needle_Specification) -> bool:
         """
         Args:
-            slot (int | Needle): The slot index or a needle on that slot to check for.
+            slot (int | Needle_Specification): The slot index or a needle on that slot to check for.
 
         Returns:
             bool: True if the carriage pass has at least one instruction on the given slot, False otherwise.

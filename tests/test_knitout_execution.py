@@ -1,7 +1,7 @@
 from unittest import TestCase
 
 from resources.load_test_resources import load_test_resource
-from virtual_knitting_machine.machine_components.needles.Needle import Needle
+from virtual_knitting_machine.machine_components.needles.Needle import Needle_Position
 
 from knitout_interpreter.debugger.knitout_debugger import Knitout_Debugger
 from knitout_interpreter.knitout_execution import Knitout_Executer
@@ -31,8 +31,8 @@ class TestKnitout_Executer(TestCase):
         self.assertFalse(snapshot.carrier_system.inserting_hook_available)
         self.assertEqual(int(snapshot.carrier_system.hooked_carrier), 1)
         self.assertEqual(len(snapshot.front_loops()), 2)
-        self.assertIn(Needle(True, 3), snapshot)
-        self.assertIn(Needle(True, 4), snapshot)
+        self.assertIn(Needle_Position(True, 3, is_slider=False), snapshot)
+        self.assertIn(Needle_Position(True, 4, is_slider=False), snapshot)
         snapshot = executer.snapshots[28]
         self.assertTrue(snapshot.carrier_system.inserting_hook_available)
         self.assertTrue(snapshot.carrier_system.is_active([1]))

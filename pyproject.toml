@@ -87,9 +87,8 @@ exclude = [
 # These are packages your project needs to run in production
 [tool.poetry.dependencies]
 python = ">=3.11,<3.14"                # Minimum Python version (allows 3.11.x, 3.12.x, etc.)
-parglare = ">=0.19.0"           # Parser generator library
-knit-graphs = ">=0.0.11"         # Knitting graph library
-virtual-knitting-machine = ">=0.0.25"  # Virtual knitting machine
+parglare = ">=0.20.0"           # Parser generator library
+virtual-knitting-machine = ">=0.0.28"  # Virtual knitting machine
 importlib_resources = ">=6.5" # For loading parglar grammer file
 
 # =============================================================================
