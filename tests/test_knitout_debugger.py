@@ -27,9 +27,9 @@ class TestKnitout_Debugger(TestCase):
         debugger.enable_step_condition("5 loops", lambda d, i: loop_count_exceeds(d, i, 5), is_carriage_pass_step=True)  # should not stop because not in step_continue mode
         _executer = Knitout_Executer(load_test_resource("rib.k"), debugger=debugger)
         self.assertEqual(len(debugger.machine_snapshots), 3)
-        self.assertIn(7, debugger.machine_snapshots)
+        self.assertIn(6, debugger.machine_snapshots)
+        self.assertIn(16, debugger.machine_snapshots)
         self.assertIn(17, debugger.machine_snapshots)
-        self.assertIn(18, debugger.machine_snapshots)
 
     def test_condition_cp_bp(self):
         debugger = Knitout_Debugger()
@@ -38,14 +38,14 @@ class TestKnitout_Debugger(TestCase):
         debugger.enable_step_condition("5 loops", lambda d, i: loop_count_exceeds(d, i, 4), is_carriage_pass_step=True)  # should stop on 14
         _executer = Knitout_Executer(load_test_resource("rib.k"), debugger=debugger)
         self.assertEqual(len(debugger.machine_snapshots), 1)
-        self.assertIn(14, debugger.machine_snapshots)
+        self.assertIn(13, debugger.machine_snapshots)
 
     def test_step_cp_debugger(self):
         debugger = Knitout_Debugger()
         debugger.step_carriage_pass()
         _executer = Knitout_Executer(load_test_resource("single_knit.k"), debugger=debugger)
         self.assertEqual(len(debugger.machine_snapshots), 1)
-        self.assertIn(7, debugger.machine_snapshots)
+        self.assertIn(6, debugger.machine_snapshots)
 
         debugger = Knitout_Debugger()
         debugger.step_carriage_pass()
@@ -55,21 +55,21 @@ class TestKnitout_Debugger(TestCase):
     def test_bp_set_debugger(self):
         debugger = Knitout_Debugger()
         debugger.continue_knitout()
+        debugger.enable_breakpoint(7)
         debugger.enable_breakpoint(8)
-        debugger.enable_breakpoint(9)
-        debugger.enable_breakpoint(29)
+        debugger.enable_breakpoint(28)
         _executer = Knitout_Executer(load_test_resource("stst_square.k"), debugger=debugger)
         self.assertEqual(len(debugger.machine_snapshots), 3)
+        self.assertIn(7, debugger.machine_snapshots)
         self.assertIn(8, debugger.machine_snapshots)
-        self.assertIn(9, debugger.machine_snapshots)
-        self.assertIn(29, debugger.machine_snapshots)
-        snapshot_8 = debugger.machine_snapshots[8]
+        self.assertIn(28, debugger.machine_snapshots)
+        snapshot_8 = debugger.machine_snapshots[7]
         self.assertEqual(len(snapshot_8.all_needles()), 0)
         self.assertFalse(snapshot_8.carrier_system.inserting_hook_available)
-        snapshot_9 = debugger.machine_snapshots[9]
+        snapshot_9 = debugger.machine_snapshots[8]
         self.assertTrue(Needle_Position(is_front=True, position=4, is_slider=False) in snapshot_9)
         self.assertFalse(snapshot_9.carrier_system.inserting_hook_available)
-        snapshot_29 = debugger.machine_snapshots[29]
+        snapshot_29 = debugger.machine_snapshots[28]
         for n in range(1, 5):
             self.assertTrue(Needle_Position(is_front=True, position=n, is_slider=False) in snapshot_29)
         self.assertTrue(snapshot_29.carrier_system.inserting_hook_available)
@@ -77,11 +77,11 @@ class TestKnitout_Debugger(TestCase):
     def test_bp_mid_cp(self):
         debugger = Knitout_Debugger()
         debugger.step_carriage_pass()
-        debugger.enable_breakpoint(10)
+        debugger.enable_breakpoint(9)
         _executer = Knitout_Executer(load_test_resource("stst_square.k"), debugger=debugger)
         self.assertEqual(len(debugger.machine_snapshots), 6)
-        self.assertIn(10, debugger.machine_snapshots)
-        snapshot = debugger.machine_snapshots[10]
+        self.assertIn(9, debugger.machine_snapshots)
+        snapshot = debugger.machine_snapshots[9]
         for n in range(3, 5):
             self.assertTrue(Needle_Position(is_front=True, position=n, is_slider=False) in snapshot)
 
@@ -90,8 +90,8 @@ class TestKnitout_Debugger(TestCase):
         debugger.continue_knitout()
         _executer = Knitout_Executer(load_test_resource("knitout_with_bp.k"), debugger=debugger)
         self.assertEqual(len(debugger.machine_snapshots), 2)
-        self.assertIn(8, debugger.machine_snapshots)
-        self.assertIn(10, debugger.machine_snapshots)
+        self.assertIn(7, debugger.machine_snapshots)
+        self.assertIn(9, debugger.machine_snapshots)
 
     def test_bp_on_error(self):
         debugger = Knitout_Debugger()
@@ -101,4 +101,4 @@ class TestKnitout_Debugger(TestCase):
         except Knitout_Machine_StateError as _e:
             pass
         self.assertEqual(len(debugger.machine_snapshots), 1)
-        self.assertIn(7, debugger.machine_snapshots)
+        self.assertIn(6, debugger.machine_snapshots)

@@ -2,13 +2,18 @@
 
 from __future__ import annotations
 
+from typing import ClassVar
+
 from virtual_knitting_machine.Knitting_Machine import Knitting_Machine
 
+from knitout_interpreter.knitout_execution_structures.Knitout_Knitting_Machine import Knitout_Knitting_Machine
 from knitout_interpreter.knitout_operations.knitout_instruction import Knitout_Instruction, Knitout_Instruction_Type
 
 
 class Rack_Instruction(Knitout_Instruction):
     """Instruction for setting the rack alignment between front and back beds."""
+
+    instruction_type: ClassVar[Knitout_Instruction_Type] = Knitout_Instruction_Type.Rack
 
     def __init__(self, rack: float, comment: None | str = None):
         """Initialize a rack instruction.
@@ -17,7 +22,7 @@ class Rack_Instruction(Knitout_Instruction):
             rack: The rack value including all-needle alignment specification.
             comment: Optional comment to include with the instruction.
         """
-        super().__init__(Knitout_Instruction_Type.Rack, comment)
+        super().__init__(comment)
         self._rack_value: float = rack
 
     @property
@@ -50,16 +55,6 @@ class Rack_Instruction(Knitout_Instruction):
         """
         return self._rack_value
 
-    def __str__(self) -> str:
-        """Return string representation of the rack instruction.
-
-        Returns:
-            String representation showing instruction type, rack value, and comment.
-        """
-        if not self.all_needle_rack:
-            return f"{self.instruction_type} {int(self._rack_value)}{self.comment_str}"
-        return f"{self.instruction_type} {self._rack_value}{self.comment_str}"
-
     def will_update_machine_state(self, machine_state: Knitting_Machine) -> bool:
         """
         Args:
@@ -70,7 +65,7 @@ class Rack_Instruction(Knitout_Instruction):
         """
         return machine_state.rack != self.rack or machine_state.all_needle_rack != self.all_needle_rack
 
-    def execute(self, machine_state: Knitting_Machine) -> bool:
+    def execute(self, machine_state: Knitout_Knitting_Machine) -> bool:
         """Execute the rack instruction on the given machine.
 
         Args:
@@ -108,18 +103,12 @@ class Rack_Instruction(Knitout_Instruction):
             rack_value += 0.25
         return Rack_Instruction(rack_value, comment)
 
-    @staticmethod
-    def execute_rack(machine_state: Knitting_Machine, racking: float, comment: str | None = None) -> Rack_Instruction:
-        """Execute a rack instruction immediately on the machine.
-
-        Args:
-            machine_state: The current machine model to update.
-            racking: The new racking to set the machine to.
-            comment: Additional details to document in the knitout.
+    def __str__(self) -> str:
+        """Return string representation of the rack instruction.
 
         Returns:
-            The racking instruction that was executed.
+            String representation showing instruction type, rack value, and comment.
         """
-        instruction = Rack_Instruction(racking, comment)
-        instruction.execute(machine_state)
-        return instruction
+        if not self.all_needle_rack:
+            return f"{self.instruction_type} {int(self._rack_value)}{self.comment_str}"
+        return f"{self.instruction_type} {self._rack_value}{self.comment_str}"

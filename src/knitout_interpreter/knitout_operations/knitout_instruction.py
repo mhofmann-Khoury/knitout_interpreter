@@ -3,9 +3,9 @@
 from __future__ import annotations
 
 from enum import Enum
+from typing import ClassVar
 
-from virtual_knitting_machine.Knitting_Machine import Knitting_Machine
-
+from knitout_interpreter.knitout_execution_structures.Knitout_Knitting_Machine import Knitout_Knitting_Machine
 from knitout_interpreter.knitout_operations.Knitout_Line import Knitout_Line
 
 
@@ -173,22 +173,15 @@ class Knitout_Instruction_Type(Enum):
 class Knitout_Instruction(Knitout_Line):
     """Superclass for knitout operations."""
 
-    def __init__(self, instruction_type: Knitout_Instruction_Type, comment: str | None, interrupts_carriage_pass: bool = True):
-        super().__init__(comment, interrupts_carriage_pass=interrupts_carriage_pass)
-        self._instruction_type: Knitout_Instruction_Type = instruction_type
+    instruction_type: ClassVar[Knitout_Instruction_Type]
 
-    @property
-    def instruction_type(self) -> Knitout_Instruction_Type:
-        """
-        Returns:
-            Knitout_Instruction_Type: The instruction type of this instruction.
-        """
-        return self._instruction_type
+    def __init__(self, comment: str | None, interrupts_carriage_pass: bool = True):
+        super().__init__(comment, interrupts_carriage_pass=interrupts_carriage_pass)
 
     def __str__(self) -> str:
         return f"{self.instruction_type}{self.comment_str}"
 
-    def will_update_machine_state(self, machine_state: Knitting_Machine) -> bool:
+    def will_update_machine_state(self, machine_state: Knitout_Knitting_Machine) -> bool:
         """
         Args:
             machine_state (Knitting_Machine): The machine state to test if this instruction will update it.
@@ -198,7 +191,7 @@ class Knitout_Instruction(Knitout_Line):
         """
         return True
 
-    def execute(self, machine_state: Knitting_Machine) -> bool:
+    def execute(self, machine_state: Knitout_Knitting_Machine) -> bool:
         """Execute the instruction on the machine state.
 
         Args:

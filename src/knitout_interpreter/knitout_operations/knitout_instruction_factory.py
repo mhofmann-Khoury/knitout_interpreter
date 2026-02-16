@@ -6,9 +6,17 @@ from virtual_knitting_machine.machine_components.yarn_management.Yarn_Carrier im
 from virtual_knitting_machine.machine_components.yarn_management.Yarn_Carrier_Set import Yarn_Carrier_Set
 
 from knitout_interpreter.knitout_operations.carrier_instructions import In_Instruction, Inhook_Instruction, Out_Instruction, Outhook_Instruction, Releasehook_Instruction, Yarn_Carrier_Instruction
-from knitout_interpreter.knitout_operations.kick_instruction import Kick_Instruction
 from knitout_interpreter.knitout_operations.knitout_instruction import Knitout_Instruction, Knitout_Instruction_Type
-from knitout_interpreter.knitout_operations.needle_instructions import Drop_Instruction, Knit_Instruction, Miss_Instruction, Needle_Instruction, Split_Instruction, Tuck_Instruction, Xfer_Instruction
+from knitout_interpreter.knitout_operations.needle_instructions import (
+    Drop_Instruction,
+    Kick_Instruction,
+    Knit_Instruction,
+    Miss_Instruction,
+    Needle_Instruction,
+    Split_Instruction,
+    Tuck_Instruction,
+    Xfer_Instruction,
+)
 from knitout_interpreter.knitout_operations.Pause_Instruction import Pause_Instruction
 from knitout_interpreter.knitout_operations.Rack_Instruction import Rack_Instruction
 

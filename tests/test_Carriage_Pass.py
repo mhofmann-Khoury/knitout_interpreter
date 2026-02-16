@@ -8,11 +8,21 @@ from virtual_knitting_machine.machine_components.yarn_management.Yarn_Carrier_Se
 from knitout_interpreter.knitout_execution import Knitout_Executer
 from knitout_interpreter.knitout_execution_structures.Carriage_Pass import Carriage_Pass, carriage_pass_of_instructions
 from knitout_interpreter.knitout_language.Knitout_Parser import parse_knitout
-from knitout_interpreter.knitout_operations.kick_instruction import Kick_Instruction
-from knitout_interpreter.knitout_operations.needle_instructions import Knit_Instruction
+from knitout_interpreter.knitout_operations.needle_instructions import Kick_Instruction, Knit_Instruction, Tuck_Instruction
 
 
 class TestCarriage_Pass(TestCase):
+
+    def test_knit_tuck_pass(self):
+        cp = Carriage_Pass(
+            Knit_Instruction(Needle_Position(True, 1, is_slider=False), Carriage_Pass_Direction.Rightward, Yarn_Carrier_Set(1)),
+            0,
+            all_needle_rack=True,
+        )
+        t = Tuck_Instruction(Needle_Position(True, 2, is_slider=False), Carriage_Pass_Direction.Rightward, Yarn_Carrier_Set(1))
+        self.assertTrue(cp.can_add_instruction(t, 0, True))
+        self.assertTrue(cp.add_instruction(t, 0, True))
+        self.assertEqual(2, len(cp))
 
     def test_all_needle_rightward_pass(self):
         cp = Carriage_Pass(
@@ -23,7 +33,7 @@ class TestCarriage_Pass(TestCase):
         back_knit = Knit_Instruction(Needle_Position(False, 1, is_slider=False), Carriage_Pass_Direction.Rightward, Yarn_Carrier_Set(1))
         self.assertTrue(cp.can_add_instruction(back_knit, 0, True))
         cp.add_instruction(back_knit, 0, True)
-        self.assertTrue(len(cp) == 2)
+        self.assertEqual(2, len(cp))
 
     def test_all_needle_racked(self):
         codes = parse_knitout(load_test_resource("all_needle_racked.k"), pattern_is_file=True)

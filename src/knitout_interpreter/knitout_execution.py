@@ -4,67 +4,65 @@ from __future__ import annotations
 
 import warnings
 from collections.abc import Sequence
-from typing import TYPE_CHECKING, cast
+from typing import TYPE_CHECKING, TypeVar
 
 from knit_graphs.Knit_Graph import Knit_Graph
 from virtual_knitting_machine.Knitting_Machine import Knitting_Machine
 from virtual_knitting_machine.Knitting_Machine_Snapshot import Knitting_Machine_Snapshot
-from virtual_knitting_machine.Knitting_Machine_Specification import Knitting_Machine_Specification
 from virtual_knitting_machine.machine_components.carriage_system.Carriage_Pass_Direction import Carriage_Pass_Direction
+from virtual_knitting_machine.machine_components.machine_component_protocol import Machine_Component
 
 from knitout_interpreter._warning_stack_level_helper import get_user_warning_stack_level_from_knitout_interpreter_package
 from knitout_interpreter.debugger.debug_decorator import debug_knitout_instruction
-from knitout_interpreter.knitout_errors.Knitout_Error import Incomplete_Knitout_Line_Error, Knitout_Machine_StateError, Knitout_ParseError
-from knitout_interpreter.knitout_execution_structures.Carriage_Pass import Carriage_Pass
+from knitout_interpreter.knitout_errors.Knitout_Error import Knitout_Machine_StateError
+from knitout_interpreter.knitout_execution_structures.Carriage_Pass import Carriage_Pass, carriage_pass_typed_to_first_instruction
 from knitout_interpreter.knitout_execution_structures.knitout_header import Knitting_Machine_Header
+from knitout_interpreter.knitout_execution_structures.Knitout_Knitting_Machine import Knitout_Knitting_Machine, Knitout_Machine_Specification
+from knitout_interpreter.knitout_execution_structures.knitout_loops import Knitout_Loop
+from knitout_interpreter.knitout_execution_structures.knitout_program import Knitout_Program
 from knitout_interpreter.knitout_language.Knitout_Parser import parse_knitout
 from knitout_interpreter.knitout_operations.Header_Line import Knitout_Version_Line
 from knitout_interpreter.knitout_operations.knitout_instruction import Knitout_Instruction
 from knitout_interpreter.knitout_operations.Knitout_Line import Knitout_Comment_Line, Knitout_Line, Knitout_No_Op
-from knitout_interpreter.knitout_operations.needle_instructions import Needle_Instruction
+from knitout_interpreter.knitout_operations.needle_instructions import Drop_Instruction, Knit_Pass_Instruction, Miss_Instruction, Needle_Instruction, Split_Instruction, Xfer_Instruction
 from knitout_interpreter.knitout_operations.Pause_Instruction import Pause_Instruction
 from knitout_interpreter.knitout_warnings.Knitout_Warning import Missed_Snapshot_Warning
 
 if TYPE_CHECKING:
     from knitout_interpreter.debugger.knitout_debugger import Knitout_Debugger
 
+Knitout_LoopT = TypeVar("Knitout_LoopT", bound=Knitout_Loop)
 
-class Knitout_Executer:
+
+class Knitout_Executer(Machine_Component[Knitout_LoopT]):
     """A class used to execute a set of knitout instructions on a virtual knitting machine.
     The instructions are processed, organized to isolate the header, verified on the knitting machine, and no-op operations are converted into comments.
     The execution process can optionally be debugged by attaching a debugger.
     The execution process can have optional snapshots of the knitting machine taken at specified line numbers.
 
     Attributes:
-        knitting_machine (Knitting_Machine): Knitting Machine instance being executed on.
-        instructions (list[Knitout_Instruction | Knitout_Comment_Line]): The set of instructions or comment lines that make up the program (excluding the header).
         process (list[Knitout_Instruction | Carriage_Pass]): The ordered list of instructions and carriage passes executed in the knitting process.
         executed_header (Knitting_Machine_Header): The header that creates this knitting machine based on the header lines specified and the knitting machine specified at initialization.
-        executed_instructions (list[Knitout_Line]): The instructions that have been executed so far and updated the knitting machine state.
+        executed_instructions (Knitout_Program): The instructions that have been executed so far and updated the knitting machine state.
         debugger (Knitout_Debugger | None): The optional debugger attached to this knitout process.
     """
 
     def __init__(
         self,
         knitout_program: Sequence[Knitout_Line] | str,
-        knitting_machine: Knitting_Machine | Knitting_Machine_Specification | None = None,
-        accepted_error_types: type[BaseException] | tuple[type[BaseException], ...] | None = None,
+        knitting_machine: Knitout_Knitting_Machine[Knitout_LoopT] | Knitout_Machine_Specification | None = None,
         debugger: Knitout_Debugger | None = None,
         snapshot_targets: Sequence[int] | set[int] | None = None,
         knitout_version: int = 2,
-        set_line_numbers: bool = True,
     ):
         """Initialize the knitout executer.
 
         Args:
             knitout_program (Sequence[Knitout_Line] | str): The knitout lines to executed or a filename to parse into a knitout program.
             knitting_machine (Knitting_Machine, optional): The virtual knitting machine to execute instructions on. Defaults to the default Knitting Machine with no prior operations.
-            accepted_error_types (type[BaseException] | tuple[type[BaseException], ...], optional):
-                A tuple of one or more exception types that can be resolved by converting instructions to no-ops. Defaults to allowing no exceptions.
             debugger (Knitout_Debugger, optional): The debugger to attach to this knitout execution process. Defaults to having no debugger.
             snapshot_targets (Sequence[int] | set[int], optional): The line numbers to create machine snapshots from. Defaults to no snapshot targets.
             knitout_version (int, optional): The knitout version to use. Defaults to 2.
-            set_line_numbers (bool, optional): If True, the original line numbers are set for the given instructions to match the order they are provided in. Defaults to True.
 
         Raises:
             FileNotFoundError: If knitout_program is given as a filename but the file cannot be found.
@@ -72,36 +70,28 @@ class Knitout_Executer:
             Incomplete_Knitout_Line_Error: If a line in the knitout_program is incomplete and cannot be parsed into a full instruction.
         """
         if isinstance(knitout_program, str):
-            try:
-                knitout_program = parse_knitout(knitout_program, pattern_is_file=True, set_line_numbers=set_line_numbers)
-            except (FileNotFoundError, Knitout_ParseError, Incomplete_Knitout_Line_Error) as e:
-                raise e from None
-        elif set_line_numbers:
-            for i, instruction in enumerate(knitout_program):
-                instruction.original_line_number = i + 1
-        if knitting_machine is None:
-            knitting_machine = Knitting_Machine()
-        elif isinstance(knitting_machine, Knitting_Machine_Specification):
-            knitting_machine = Knitting_Machine(machine_specification=knitting_machine)
-        self._error_tuple: type[BaseException] | tuple[type[BaseException], ...] = accepted_error_types if accepted_error_types is not None else ()
+            self.knitout_program: Knitout_Program = parse_knitout(knitout_program, pattern_is_file=True)
+        else:
+            self.knitout_program = Knitout_Program(knitout_program, default_version=knitout_version)
+        self.executed_header: Knitting_Machine_Header = Knitting_Machine_Header(knitting_machine, version=self.knitout_version)
+        if isinstance(knitting_machine, Knitout_Knitting_Machine):
+            self._knitting_machine: Knitout_Knitting_Machine[Knitout_LoopT] = knitting_machine
+        else:
+            self.executed_header.extract_header(self.knitout_program)
+            self._knitting_machine: Knitout_Knitting_Machine[Knitout_LoopT] = Knitout_Knitting_Machine[Knitout_LoopT](machine_specification=self.executed_header.specification)
         self.debugger: Knitout_Debugger | None = None
         if debugger is not None:
             self.attach_debugger(debugger)
-        self._knitout_version = knitout_version
-        self.knitting_machine: Knitting_Machine = knitting_machine
-        self.executed_header: Knitting_Machine_Header = Knitting_Machine_Header(self.knitting_machine, knitout_version)
-        self.executed_header.extract_header(knitout_program)
-        self.instructions: list[Knitout_Instruction | Knitout_Comment_Line] = [i for i in knitout_program if isinstance(i, (Knitout_Instruction, Knitout_Comment_Line))]
         self.process: list[Knitout_Instruction | Carriage_Pass] = []
         self._carriage_passes: list[Carriage_Pass] = []
         self._left_most_position: int | None = None
         self._right_most_position: int | None = None
-        self.executed_instructions: list[Knitout_Line] = cast(list[Knitout_Line], self.executed_header.header_lines)
-        self._current_carriage_pass: None | Carriage_Pass = None  # The carriage pass currently being formed in execution of the knitout program.
+        self.executed_instructions: Knitout_Program = self.knitout_program.new_header_program()
+        self._current_carriage_pass: Carriage_Pass | None = None  # The carriage pass currently being formed in execution of the knitout program.
         self._starting_new_cp: bool = False  # If True, the next instruction initiates a new carriage pass.
         self._snapshot_targets: set[int] = set(snapshot_targets) if snapshot_targets is not None else set()  # User specified line numbers to take a snapshot of the knitting machine at
-        self.snapshots: dict[int, Knitting_Machine_Snapshot] = {}  # Mapping of line numbers to the snapshots taken during the execution.
-        self.test_and_organize_instructions(accepted_error_types)
+        self.snapshots: dict[int, Knitting_Machine_Snapshot[Knitout_LoopT]] = {}  # Mapping of line numbers to the snapshots taken during the execution.
+        self.test_and_organize_instructions()
 
     @property
     def knitout_version(self) -> int:
@@ -109,7 +99,7 @@ class Knitout_Executer:
         Returns:
             int: The knitout version being executed.
         """
-        return self._knitout_version
+        return self.knitout_program.version_line.version
 
     @property
     def version_line(self) -> Knitout_Version_Line:
@@ -121,11 +111,19 @@ class Knitout_Executer:
         return Knitout_Version_Line(self.knitout_version)
 
     @property
-    def resulting_knit_graph(self) -> Knit_Graph:
+    def knitting_machine(self) -> Knitout_Knitting_Machine[Knitout_LoopT]:
+        """
+        Returns:
+            Knitout_Knitting_Machine[Knitout_LoopT]: The knitting machine that the program is executing on.
+        """
+        return self._knitting_machine
+
+    @property
+    def resulting_knit_graph(self) -> Knit_Graph[Knitout_LoopT]:
         """Get the knit graph resulting from instruction execution.
 
         Returns:
-            Knit_Graph: Knit Graph that results from execution of these instructions.
+            Knit_Graph[Knitout_Loop]: Knit Graph that results from execution of these instructions.
         """
         return self.knitting_machine.knit_graph
 
@@ -174,31 +172,12 @@ class Knitout_Executer:
         return self._right_most_position
 
     @property
-    def current_carriage_pass(self) -> None | Carriage_Pass:
+    def current_carriage_pass(self) -> Carriage_Pass | None:
         """
         Returns:
             None | Carriage_Pass: The carriage pass currently being formed in the knitout execution or None if no carriage pass is being formed.
         """
         return self._current_carriage_pass
-
-    @property
-    def error_tuple(self) -> type[BaseException] | tuple[type[BaseException], ...]:
-        """
-        Returns:
-            type[BaseException] | tuple[type[BaseException], ...]: The error types that are acceptable in the execution by converting the instruction that caused the error into a No-Op comment.
-        """
-        return self._error_tuple
-
-    @error_tuple.setter
-    def error_tuple(self, acceptable_errors_types: type[BaseException] | tuple[type[BaseException], ...]) -> None:
-        """
-        Args:
-            acceptable_errors_types (type[BaseException] | tuple[type[BaseException], ...]): Zero or more error types to accept during execution.
-        """
-        if isinstance(acceptable_errors_types, type) and issubclass(acceptable_errors_types, BaseException):
-            self._error_tuple: type[BaseException] | tuple[type[BaseException], ...] = (acceptable_errors_types,)
-        else:
-            self._error_tuple = acceptable_errors_types
 
     @property
     def starting_new_carriage_pass(self) -> bool:
@@ -207,12 +186,6 @@ class Knitout_Executer:
             bool: True if the next instruction to be processed will initiate a new carriage pass, False otherwise.
         """
         return self._starting_new_cp
-
-    def clear_accepted_error_types(self) -> None:
-        """
-        No longer allow the execution to accept any error types by converting instructions to No-Op comments.
-        """
-        self.error_tuple = ()
 
     def attach_debugger(self, debugger: Knitout_Debugger | None = None) -> None:
         """
@@ -259,23 +232,15 @@ class Knitout_Executer:
         if remove_existing_snapshot and target_line in self.snapshots:
             del self.snapshots[target_line]
 
-    def test_and_organize_instructions(self, accepted_error_types: type[BaseException] | tuple[type[BaseException], ...] | None = None) -> None:
+    def test_and_organize_instructions(self) -> None:
         """Test the given execution and organize the instructions in the class structure.
 
         This method processes all instructions, organizing them into carriage passes and handling any errors that occur during execution.
 
-        Args:
-            accepted_error_types (type[BaseException] | tuple[type[BaseException], ...], optional):
-                One or more error types that should be accepted and have the invalid knitout instruction replaced with a no-op instruction.
-                Defaults to not accepting any exceptions.
         """
-        if accepted_error_types is None:
-            self.clear_accepted_error_types()
-        else:
-            self.error_tuple = accepted_error_types
         self.process: list[Knitout_Instruction | Carriage_Pass] = []
         self._current_carriage_pass = None
-        for _i, instruction in enumerate(self.instructions):
+        for _i, instruction in enumerate(self.knitout_program.program_body):
             self._process_next_instruction(instruction)
         self._end_program()
 
@@ -288,11 +253,11 @@ class Knitout_Executer:
         with open(filename, "w") as file:
             file.writelines([str(instruction) for instruction in self.executed_instructions])
 
-    def _execute_current_carriage_pass(self, next_cp_instruction: Needle_Instruction | None = None) -> None:
+    def _execute_current_carriage_pass(self, next_cp_instruction: Xfer_Instruction | Split_Instruction | Drop_Instruction | Knit_Pass_Instruction | Miss_Instruction | None = None) -> None:
         """Execute carriage pass with an implied racking operation on the given knitting machine.
 
         Args:
-            next_cp_instruction (Knitout_Instruction | None, optional):
+            next_cp_instruction (Xfer_Instruction | Split_Instruction | Drop_Instruction| Knit_Pass_Instruction | Miss_Instruction | None, optional):
                 The next instruction at the beginning of the carriage pass that will follow the current carriage pass. Defaults to no carriage pass instruction following this pass.
 
         Notes:
@@ -309,11 +274,11 @@ class Knitout_Executer:
             self._starting_new_cp = False  # set to false after first instruction is processed.
         self.process.append(self.current_carriage_pass)
         self.carriage_passes.append(self.current_carriage_pass)
-        left, right = self.current_carriage_pass.carriage_pass_range()
+        left, right = self.current_carriage_pass.carriage_pass_range
         self._left_most_position = min(self._left_most_position, left) if self._left_most_position is not None else left
         self._right_most_position = max(self._right_most_position, right) if self._right_most_position is not None else right
         if next_cp_instruction is not None:
-            self._current_carriage_pass = Carriage_Pass(next_cp_instruction, self.knitting_machine.rack, self.knitting_machine.all_needle_rack)
+            self._current_carriage_pass = carriage_pass_typed_to_first_instruction(next_cp_instruction, self.knitting_machine.rack, self.knitting_machine.all_needle_rack)
         else:
             self._current_carriage_pass = None
 
@@ -324,7 +289,7 @@ class Knitout_Executer:
             instruction (Knitout_Instruction | Knitout_Comment_Line): The instruction to take a snapshot of.
         """
         if instruction.original_line_number is not None and instruction.original_line_number in self._snapshot_targets:
-            self.snapshots[instruction.original_line_number] = Knitting_Machine_Snapshot(self.knitting_machine)
+            self.snapshots[instruction.original_line_number] = Knitting_Machine_Snapshot[Knitout_LoopT](self.knitting_machine)
 
     @debug_knitout_instruction
     def _add_non_executable_instruction_to_execution(self, instruction: Knitout_Instruction | Knitout_Comment_Line) -> None:
@@ -336,20 +301,13 @@ class Knitout_Executer:
         if isinstance(instruction, (Knitout_Comment_Line | Pause_Instruction)):
             self.executed_instructions.append(instruction)
         else:
-            error_comment = None
-            try:
-                updated_machine = instruction.execute(self.knitting_machine)
-            except self.error_tuple as e:
-                error_comment = Knitout_Comment_Line(f"Prior instruction excluded because it raised an acceptable error: {e.message}")
-                updated_machine = False
+            updated_machine = instruction.execute(self.knitting_machine)
             if updated_machine:
                 if not isinstance(instruction, (Needle_Instruction, Knitout_Comment_Line)):  # Not in a carriage pass and not a comment, so add this to the process on its own.
                     self.process.append(instruction)
                 self.executed_instructions.append(instruction)
             elif instruction.original_line_number is not None:  # Didn't update but was in the original program, so convert it to a no-op comment
                 self.executed_instructions.append(Knitout_No_Op(instruction))
-            if error_comment is not None:
-                self.executed_instructions.append(error_comment)
         self._take_snapshot(instruction)
 
     def _process_next_instruction(self, instruction: Knitout_Instruction | Knitout_Comment_Line) -> None:
@@ -361,8 +319,10 @@ class Knitout_Executer:
             if isinstance(instruction, (Pause_Instruction, Knitout_Comment_Line)):
                 self._add_non_executable_instruction_to_execution(instruction)
             elif isinstance(instruction, Needle_Instruction):
+                if not isinstance(instruction, (Xfer_Instruction, Split_Instruction, Drop_Instruction, Knit_Pass_Instruction, Miss_Instruction)):
+                    raise TypeError(f"Found Needle_Instruction {instruction} that cannot be added to any type of carriage pass.")
                 if self._current_carriage_pass is None:  # Make a new Carriage Pass from this
-                    self._current_carriage_pass = Carriage_Pass(instruction, self.knitting_machine.rack, self.knitting_machine.all_needle_rack)
+                    self._current_carriage_pass = carriage_pass_typed_to_first_instruction(instruction, self.knitting_machine.rack, self.knitting_machine.all_needle_rack)
                 else:  # Check if instruction can be added to the carriage pass, add it or create a new current carriage pass
                     was_added = self._current_carriage_pass.add_instruction(instruction, self.knitting_machine.rack, self.knitting_machine.all_needle_rack)
                     if not was_added:
@@ -392,11 +352,11 @@ class Knitout_Executer:
 
 def execute_knitout(
     knitout_program: Sequence[Knitout_Line] | str,
-    knitting_machine: Knitting_Machine | Knitting_Machine_Specification | None = None,
+    knitting_machine: Knitout_Knitting_Machine[Knitout_LoopT] | Knitout_Machine_Specification | None = None,
     knitout_version: int = 2,
     debugger: Knitout_Debugger | None = None,
     write_to_file: str | None = None,
-) -> tuple[list[Knitout_Line], Knitting_Machine, Knit_Graph]:
+) -> tuple[Knitout_Program, Knitting_Machine, Knit_Graph]:
     """
     Executes, verifies, and organizes the given knitout program and optionally writes it to a file.
 
@@ -411,13 +371,13 @@ def execute_knitout(
         write_to_file (str, optional): The name of the file to write knitout instructions to. Defaults to not writing a knitout file.
 
     Returns:
-        tuple[list[Knitout_Line], Knitting_Machine, Knit_Graph]:
+        tuple[Knitout_Program, Knitting_Machine, Knit_Graph]:
             A Tuple containing the following:
-            * The lines of knitout verified and organized by the execution process.
+            * The verified and organized knitout program
             * The knitting machine after completion of the process.
             * The knitgraph graph after completion of the process.
     """
-    executer = Knitout_Executer(knitout_program, knitting_machine, debugger=debugger, knitout_version=knitout_version)
+    executer: Knitout_Executer[Knitout_LoopT] = Knitout_Executer(knitout_program, knitting_machine, debugger=debugger, knitout_version=knitout_version)
     if write_to_file is not None:
         executer.write_executed_instructions(write_to_file)
     return executer.executed_instructions, executer.knitting_machine, executer.resulting_knit_graph

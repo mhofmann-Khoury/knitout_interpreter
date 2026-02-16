@@ -2,14 +2,15 @@
 
 from __future__ import annotations
 
+import copy
 from collections.abc import Callable
 from functools import wraps
-from typing import Any, Concatenate, ParamSpec, TypeVar
+from typing import Any, ClassVar, Concatenate, ParamSpec, Self, TypeVar, cast
 
 from knit_graphs.Yarn import Yarn_Properties
-from virtual_knitting_machine.Knitting_Machine import Knitting_Machine
 
 from knitout_interpreter.knitout_errors.Knitout_Error import Knitout_Machine_StateError
+from knitout_interpreter.knitout_execution_structures.Knitout_Knitting_Machine import Knitout_Knitting_Machine
 
 P = ParamSpec("P")
 R = TypeVar("R")
@@ -44,7 +45,13 @@ class Knitout_Line:
         original_line_number (int | None): The line number of this instruction in its original file or None if that is unknown.
     """
 
-    _Lines_Made = 0
+    def __new__(cls, *args: Any, **kwargs: Any) -> Knitout_Line:
+        """
+        Counts the number of knitout lines created while running a program. Ensures a unique identifier for each knitout line.
+        """
+        instance = super().__new__(cls)
+        instance._creation_time = Knitout_Line._next_line()
+        return instance
 
     def __init_subclass__(cls, **kwargs: Any) -> None:
         """Automatically wrap execute() method in all subclasses."""
@@ -62,10 +69,10 @@ class Knitout_Line:
             comment (str, optional): The comment following this instruction. Defaults to no comment.
             interrupts_carriage_pass (bool, optional): True if this type of instruction interrupts a carriage pass. Defaults to False.
         """
-        Knitout_Line._Lines_Made += 1
-        self._creation_time: int = Knitout_Line._Lines_Made
+        self._creation_time: int = self._next_line()
         self.comment: str | None = comment
         self.original_line_number: int | None = None
+        self.line_number: int | None = None
         self._follow_comments: list[Knitout_Comment_Line] = []
         self._interrupts_carriage_pass: bool = interrupts_carriage_pass
 
@@ -108,7 +115,7 @@ class Knitout_Line:
             return f";{self.comment}\n"
 
     @capture_execution_context
-    def execute(self, machine_state: Knitting_Machine) -> bool:
+    def execute(self, machine_state: Knitout_Knitting_Machine) -> bool:
         """Execute the instruction on the machine state.
 
         Args:
@@ -118,9 +125,6 @@ class Knitout_Line:
             bool: True if the process completes an update. False, otherwise.
         """
         return False
-
-    def __str__(self) -> str:
-        return self.comment_str
 
     @property
     def injected(self) -> bool:
@@ -141,6 +145,9 @@ class Knitout_Line:
             return f"{self.original_line_number}:{self}"[:-1]
         else:
             return str(self)[-1:]
+
+    def __str__(self) -> str:
+        return self.comment_str
 
     def __repr__(self) -> str:
         if self.original_line_number is not None:
@@ -172,6 +179,46 @@ class Knitout_Line:
         """
         return hash(self._creation_time)
 
+    _deepcopy_defaults: ClassVar[dict[str, Any]] = {
+        "original_line_number": None,
+        "line_number": None,
+    }
+
+    def _collect_deepcopy_defaults(self) -> dict[str, Any]:
+        """Collect deepcopy defaults from the entire MRO."""
+        defaults: dict[str, Any] = {}
+        for cls in reversed(type(self).__mro__):
+            if "_deepcopy_defaults" in cls.__dict__:
+                defaults.update(cls._deepcopy_defaults)
+        return defaults
+
+    def __deepcopy__(self, memo: dict) -> Self:
+        cls = self.__class__
+        result = cast(Self, cls.__new__(cls))  # _creation_time assigned automatically
+        memo[id(self)] = result
+        defaults = self._collect_deepcopy_defaults()
+        for k, v in self.__dict__.items():
+            if k == "_creation_time":
+                continue  # already set by __new__
+            elif k in defaults:
+                setattr(result, k, defaults[k])
+            else:
+                setattr(result, k, copy.deepcopy(v, memo))
+        return result
+
+    _Lines_Made: ClassVar[int] = 0
+
+    @staticmethod
+    def _next_line() -> int:
+        """
+        Tick up the count of knitout_lines instantiated.
+        Returns:
+            int: The current line count before the number ticked up.
+        """
+        cur = Knitout_Line._Lines_Made
+        Knitout_Line._Lines_Made += 1
+        return cur
+
 
 class Knitout_Comment_Line(Knitout_Line):
     """Represents a comment line in knitout."""
@@ -190,7 +237,7 @@ class Knitout_Comment_Line(Knitout_Line):
         if original_line_number is not None:
             self.original_line_number = original_line_number
 
-    def execute(self, machine_state: Knitting_Machine) -> bool:
+    def execute(self, machine_state: Knitout_Knitting_Machine) -> bool:
         return True
 
 
@@ -240,7 +287,7 @@ class Knitout_No_Op(Knitout_Comment_Line):
         super().__init__(comment)
         self.original_line_number = no_op_operation.original_line_number
 
-    def execute(self, machine_state: Knitting_Machine) -> bool:
+    def execute(self, machine_state: Knitout_Knitting_Machine) -> bool:
         return False  # No-Ops do not need to be included in executed knitout code.
 
 

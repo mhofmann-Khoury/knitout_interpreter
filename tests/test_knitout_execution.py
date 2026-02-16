@@ -18,26 +18,26 @@ class TestKnitout_Executer(TestCase):
         self.debugger = Knitout_Debugger()
 
     def test_snapshots(self):
-        snapshot_targets = {7, 9, 28, 29}
+        snapshot_targets = {6, 8, 27, 28}
         executer = Knitout_Executer(load_test_resource("stst_square.k"), debugger=self.debugger, snapshot_targets=snapshot_targets)
         for t in snapshot_targets:
             self.assertIn(t, executer.snapshots)
-        snapshot = executer.snapshots[7]
+        snapshot = executer.snapshots[6]
         self.assertIsNone(snapshot.last_loop_id)
         self.assertFalse(snapshot.carrier_system.inserting_hook_available)
         self.assertEqual(int(snapshot.carrier_system.hooked_carrier), 1)
-        snapshot = executer.snapshots[9]
+        snapshot = executer.snapshots[8]
         self.assertEqual(snapshot.last_loop_id, 1)
         self.assertFalse(snapshot.carrier_system.inserting_hook_available)
         self.assertEqual(int(snapshot.carrier_system.hooked_carrier), 1)
         self.assertEqual(len(snapshot.front_loops()), 2)
         self.assertIn(Needle_Position(True, 3, is_slider=False), snapshot)
         self.assertIn(Needle_Position(True, 4, is_slider=False), snapshot)
-        snapshot = executer.snapshots[28]
+        snapshot = executer.snapshots[27]
         self.assertTrue(snapshot.carrier_system.inserting_hook_available)
         self.assertTrue(snapshot.carrier_system.is_active([1]))
         self.assertEqual(len(snapshot.front_loops()), 4)
-        snapshot = executer.snapshots[29]
+        snapshot = executer.snapshots[28]
         self.assertTrue(snapshot.carrier_system.inserting_hook_available)
         self.assertFalse(snapshot.carrier_system.is_active([1]))
 

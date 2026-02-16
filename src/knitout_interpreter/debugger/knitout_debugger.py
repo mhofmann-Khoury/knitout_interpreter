@@ -7,14 +7,17 @@ import sys
 import warnings
 from collections.abc import Callable, Iterable
 from enum import Enum
-from typing import Protocol
+from typing import Protocol, TypeVar
 
-from virtual_knitting_machine.Knitting_Machine import Knitting_Machine
 from virtual_knitting_machine.Knitting_Machine_Snapshot import Knitting_Machine_Snapshot
+from virtual_knitting_machine.machine_components.machine_component_protocol import Machine_Component
 
 from knitout_interpreter._warning_stack_level_helper import get_user_warning_stack_level_from_knitout_interpreter_package
+from knitout_interpreter.knitout_execution_structures.Knitout_Knitting_Machine import Knitout_Knitting_Machine
+from knitout_interpreter.knitout_execution_structures.knitout_loops import Knitout_Loop
+from knitout_interpreter.knitout_execution_structures.knitout_program import Knitout_Program
 from knitout_interpreter.knitout_operations.knitout_instruction import Knitout_Instruction
-from knitout_interpreter.knitout_operations.Knitout_Line import Knitout_BreakPoint, Knitout_Comment_Line, Knitout_Line
+from knitout_interpreter.knitout_operations.Knitout_Line import Knitout_BreakPoint, Knitout_Comment_Line
 from knitout_interpreter.knitout_operations.Pause_Instruction import Pause_Instruction
 from knitout_interpreter.knitout_warnings.Knitout_Warning import Knitout_BreakPoint_Condition_Warning
 
@@ -27,13 +30,15 @@ class Debug_Mode(Enum):
     Step_Carriage_Pass = "step-carriage-pass"
 
 
-class Debuggable_Knitout_Execution(Protocol):
+Knitout_LoopT = TypeVar("Knitout_LoopT", bound=Knitout_Loop)
+
+
+class Debuggable_Knitout_Execution(Machine_Component[Knitout_LoopT], Protocol):
     """
     A protocol for knitout execution processes that can be debugged by the Knitout_Debugger class.
     """
 
-    knitting_machine: Knitting_Machine  # The knitting machine that the debugged process is executing on.
-    executed_instructions: list[Knitout_Line]  # The list of instructions that have been executed including the header, comments, and instructions.
+    executed_instructions: Knitout_Program  # The list of instructions that have been executed including the header, comments, and instructions.
     debugger: Knitout_Debugger | None  # The debugger attached to the execution process, if any.
 
     # noinspection PyPropertyDefinition
@@ -42,6 +47,14 @@ class Debuggable_Knitout_Execution(Protocol):
         """
         Returns:
             bool: True if the next instruction to be processed will initiate a new carriage pass, False otherwise.
+        """
+        ...
+
+    @property
+    def knitting_machine(self) -> Knitout_Knitting_Machine[Knitout_LoopT]:
+        """
+        Returns:
+            Knitout_Knitting_Machine[Knitout_LoopT]: The knitting machine that the program is executing on.
         """
         ...
 
@@ -141,21 +154,13 @@ class Knitout_Debugger:
         Returns:
             int: The current line that the debugger is processing.
         """
-        return len(self.executed_instructions)
+        return len(self._executer.executed_instructions) if self._executer is not None else 0
 
     @property
-    def executed_instructions(self) -> list[Knitout_Line]:
+    def knitting_machine(self) -> Knitout_Knitting_Machine | None:
         """
         Returns:
-            list[Knitout_Line]: The instructions executed up to this point by the debugged process.
-        """
-        return [] if self._executer is None else self._executer.executed_instructions
-
-    @property
-    def knitting_machine(self) -> Knitting_Machine | None:
-        """
-        Returns:
-            Knitting_Machine | None: The knitting machine the debugged process is running on or None if it has no debugging process.
+            Knitout_Knitting_Machine | None: The knitting machine the debugged process is running on or None if it has no debugging process.
         """
         return self._executer.knitting_machine if self._executer is not None else None
 
@@ -369,9 +374,7 @@ class Knitout_Debugger:
             # noinspection PyUnusedLocal
             knitout_debugger: Knitout_Debugger = self  # noqa: F841
             knitout_line: int = knitout_instruction.original_line_number if knitout_instruction.original_line_number is not None else self.current_line
-            knitting_machine: Knitting_Machine = self._executer.knitting_machine
-            # noinspection PyUnusedLocal
-            executed_program: list[Knitout_Line] = self.executed_instructions  # noqa: F841
+            knitting_machine = self._executer.knitting_machine
             if self.taking_snapshots:
                 self.machine_snapshots[knitout_line] = Knitting_Machine_Snapshot(knitting_machine)
             if self._is_interactive_debugger_attached():
@@ -407,9 +410,7 @@ class Knitout_Debugger:
             # noinspection PyUnusedLocal
             knitout_debugger: Knitout_Debugger = self  # noqa: F841
             knitout_line: int = knitout_instruction.original_line_number if knitout_instruction.original_line_number is not None else self.current_line
-            knitting_machine: Knitting_Machine = self._executer.knitting_machine
-            # noinspection PyUnusedLocal
-            executed_program: list[Knitout_Line] = self.executed_instructions  # noqa: F841
+            knitting_machine = self._executer.knitting_machine
             if self.taking_snapshots:
                 self.machine_snapshots[knitout_line] = Knitting_Machine_Snapshot(knitting_machine)
             if self._is_interactive_debugger_attached():

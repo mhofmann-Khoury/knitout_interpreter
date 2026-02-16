@@ -2,13 +2,18 @@
 
 from __future__ import annotations
 
+from typing import ClassVar
+
 from virtual_knitting_machine.Knitting_Machine import Knitting_Machine
 
+from knitout_interpreter.knitout_execution_structures.Knitout_Knitting_Machine import Knitout_Knitting_Machine
 from knitout_interpreter.knitout_operations.knitout_instruction import Knitout_Instruction, Knitout_Instruction_Type
 
 
 class Pause_Instruction(Knitout_Instruction):
     """Instruction for pausing the knitting machine."""
+
+    instruction_type: ClassVar[Knitout_Instruction_Type] = Knitout_Instruction_Type.Pause
 
     def __init__(self, comment: None | str = None):
         """Initialize a pause instruction.
@@ -16,7 +21,7 @@ class Pause_Instruction(Knitout_Instruction):
         Args:
             comment: Optional comment for the pause instruction.
         """
-        super().__init__(Knitout_Instruction_Type.Pause, comment, interrupts_carriage_pass=True)
+        super().__init__(comment, interrupts_carriage_pass=True)
 
     def will_update_machine_state(self, machine_state: Knitting_Machine) -> bool:
         """
@@ -28,7 +33,7 @@ class Pause_Instruction(Knitout_Instruction):
         """
         return False
 
-    def execute(self, machine_state: Knitting_Machine) -> bool:
+    def execute(self, machine_state: Knitout_Knitting_Machine) -> bool:
         """Execute the pause instruction.
 
         Args:
@@ -38,18 +43,3 @@ class Pause_Instruction(Knitout_Instruction):
             False as no update is caused by pauses.
         """
         return False  # No Update caused by pauses
-
-    @staticmethod
-    def execute_pause(machine_state: Knitting_Machine, comment: str | None = None) -> Pause_Instruction:
-        """Execute a pause instruction on the machine.
-
-        Args:
-            machine_state: The current machine model to update.
-            comment: Additional details to document in the knitout.
-
-        Returns:
-            The instruction that was executed.
-        """
-        instruction = Pause_Instruction(comment)
-        instruction.execute(machine_state)
-        return instruction
