@@ -21,7 +21,7 @@ class Pause_Instruction(Knitout_Instruction):
         Args:
             comment: Optional comment for the pause instruction.
         """
-        super().__init__(comment, interrupts_carriage_pass=True)
+        super().__init__(comment)
 
     def will_update_machine_state(self, machine_state: Knitting_Machine) -> bool:
         """

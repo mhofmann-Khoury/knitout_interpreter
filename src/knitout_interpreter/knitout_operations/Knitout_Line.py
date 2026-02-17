@@ -7,8 +7,6 @@ from collections.abc import Callable
 from functools import wraps
 from typing import Any, ClassVar, Concatenate, ParamSpec, Self, TypeVar, cast
 
-from knit_graphs.Yarn import Yarn_Properties
-
 from knitout_interpreter.knitout_errors.Knitout_Error import Knitout_Machine_StateError
 from knitout_interpreter.knitout_execution_structures.Knitout_Knitting_Machine import Knitout_Knitting_Machine
 
@@ -42,8 +40,9 @@ class Knitout_Line:
 
     Attributes:
         comment (str | None): The comment that follows the knitout instruction. None if there is no comment.
-        original_line_number (int | None): The line number of this instruction in its original file or None if that is unknown.
     """
+
+    interrupts_carriage_pass: ClassVar[bool] = False  # If True, indicates that this type of knitout line will interrupt a carriage pass.
 
     def __new__(cls, *args: Any, **kwargs: Any) -> Knitout_Line:
         """
@@ -63,27 +62,53 @@ class Knitout_Line:
             original_execute = cls.execute
             cls.execute = capture_execution_context(original_execute)  # type: ignore[method-assign]
 
-    def __init__(self, comment: str | None = None, interrupts_carriage_pass: bool = False) -> None:
+    def __init__(self, comment: str | None = None) -> None:
         """
         Args:
             comment (str, optional): The comment following this instruction. Defaults to no comment.
-            interrupts_carriage_pass (bool, optional): True if this type of instruction interrupts a carriage pass. Defaults to False.
         """
         self._creation_time: int = self._next_line()
         self.comment: str | None = comment
-        self.original_line_number: int | None = None
-        self.line_number: int | None = None
+        self._source_program: str | None = None
+        self._original_line_number: int | None = None
+        self._line_number: int | None = None
         self._follow_comments: list[Knitout_Comment_Line] = []
-        self._interrupts_carriage_pass: bool = interrupts_carriage_pass
 
     @property
-    def interrupts_carriage_pass(self) -> bool:
-        """Check if this line interrupts a carriage pass.
-
-        Returns:
-            bool: True if this type of line interrupts a carriage pass. False if it is only used for comments or setting information.
+    def has_line_number(self) -> bool:
         """
-        return self._interrupts_carriage_pass
+        Returns:
+            bool: True if the original line number of this knitout line has been set.
+        """
+        return self._original_line_number is not None
+
+    @property
+    def original_line_number(self) -> int:
+        """
+        Returns:
+            int: The original position of this line from the program it was parsed from.
+        """
+        if self._original_line_number is None:
+            raise AttributeError("Original Line number has not been set before being accessed.")
+        return self._original_line_number
+
+    @property
+    def line_number(self) -> int:
+        """
+        Returns:
+            int: The current position of the line in a program.
+        """
+        if self._line_number is None:
+            raise AttributeError("Line number has not been set before being accessed.")
+        return self._line_number
+
+    @property
+    def source_program(self) -> str | None:
+        """
+        Returns:
+            str | None: The name of the program this was parsed from or None if that value is unknown.
+        """
+        return self._source_program
 
     @property
     def follow_comments(self) -> list[Knitout_Comment_Line]:
@@ -126,51 +151,42 @@ class Knitout_Line:
         """
         return False
 
-    @property
-    def injected(self) -> bool:
-        """Check if instruction was marked as injected.
-
-        Returns:
-            True if instruction was marked as injected by a negative line number.
-        """
-        return self.original_line_number is not None and self.original_line_number < 0
-
     def id_str(self) -> str:
         """Get string representation with original line number if present.
 
         Returns:
             str: String with original line number added if present.
         """
-        if self.original_line_number is not None:
-            return f"{self.original_line_number}:{self}"[:-1]
+        if self._original_line_number is not None:
+            return f"{self._original_line_number}:{self}"[:-1]
         else:
             return str(self)[-1:]
+
+    def set_line(self, line_number: int, source: str | None = None) -> None:
+        """
+        Set the line number of this instruction.
+        If this is the first time that the instruction's line was set, the value will become the original line number.
+        Args:
+            line_number (int): The line number of this knitout instruction in a program.
+            source (str, optional):
+                The optional program name that this line derives from.
+                This value is only set once (usually when setting the original line number).
+                Defaults to None, not setting the program value.
+        """
+        if self._original_line_number is None:
+            self._original_line_number = line_number
+        if source is not None:
+            self._source_program = source
+        self._line_number = line_number
 
     def __str__(self) -> str:
         return self.comment_str
 
     def __repr__(self) -> str:
-        if self.original_line_number is not None:
+        if self._original_line_number is not None:
             return self.id_str()
         else:
             return str(self)
-
-    def __lt__(self, other: Knitout_Line) -> bool:
-        """
-        Args:
-            other (Knitout_Line): A Knitout_Line object to compare.
-
-        Returns:
-            bool:
-                True if the original line number is less than that of the other knitout line.
-                If original line numbers are not present, instructions without line numbers are less than those with line numbers.
-        """
-        if self.original_line_number is None:
-            return other.original_line_number is not None
-        elif other.original_line_number is None:
-            return False
-        else:
-            return bool(self.original_line_number < other.original_line_number)
 
     def __hash__(self) -> int:
         """
@@ -180,8 +196,9 @@ class Knitout_Line:
         return hash(self._creation_time)
 
     _deepcopy_defaults: ClassVar[dict[str, Any]] = {
-        "original_line_number": None,
-        "line_number": None,
+        "_original_line_number": None,
+        "_line_number": None,
+        "_source_program": None,
     }
 
     def _collect_deepcopy_defaults(self) -> dict[str, Any]:
@@ -229,39 +246,13 @@ class Knitout_Comment_Line(Knitout_Line):
         Args:
             comment (None | str | Knitout_Line | Knitout_Comment_Line): The comment text, or a Knitout_Line to convert to a comment.
         """
-        original_line_number = None
-        if isinstance(comment, Knitout_Line):
-            original_line_number = comment.original_line_number
-            comment = str(Knitout_Comment_Line.comment_str) if isinstance(comment, Knitout_Comment_Line) else f"No-Op:\t{comment}".strip()
-        super().__init__(comment, interrupts_carriage_pass=False)
-        if original_line_number is not None:
-            self.original_line_number = original_line_number
+        comment_str = (str(Knitout_Comment_Line.comment_str) if isinstance(comment, Knitout_Comment_Line) else f"No-Op:\t{comment}".strip()) if isinstance(comment, Knitout_Line) else comment
+        super().__init__(comment_str)
+        if isinstance(comment, Knitout_Line) and comment.has_line_number:
+            self.set_line(comment.line_number, comment.source_program)
 
     def execute(self, machine_state: Knitout_Knitting_Machine) -> bool:
         return True
-
-
-class Yarn_Header_Comment(Knitout_Comment_Line):
-    def __init__(self, carrier_id: int, color: str, comment: str | None = None):
-        """
-
-        Args:
-            carrier_id (int): The id of the yarn-carrier being assigned a yarn value.
-            color (str): The color of the yarn being assigned a yarn value.
-            comment (str, optional): Additional details in the comments. Defaults to no comment.
-        """
-        self._yarn_properties: Yarn_Properties = Yarn_Properties(f"carrier+{carrier_id}_yarn", color)
-        self._carrier_id: int = carrier_id
-        self._extra_comment: str = comment if comment is not None else ""
-        super().__init__(self.yarn_comment)
-
-    @property
-    def yarn_comment(self) -> str:
-        """
-        Returns:
-            str: The string representation of the yarn details to be included in the comment.
-        """
-        return f"Yarn-{self._carrier_id}: {self._yarn_properties.color}---{self._extra_comment}"
 
 
 class Knitout_No_Op(Knitout_Comment_Line):
@@ -285,7 +276,9 @@ class Knitout_No_Op(Knitout_Comment_Line):
             comment = f"{comment}; {additional_comment}"
         self.original_instruction: Knitout_Line = no_op_operation
         super().__init__(comment)
-        self.original_line_number = no_op_operation.original_line_number
+
+        if self.original_instruction.has_line_number:
+            self.set_line(self.original_instruction.line_number, self.original_instruction.source_program)
 
     def execute(self, machine_state: Knitout_Knitting_Machine) -> bool:
         return False  # No-Ops do not need to be included in executed knitout code.

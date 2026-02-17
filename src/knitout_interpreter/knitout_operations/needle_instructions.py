@@ -2,7 +2,8 @@
 
 from __future__ import annotations
 
-from typing import Any, ClassVar, TypeVar
+import copy
+from typing import Any, ClassVar, Self, TypeVar
 
 from virtual_knitting_machine.Knitting_Machine import Knitting_Machine
 from virtual_knitting_machine.machine_components.carriage_system.Carriage_Pass_Direction import Carriage_Pass_Direction
@@ -33,7 +34,7 @@ class Needle_Instruction(Knitout_Instruction):
     }
 
     def __init__(self, needle: Needle_Specification, comment: str | None = None, **_kwargs: Any):
-        super().__init__(comment, interrupts_carriage_pass=False)
+        super().__init__(comment)
         self._needle: Needle_Specification = needle
         self._dropped_loops: list[Knitout_Loop] = []
         self._moved_loops: list[Knitout_Loop] = []
@@ -66,6 +67,18 @@ class Needle_Instruction(Knitout_Instruction):
             bool: True if the other instruction can be performed in the same carriage pass as this instruction.
         """
         return isinstance(other_instruction, self.__class__)
+
+    def shift_needle_position(self, delta: int) -> Self:
+        """
+        Args:
+            delta (int): The amount to shift the needle position by.
+
+        Returns:
+            Self: A copy of this instruction with the needle position shifted by the given delta value.
+        """
+        shifted_instruction: Self = copy.deepcopy(self)
+        shifted_instruction._needle += delta
+        return shifted_instruction
 
     @property
     def _dir_str(self) -> str:
@@ -349,6 +362,18 @@ class Two_Needle_Instruction(Needle_Instruction):
         if racking is None:
             raise ValueError(f"No possible racking allows for {self}")
         return racking
+
+    def shift_needle_position(self, delta: int) -> Self:
+        """
+        Args:
+            delta (int): The amount to shift the needle position by.
+
+        Returns:
+            Self: A copy of this instruction with the needle position shifted by the given delta value.
+        """
+        shifted_instruction: Self = super().shift_needle_position(delta)
+        shifted_instruction._needle_2 += delta
+        return shifted_instruction
 
     def _validate_aligned_needle(self, machine_state: Knitout_Knitting_Machine) -> None:
         """

@@ -118,7 +118,7 @@ class In_Instruction(Yarn_Carrier_Instruction):
 
 
 class Inhook_Instruction(Hook_Instruction):
-    instruction_type: ClassVar[Knitout_Instruction_Type] = Knitout_Instruction_Type.In
+    instruction_type: ClassVar[Knitout_Instruction_Type] = Knitout_Instruction_Type.Inhook
 
     def __init__(self, carrier_set: Yarn_Carrier | int, comment: None | str = None):
         super().__init__(carrier_set, comment, requires_clear_inserting_hook=True)

@@ -1,6 +1,13 @@
-S: code_line;
+S: code_line {10}
+	| no_op {9}
+	| break_point {8}
+	| comment_line {7};
 
-code_line: c=code? com=comment?;
+break_point: ";" "BreakPoint" content = comment_content?;
+no_op: ";" "No-Op:" value=instruction com=comment?;
+comment_line: ";" content = comment_content;
+
+code_line: c=code com=comment?;
 
 code: magic_string | header_line | instruction;
 
@@ -15,7 +22,7 @@ header_op: machine_op
 
 machine_op: "Machine" ":" m=identifier;
 gauge_op: "Gauge" ":" g=int_exp;
-yarn_op: "Yarn" "-" cid=int_exp ":" int_exp "-" int_exp color=identifier;
+yarn_op: "Yarn" "-" cid=int_exp ":" int_exp "-"int_exp color=identifier;
 carriers_op: "Carriers" ":" CS=carrier_set;
 position_op: "Position" ":" p=identifier;
 width_op: "Width" ":" w=int_exp;
@@ -42,7 +49,7 @@ outhook_op: "outhook" c=int_exp;
 rack_op: "rack" R=float_exp ;
 knit_op: "knit" D=direction N=needle_id CS=carrier_set;
 tuck_op: "tuck" D=direction N=needle_id CS=carrier_set;
-split_op: "split" D=direction N=needle_id N2=needle_id CS=carrier_set ;
+split_op: "split" D=direction N=needle_id N2=needle_id CS=carrier_set;
 drop_op: "drop" N=needle_id ;
 xfer_op: "xfer" N=needle_id N2=needle_id ;
 miss_op: "miss" D=direction N=needle_id CS=carrier_set;
@@ -55,6 +62,8 @@ direction: "+" | "-";
 carrier_set: carriers=int_exp+;
 
 comment: ";" content = comment_content? {1};
+
+
 
 terminals
 

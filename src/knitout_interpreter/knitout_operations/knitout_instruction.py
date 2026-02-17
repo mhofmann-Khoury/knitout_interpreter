@@ -174,9 +174,10 @@ class Knitout_Instruction(Knitout_Line):
     """Superclass for knitout operations."""
 
     instruction_type: ClassVar[Knitout_Instruction_Type]
+    interrupts_carriage_pass: ClassVar[bool] = True
 
-    def __init__(self, comment: str | None, interrupts_carriage_pass: bool = True):
-        super().__init__(comment, interrupts_carriage_pass=interrupts_carriage_pass)
+    def __init__(self, comment: str | None):
+        super().__init__(comment)
 
     def __str__(self) -> str:
         return f"{self.instruction_type}{self.comment_str}"

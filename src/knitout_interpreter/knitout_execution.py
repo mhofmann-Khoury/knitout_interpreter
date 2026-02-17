@@ -288,26 +288,26 @@ class Knitout_Executer(Machine_Component[Knitout_LoopT]):
         Args:
             instruction (Knitout_Instruction | Knitout_Comment_Line): The instruction to take a snapshot of.
         """
-        if instruction.original_line_number is not None and instruction.original_line_number in self._snapshot_targets:
+        if instruction.has_line_number and instruction.original_line_number in self._snapshot_targets:
             self.snapshots[instruction.original_line_number] = Knitting_Machine_Snapshot[Knitout_LoopT](self.knitting_machine)
 
     @debug_knitout_instruction
     def _add_non_executable_instruction_to_execution(self, instruction: Knitout_Instruction | Knitout_Comment_Line) -> None:
         self._take_snapshot(instruction)
-        self.executed_instructions.append(instruction)
+        self.executed_instructions.append_line(instruction)
 
     @debug_knitout_instruction
     def _execute_and_add_instruction(self, instruction: Knitout_Instruction | Knitout_Comment_Line) -> None:
         if isinstance(instruction, (Knitout_Comment_Line | Pause_Instruction)):
-            self.executed_instructions.append(instruction)
+            self.executed_instructions.append_line(instruction)
         else:
             updated_machine = instruction.execute(self.knitting_machine)
             if updated_machine:
                 if not isinstance(instruction, (Needle_Instruction, Knitout_Comment_Line)):  # Not in a carriage pass and not a comment, so add this to the process on its own.
                     self.process.append(instruction)
-                self.executed_instructions.append(instruction)
-            elif instruction.original_line_number is not None:  # Didn't update but was in the original program, so convert it to a no-op comment
-                self.executed_instructions.append(Knitout_No_Op(instruction))
+                self.executed_instructions.append_line(instruction)
+            elif instruction.has_line_number:  # Didn't update but was in the original program, so convert it to a no-op comment
+                self.executed_instructions.append_line(Knitout_No_Op(instruction))
         self._take_snapshot(instruction)
 
     def _process_next_instruction(self, instruction: Knitout_Instruction | Knitout_Comment_Line) -> None:

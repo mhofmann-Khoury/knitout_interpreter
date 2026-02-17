@@ -16,14 +16,13 @@ class TestKnitout_Line(TestCase):
 
     def test_deep_copy_simple_type(self):
         version_line = Knitout_Version_Line(version=2)
-        version_line.original_line_number = 1
-        version_line.line_number = 2
+        version_line.set_line(1)
+        version_line.set_line(2)
         copy_line = copy.deepcopy(version_line)
         self.assertTrue(isinstance(copy_line, Knitout_Version_Line))
         self.assertEqual(version_line.version, copy_line.version)
         self.assertLess(version_line._creation_time, copy_line._creation_time)
-        self.assertIsNone(copy_line.original_line_number)
-        self.assertIsNone(copy_line.line_number)
+        self.assertFalse(copy_line.has_line_number)
         self.assertEqual(1, version_line.original_line_number)
         self.assertEqual(2, version_line.line_number)
 

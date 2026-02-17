@@ -12,7 +12,7 @@ import knitout_interpreter
 from knitout_interpreter.knitout_errors.Knitout_Error import Incomplete_Knitout_Line_Error, Knitout_ParseError
 from knitout_interpreter.knitout_execution_structures.knitout_program import Knitout_Program
 from knitout_interpreter.knitout_language.knitout_actions import action
-from knitout_interpreter.knitout_operations.Knitout_Line import Knitout_BreakPoint, Knitout_Comment_Line, Knitout_Line, Knitout_No_Op
+from knitout_interpreter.knitout_operations.Knitout_Line import Knitout_Line
 
 
 class Knitout_Parser:
@@ -72,52 +72,7 @@ class Knitout_Parser:
                     raise Incomplete_Knitout_Line_Error(i, line) from None
                 else:
                     codes.append(code)
-        codes_with_no_ops = [self.parse_to_no_op(code) if isinstance(code, Knitout_Comment_Line) else code for code in codes]
-        codes_with_bp = [self.parse_to_breakpoint(code) if isinstance(code, Knitout_Comment_Line) else code for code in codes_with_no_ops]
-        return Knitout_Program(codes_with_bp)
-
-    @staticmethod
-    def parse_to_no_op(comment_line: Knitout_Comment_Line) -> Knitout_Comment_Line | Knitout_No_Op:
-        """
-        Args:
-            comment_line (Knitout_Comment_Line): The comment line to convert to a no-op comment.
-
-        Returns:
-            Knitout_Comment_Line | Knitout_No_Op: The no-op line formed from this comment line or the original comment line if it cannot be converted to a no-op comment.
-        """
-        if comment_line.comment is None or isinstance(comment_line, Knitout_No_Op):
-            return comment_line
-        index_start = comment_line.comment.find(Knitout_No_Op.NO_OP_TERM)
-        if index_start == -1:
-            return comment_line
-        index_start += len(Knitout_No_Op.NO_OP_TERM)
-        lines = parse_knitout(comment_line.comment[index_start:], pattern_is_file=False)
-        if len(lines) == 0:
-            return comment_line
-        else:
-            assert len(lines) == 1
-            no_op = Knitout_No_Op(lines[0])
-            no_op.original_line_number = comment_line.original_line_number
-            return no_op
-
-    @staticmethod
-    def parse_to_breakpoint(comment_line: Knitout_Comment_Line) -> Knitout_Comment_Line | Knitout_BreakPoint:
-        """
-        Args:
-            comment_line (Knitout_Comment_Line): The comment line to convert to a breakpoint comment.
-
-        Returns:
-            Knitout_Comment_Line | Knitout_BreakPoint: The breakpoint line formed from this comment line or the original comment line if it cannot be converted to a breakpoint.
-        """
-        if comment_line.comment is None or isinstance(comment_line, (Knitout_BreakPoint, Knitout_No_Op)):
-            return comment_line
-        index_start = comment_line.comment.find(Knitout_BreakPoint.BP_TERM)
-        if index_start == -1:
-            return comment_line
-        index_start += len(Knitout_BreakPoint.BP_TERM)
-        bp = Knitout_BreakPoint(comment_line.comment[index_start:])
-        bp.original_line_number = comment_line.original_line_number
-        return bp
+        return Knitout_Program(codes)
 
 
 def parse_knitout(pattern: str, pattern_is_file: bool = False) -> Knitout_Program:

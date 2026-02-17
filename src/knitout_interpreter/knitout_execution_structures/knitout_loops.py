@@ -5,6 +5,7 @@ from __future__ import annotations
 from typing import TYPE_CHECKING, Any, Self
 
 from knit_graphs.Loop import Loop
+from virtual_knitting_machine.machine_components.carriage_system.Carriage_Pass_Direction import Carriage_Pass_Direction
 from virtual_knitting_machine.machine_components.needles.Needle import Needle
 from virtual_knitting_machine.machine_constructed_knit_graph.Machine_Knit_Loop import Machine_Knit_Loop
 from virtual_knitting_machine.machine_constructed_knit_graph.Machine_Knit_Yarn import Machine_Knit_Yarn
@@ -54,6 +55,14 @@ class Knitout_Loop(Machine_Knit_Loop):
             return self._transfer_history[-1]
         else:
             return self.source_instruction
+
+    @property
+    def forming_carriage_direction(self) -> Carriage_Pass_Direction:
+        """
+        Returns:
+            Carriage_Pass_Direction: The direction that this loop was formed in.
+        """
+        return self.source_instruction.direction
 
     def set_source(self, instruction: Loop_Making_Instruction) -> None:
         """

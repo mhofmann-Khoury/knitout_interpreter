@@ -12,7 +12,8 @@ from virtual_knitting_machine.machine_components.yarn_management.Yarn_Carrier_Se
 
 from knitout_interpreter.knitout_operations.carrier_instructions import In_Instruction, Inhook_Instruction, Out_Instruction, Outhook_Instruction, Releasehook_Instruction
 from knitout_interpreter.knitout_operations.Header_Line import Carriers_Header_Line, Gauge_Header_Line, Knitout_Header_Line, Knitout_Version_Line, Machine_Header_Line, Position_Header_Line
-from knitout_interpreter.knitout_operations.Knitout_Line import Knitout_Comment_Line, Knitout_Line, Yarn_Header_Comment
+from knitout_interpreter.knitout_operations.knitout_instruction import Knitout_Instruction
+from knitout_interpreter.knitout_operations.Knitout_Line import Knitout_BreakPoint, Knitout_Comment_Line, Knitout_Line, Knitout_No_Op
 from knitout_interpreter.knitout_operations.needle_instructions import Drop_Instruction, Kick_Instruction, Knit_Instruction, Miss_Instruction, Split_Instruction, Tuck_Instruction, Xfer_Instruction
 from knitout_interpreter.knitout_operations.Pause_Instruction import Pause_Instruction
 from knitout_interpreter.knitout_operations.Rack_Instruction import Rack_Instruction
@@ -36,6 +37,37 @@ def typed_action(func: F) -> F:
 
 
 @typed_action
+def no_op(_: LRStackNode, __: list, value: Knitout_Instruction, com: str | None) -> Knitout_Comment_Line:
+    """Extracts the content of a no op comment
+
+    Args:
+        _ (LRStackNode): The stack node element being processed by this action.
+        __ (list): A list of values found for this action.
+        value (Knitout_Instruction): The no-op commented instruction.
+        com (str | None): Additional comment to the instruction
+
+    Returns:
+        Knitout_Comment_Line: The No-op comment for the given instruction.
+    """
+    return Knitout_No_Op(value, additional_comment=com)
+
+
+@typed_action
+def break_point(_: LRStackNode, __: list, content: str | None) -> Knitout_BreakPoint:
+    """Extracts the content of a break point with a comment.
+
+    Args:
+        _ (LRStackNode): The stack node element being processed by this action.
+        __ (list): A list of values found for this action.
+        content (str | None): The content of the comment of the breakpoint.
+
+    Returns:
+        Knitout_BreakPoint: The breakpoint.
+    """
+    return Knitout_BreakPoint(content)
+
+
+@typed_action
 def comment(_: LRStackNode, __: list, content: str | None) -> str | None:
     """Extracts the content of a comment.
 
@@ -48,6 +80,21 @@ def comment(_: LRStackNode, __: list, content: str | None) -> str | None:
         str | None: The content of the comment.
     """
     return content
+
+
+@typed_action
+def comment_line(_: LRStackNode, __: list, content: str) -> Knitout_Comment_Line:
+    """Extracts the content of a comment.
+
+    Args:
+        _ (LRStackNode): The stack node element being processed by this action.
+        __ (list): A list of values found for this action.
+        content (str): The content of the comment.
+
+    Returns:
+        Knitout_Comment_Line: The comment line.
+    """
+    return Knitout_Comment_Line(content)
 
 
 @typed_action
@@ -68,7 +115,10 @@ def code_line(_: LRStackNode, __: list, c: Knitout_Line | None, com: str | None)
             return None
         c = Knitout_Comment_Line(comment=com)
     if com is not None:
-        c.comment = com
+        if c.comment is not None:
+            c.comment += com
+        else:
+            c.comment = com
     return c
 
 
@@ -133,7 +183,7 @@ def gauge_op(_: LRStackNode, __: list, g: int) -> Gauge_Header_Line:
 
 
 @typed_action
-def yarn_op(_: LRStackNode, __: list, cid: int, color: str) -> Yarn_Header_Comment:
+def yarn_op(_: LRStackNode, __: list, cid: int, color: str) -> Knitout_Comment_Line:
     """Creates a yarn header line.
 
     Args:
@@ -143,9 +193,9 @@ def yarn_op(_: LRStackNode, __: list, cid: int, color: str) -> Yarn_Header_Comme
         color: The yarn color.
 
     Returns:
-        Yarn declaration.
+        Comment of yarn declaration.
     """
-    return Yarn_Header_Comment(cid, color)
+    return Knitout_Comment_Line(f"Yarn-{cid}-{color}")
 
 
 @typed_action

@@ -4,6 +4,7 @@ from typing import cast
 from unittest import TestCase
 
 from knitout_interpreter.knitout_language.Knitout_Parser import parse_knitout
+from knitout_interpreter.knitout_operations.carrier_instructions import Inhook_Instruction
 from knitout_interpreter.knitout_operations.Knitout_Line import Knitout_BreakPoint, Knitout_No_Op
 from knitout_interpreter.knitout_operations.Rack_Instruction import Rack_Instruction
 
@@ -108,6 +109,7 @@ class TestKnitout_Parser(TestCase):
             releasehook 5"""
         )
         self.assertIsInstance(codes[0], Knitout_No_Op)
+        self.assertIsInstance(codes[0].original_instruction, Inhook_Instruction)
         self.assertIsInstance(codes[3], Knitout_No_Op)
 
     def test_breakpoints(self):
