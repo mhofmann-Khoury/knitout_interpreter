@@ -280,6 +280,7 @@ class Carriage_Pass(Generic[Pass_Instruction_Type]):
             * The instruction's needle cannot already be used in this pass.
             * The instruction must be of a compatible type with the instructions in this pass.
             * If the instruction is directed and uses a yarn carrier, these values must match.
+
                 * If the pass is all-needle knit and the values may be on the same slot (i.e, front and back bed).
                 * The slot of this instruction must come after the slot of the last instruction.
         """

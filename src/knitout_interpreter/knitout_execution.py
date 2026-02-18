@@ -3,7 +3,7 @@
 from __future__ import annotations
 
 import warnings
-from collections.abc import Sequence
+from collections.abc import Iterable, Sequence
 from typing import TYPE_CHECKING, TypeVar
 
 from knit_graphs.Knit_Graph import Knit_Graph
@@ -11,6 +11,7 @@ from virtual_knitting_machine.Knitting_Machine import Knitting_Machine
 from virtual_knitting_machine.Knitting_Machine_Snapshot import Knitting_Machine_Snapshot
 from virtual_knitting_machine.machine_components.carriage_system.Carriage_Pass_Direction import Carriage_Pass_Direction
 from virtual_knitting_machine.machine_components.machine_component_protocol import Machine_Component
+from virtual_knitting_machine.machine_state_violation_handling.machine_state_violations import Violation, ViolationAction, ViolationResponse
 
 from knitout_interpreter._warning_stack_level_helper import get_user_warning_stack_level_from_knitout_interpreter_package
 from knitout_interpreter.debugger.debug_decorator import debug_knitout_instruction
@@ -53,6 +54,7 @@ class Knitout_Executer(Machine_Component[Knitout_LoopT]):
         knitting_machine: Knitout_Knitting_Machine[Knitout_LoopT] | Knitout_Machine_Specification | None = None,
         debugger: Knitout_Debugger | None = None,
         snapshot_targets: Sequence[int] | set[int] | None = None,
+        relax_violations: bool | Iterable[Violation] = False,
         knitout_version: int = 2,
     ):
         """Initialize the knitout executer.
@@ -62,6 +64,7 @@ class Knitout_Executer(Machine_Component[Knitout_LoopT]):
             knitting_machine (Knitting_Machine, optional): The virtual knitting machine to execute instructions on. Defaults to the default Knitting Machine with no prior operations.
             debugger (Knitout_Debugger, optional): The debugger to attach to this knitout execution process. Defaults to having no debugger.
             snapshot_targets (Sequence[int] | set[int], optional): The line numbers to create machine snapshots from. Defaults to no snapshot targets.
+            relax_violations (bool | Iterable[Violation], optional): If True, all violations are relaxed. If violations are given, those violations are relaxed. Defaults to False (full validation).
             knitout_version (int, optional): The knitout version to use. Defaults to 2.
 
         Raises:
@@ -79,6 +82,10 @@ class Knitout_Executer(Machine_Component[Knitout_LoopT]):
         else:
             self.executed_header.extract_header(self.knitout_program)
             self._knitting_machine: Knitout_Knitting_Machine[Knitout_LoopT] = Knitout_Knitting_Machine[Knitout_LoopT](machine_specification=self.executed_header.specification)
+        if not isinstance(relax_violations, bool):
+            self.relax_validation_policy(relax_violations)
+        elif relax_violations:
+            self.relax_validation_policy()
         self.debugger: Knitout_Debugger | None = None
         if debugger is not None:
             self.attach_debugger(debugger)
@@ -232,6 +239,18 @@ class Knitout_Executer(Machine_Component[Knitout_LoopT]):
         if remove_existing_snapshot and target_line in self.snapshots:
             del self.snapshots[target_line]
 
+    def relax_validation_policy(self, violations: Iterable[Violation] = Violation, include_warnings: bool = False) -> None:
+        """
+        Update the Knitting_Machine_Error_Policy of the execution knitting machine to relax the given violations.
+
+        Args:
+            violations (Sequence[Violation], optional): The violations to relax. Defaults to all violations.
+            include_warnings (bool, optional): If True, warning will be raised for violations. Defaults to False.
+        """
+        action: ViolationAction = ViolationAction.WARN if include_warnings else ViolationAction.IGNORE
+        for violation in violations:
+            self.knitting_machine.set_response_for(violation, ViolationResponse(action))
+
     def test_and_organize_instructions(self) -> None:
         """Test the given execution and organize the instructions in the class structure.
 
@@ -356,6 +375,7 @@ def execute_knitout(
     knitout_version: int = 2,
     debugger: Knitout_Debugger | None = None,
     write_to_file: str | None = None,
+    relax_violations: bool | Iterable[Violation] = False,
 ) -> tuple[Knitout_Program, Knitting_Machine, Knit_Graph]:
     """
     Executes, verifies, and organizes the given knitout program and optionally writes it to a file.
@@ -369,6 +389,7 @@ def execute_knitout(
         knitout_version (int, optional): The knitout version to execute in and write out. Defaults to 2.
         debugger (Knitout_Debugger, optional): An optional debugger to attach to the knitout process. Defaults to no debugger.
         write_to_file (str, optional): The name of the file to write knitout instructions to. Defaults to not writing a knitout file.
+        relax_violations (bool | Iterable[Violation], optional): If True, all violations are relaxed. If violations are given, those violations are relaxed. Defaults to False (full validation).
 
     Returns:
         tuple[Knitout_Program, Knitting_Machine, Knit_Graph]:
@@ -377,7 +398,8 @@ def execute_knitout(
             * The knitting machine after completion of the process.
             * The knitgraph graph after completion of the process.
     """
-    executer: Knitout_Executer[Knitout_LoopT] = Knitout_Executer(knitout_program, knitting_machine, debugger=debugger, knitout_version=knitout_version)
+    executer: Knitout_Executer[Knitout_LoopT] = Knitout_Executer(knitout_program, knitting_machine, debugger=debugger, relax_violations=relax_violations, knitout_version=knitout_version)
+
     if write_to_file is not None:
         executer.write_executed_instructions(write_to_file)
     return executer.executed_instructions, executer.knitting_machine, executer.resulting_knit_graph

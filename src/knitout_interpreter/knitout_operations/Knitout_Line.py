@@ -166,6 +166,7 @@ class Knitout_Line:
         """
         Set the line number of this instruction.
         If this is the first time that the instruction's line was set, the value will become the original line number.
+
         Args:
             line_number (int): The line number of this knitout instruction in a program.
             source (str, optional):
@@ -229,6 +230,7 @@ class Knitout_Line:
     def _next_line() -> int:
         """
         Tick up the count of knitout_lines instantiated.
+
         Returns:
             int: The current line count before the number ticked up.
         """

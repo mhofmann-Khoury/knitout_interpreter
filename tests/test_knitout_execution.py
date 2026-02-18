@@ -85,3 +85,6 @@ class TestKnitout_Executer(TestCase):
 
     def test_cable(self):
         run_knitout(load_test_resource("cable.k"), debugger=self.debugger)
+
+    def test_no_violations(self):
+        execution, machine, knit_graph = run_knitout(load_test_resource("bad_ko.k"), debugger=self.debugger, relax_violations=True)
