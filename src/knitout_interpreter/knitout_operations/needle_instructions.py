@@ -93,7 +93,7 @@ class Needle_Instruction(Knitout_Instruction):
         return ""
 
     def __str__(self) -> str:
-        return f"{self.instruction_type}{self._dir_str} {self.needle}{self._n2_str}{self._carrier_str}{self.comment_str}"
+        return f"{self.instruction_type} {self._dir_str} {self.needle}{self._n2_str}{self._carrier_str}{self.comment_str}"
 
 
 class Dropping_Instruction(Needle_Instruction):
