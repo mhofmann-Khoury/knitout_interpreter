@@ -33,6 +33,7 @@ class TestKnitout_Line(TestCase):
         knitting_machine.set_response_for(Violation.INACTIVE_CARRIER, ViolationResponse(ViolationAction.IGNORE, proceed_with_operation=True))
         tuck_line.execute(knitting_machine)
         self.assertEqual(1, len(tuck_line.made_loops))
+        self.assertIsInstance(tuck_line.made_loops[0], Knitout_Loop)
         copy_line = copy.deepcopy(tuck_line)
         self.assertTrue(isinstance(copy_line, Tuck_Instruction))
         self.assertEqual(tuck_line.needle, copy_line.needle)

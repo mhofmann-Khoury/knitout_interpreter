@@ -12,7 +12,7 @@ Knitout_LoopT = TypeVar("Knitout_LoopT", bound=Knitout_Loop)
 
 
 @dataclass(frozen=True)
-class Knitout_Machine_Specification(Knitting_Machine_Specification):
+class Knitout_Machine_Specification(Knitting_Machine_Specification[Knitout_LoopT]):
     """Subclass of Knitout_Machine_Specification that generates Knitout_Loops"""
 
     loop_class: type[Knitout_Loop] = Knitout_Loop
