@@ -97,7 +97,7 @@ importlib_resources = ">=6.5" # For loading parglar grammer file
 # These packages are only needed during development and testing
 [tool.poetry.group.dev.dependencies]
 coverage = "^7.3.0"
-black = "^24.10.0"
+black = "^26.5.1"
 ruff = "^0.7.4"
 isort = "^5.13.2"
 mypy = "^1.13.0"
