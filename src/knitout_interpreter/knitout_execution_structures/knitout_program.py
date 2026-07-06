@@ -32,7 +32,7 @@ class Knitout_Program(Sequence[Knitout_Line]):
             if isinstance(line, Knitout_BreakPoint):
                 next_instruction = next((next_line for next_line in self._original_program[i + 1 :] if isinstance(next_line, Knitout_Instruction)), None)
                 if isinstance(next_instruction, Knitout_Instruction):
-                    assert next_instruction.original_line_number is not None
+                    assert next_instruction.has_line_number
                     self._instruction_after_breakpoint[next_instruction.original_line_number] = next_instruction
 
     @property
@@ -99,7 +99,7 @@ class Knitout_Program(Sequence[Knitout_Line]):
         Returns:
             bool: True if the given instruction follows a breakpoint in the original program.
         """
-        return instruction.original_line_number in self._instruction_after_breakpoint
+        return instruction.has_line_number and instruction.original_line_number in self._instruction_after_breakpoint
 
     def next_loop_forming_instruction_index(self, index: int) -> int | None:
         """

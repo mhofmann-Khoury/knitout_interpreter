@@ -54,7 +54,7 @@ class Knitout_Machine_StateError(Knitout_Error):
             error (Exception): An exception raised during the execution of a knitout program.
             line_number (int, optional): The line number of the instruction. Defaults to the original line number of the given knitout line.
         """
-        if line_number is None:
+        if line_number is None and knitout_line.has_line_number:
             line_number = knitout_line.original_line_number
         self.line_number: int | None = line_number
         self.knitout_line: Knitout_Line = knitout_line

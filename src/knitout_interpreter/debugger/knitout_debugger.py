@@ -409,7 +409,7 @@ class Knitout_Debugger:
             # These variables will be visible in the debugger
             # noinspection PyUnusedLocal
             knitout_debugger: Knitout_Debugger = self  # noqa: F841
-            knitout_line: int = knitout_instruction.original_line_number if knitout_instruction.original_line_number is not None else self.current_line
+            knitout_line: int = knitout_instruction.original_line_number if knitout_instruction.has_line_number is not None else self.current_line
             knitting_machine = self._executer.knitting_machine
             if self.taking_snapshots:
                 self.machine_snapshots[knitout_line] = Knitting_Machine_Snapshot(knitting_machine)
